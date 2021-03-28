@@ -1,7 +1,7 @@
 .App {
   text-align: center;
 
-  background-color: #606060;
+  background-color: #696969;
   color: white;
 
   height: 100vh;
@@ -12,6 +12,16 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
+}
+
+.TopBar {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+
+  background-color: #4f4f4f;
+  width: 100%;
 }
 
 .SearchContainer {
@@ -52,14 +62,17 @@
 }
 
 .ResultBox {
-  background-color: #454545;
+  background-color: #3c3c3c;
   color: white;
   border: 1px lightgray solid;
   border-radius: 25px;
   font-size: 20px;
   padding: 10px;
+
   display: flex;
   flex-direction: row;
+
+  margin-bottom: 20px;
 }
 
 .ResultType {
@@ -68,7 +81,68 @@
   padding-right: 6px;
 }
 
-.MainDesktop {
-  border: 1px lightgray solid;
+.Divider {
+  border-top: 4px black solid;
   width: 100%;
+  margin-bottom: 20px;
+}
+
+.MainDesktop {
+  width: 95%;
+  height: 100%;
+
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.DesktopBox {
+  background-color: #3c3c3c;
+  color: white;
+  border: 1px lightgray solid;
+  border-radius: 25px;
+  font-size: 20px;
+  padding: 10px;
+
+  display: flex;
+  flex-direction: column;
+
+  margin-right: 10px;
+}
+
+.DesktopTitle {
+  background-color: #1f7300;
+  color: black;
+  font-weight: bold;
+  width: 100%;
+  align-items: center;
+  border-radius: 7px;
+}
+
+.Link {
+  color: orange;
+  padding-left: 8px;
+}
+
+.LinkCheck {
+  width: 20px;
+  height: 20px;
+}
+
+.LinkLine {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.OpenLinksButton {
+  margin-top: 20px;
+  width: 100%;
+  height: 30px;
+  font-size: 20px;
+  font-weight: bold;
+  border: 1px black solid;
+  border-radius: 7px;
 }

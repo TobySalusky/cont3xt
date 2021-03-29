@@ -11,8 +11,8 @@ function SearchBar(props) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
 
     const typeValidation = {
         phone: /^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$/,
-        domain: /^[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)+$/,
-        email: /^$/, // TODO:
+        domain: /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/,
+        email: /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-](\.?[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-])+@([a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+)$/,
         ip: /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/,
     }
 
@@ -22,8 +22,8 @@ function SearchBar(props) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
         let type = 'Text';
         if (typeValidation.phone.test(query)) type = 'PhoneNumber'
         else if (typeValidation.ip.test(query)) type = 'IP'
+        else if (typeValidation.email.test(query)) type = 'Email'
         else if (typeValidation.domain.test(query)) type = 'Domain'
-
 
         if (query !== '') {
             props.setResults((
@@ -40,7 +40,7 @@ function SearchBar(props) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
 
     return (
         <form className="SearchContainer" onSubmit={getQuery}>
-            <input className="SearchBar" type="text" value={search} onChange={e => setSearch(e.target.value)}/>
+            <input autoFocus className="SearchBar" type="text" value={search} onChange={e => setSearch(e.target.value)}/>
             <button className="SearchSubmit" type="submit">
                 Get Cont3xt
             </button>

@@ -11,42 +11,47 @@ function EnterpriseLinks(props) {
 
     useEffect(() => { // onMount
 
+        const indicator = props.data.indicator;
+        const numDays = props.data.numDays;
+        const startDate = props.data.startDate;
 
-        let indicator = props.indicator;
-        if (props.type === 'Domain') {
-            const genLinks = [
-                ['PT Domain Lookup', "https://community.riskiq.com/research?query="+indicator],
-            ]
+        let genLinks;
+        switch (props.data.type) {
+            case 'Domain':
+                genLinks = [
+                    ['Censys Domain Lookup', "https://censys.io/domain?q="+indicator],
+                ]
+                break;
+            case 'IP':
+                genLinks = [
+                    ['AlienVault IP','https://otx.alienvault.com/indicator/ip/'+indicator],
+                ]
+                break;
+            default:
+                genLinks = []
+                break;
+        }
 
-            const genActive = []
-            genLinks.map(() => {
-                genActive.push(true);
-            })
-
-            setLinks(genLinks)
-            setActive(genActive)
-        } else if (props.type === 'IP') {
-            const genLinks = [
-                ['AlienVault IP','https://otx.alienvault.com/indicator/ip/'+indicator],
-            ]
-
-            const genActive = []
-            genLinks.map(() => {
-                genActive.push(true);
-            })
-
-            setLinks(genLinks)
-            setActive(genActive)
-        } else {
+        if (genLinks.length === 0) {
             setLinks([])
             setActive([])
+        } else {
+
+            const genActive = []
+            genLinks.map(() => {
+                genActive.push(true);
+            })
+
+            setLinks(genLinks)
+            setActive(genActive)
         }
+
     }, [props.listen]);
 
     const setActiveIndex = (i, isActive) => {
         const genActive = [];
         active.map((thisActive, index) => {
-            genActive.push((i == index) ? isActive : thisActive);
+            genActive.push((i === index) ? isActive : thisActive);
         })
         setActive(genActive);
     }
@@ -62,11 +67,11 @@ function EnterpriseLinks(props) {
     return (
         <div className="DesktopBox">
             <div className="DesktopTitle">
-                EnterpriseLinks
+                Enterprise Links
             </div>
             {links.map((linkData, i) => (
                 <div className="LinkLine">
-                    <input className="LinkCheck" type="checkbox" checked={active[i]} onChange={e => setActiveIndex(i, e.target.checked)}></input>
+                    <input className="LinkCheck" type="checkbox" checked={active[i]} onChange={e => setActiveIndex(i, e.target.checked)}/>
                     <a className="Link" target="_blank" href={linkData[1]}>{linkData[0]}</a>
                 </div>
             ))}

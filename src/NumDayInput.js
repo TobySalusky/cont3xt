@@ -7,7 +7,8 @@ import { useState, useEffect } from 'react';
 function NumDayInput(props) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
 
     return (
-        <div>
+        <div className="DayContainer">
+            <p>Days Back:</p>
             <input className="NumDaysInput" type="text" value={props.numDays} onChange={e => props.setNumDays(e.target.value)}/>
             <p>{props.startDate}</p>
         </div>

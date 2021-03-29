@@ -12,49 +12,55 @@ function GeneralHunting(props) {
     useEffect(() => { // onMount
 
 
-        let indicator = props.indicator;
-        if (props.type === 'Domain') {
-            const genLinks = [
-                ['PT Domain Lookup', "https://community.riskiq.com/research?query="+indicator],
-                ['Censys Domain Lookup', "https://censys.io/domain?q="+indicator],
-                ['Censys Certificate Lookup', "https://censys.io/certificates?q="+indicator],
-                ['CRT Lookup', "https://crt.sh/?q="+indicator+"&showSQL=Y"],
-                ['AlienVault Domain Lookup', "https://otx.alienvault.com/indicator/domain/"+indicator],
-                ['Domain Tools', "https://whois.domaintools.com/"+indicator],
-                ['Google Safe Browsing', "https://transparencyreport.google.com/safe-browsing/search?url="+indicator],
-                ['Url Scan Search', "https://urlscan.io/search/#"+indicator+"*"],
-                ['Domain Tools History', "https://research.domaintools.com/research/whois-history/search/?q="+indicator],
-            ]
+        const indicator = props.data.indicator;
+        const numDays = props.data.numDays;
+        const startDate = props.data.startDate;
 
-            const genActive = []
-            genLinks.map(() => {
-                genActive.push(true);
-            })
+        let genLinks;
+        switch (props.data.type) {
+            case 'Domain':
+                genLinks = [
+                    ['PT Domain Lookup', "https://community.riskiq.com/research?query="+indicator],
+                    ['Censys Domain Lookup', "https://censys.io/domain?q="+indicator],
+                    ['Censys Certificate Lookup', "https://censys.io/certificates?q="+indicator],
+                    ['CRT Lookup', "https://crt.sh/?q="+indicator+"&showSQL=Y"],
+                    ['AlienVault Domain Lookup', "https://otx.alienvault.com/indicator/domain/"+indicator],
+                    ['Domain Tools', "https://whois.domaintools.com/"+indicator],
+                    ['Google Safe Browsing', "https://transparencyreport.google.com/safe-browsing/search?url="+indicator],
+                    ['Url Scan Search', "https://urlscan.io/search/#"+indicator+"*"],
+                    ['Domain Tools History', "https://research.domaintools.com/research/whois-history/search/?q="+indicator],
+                ]
+                break;
+            case 'IP':
+                genLinks = [
+                    ['AlienVault IP','https://otx.alienvault.com/indicator/ip/'+indicator],
+                ]
+                break;
+            default:
+                genLinks = []
+                break;
+        }
 
-            setLinks(genLinks)
-            setActive(genActive)
-        } else if (props.type === 'IP') {
-            const genLinks = [
-                ['AlienVault IP','https://otx.alienvault.com/indicator/ip/'+indicator],
-            ]
-
-            const genActive = []
-            genLinks.map(() => {
-                genActive.push(true);
-            })
-
-            setLinks(genLinks)
-            setActive(genActive)
-        } else {
+        if (genLinks.length === 0) {
             setLinks([])
             setActive([])
+        } else {
+
+            const genActive = []
+            genLinks.map(() => {
+                genActive.push(true);
+            })
+
+            setLinks(genLinks)
+            setActive(genActive)
         }
+
     }, [props.listen]);
 
     const setActiveIndex = (i, isActive) => {
         const genActive = [];
         active.map((thisActive, index) => {
-            genActive.push((i == index) ? isActive : thisActive);
+            genActive.push((i === index) ? isActive : thisActive);
         })
         setActive(genActive);
     }
@@ -74,7 +80,7 @@ function GeneralHunting(props) {
             </div>
             {links.map((linkData, i) => (
                 <div className="LinkLine">
-                    <input className="LinkCheck" type="checkbox" checked={active[i]} onChange={e => setActiveIndex(i, e.target.checked)}></input>
+                    <input className="LinkCheck" type="checkbox" checked={active[i]} onChange={e => setActiveIndex(i, e.target.checked)}/>
                     <a className="Link" target="_blank" href={linkData[1]}>{linkData[0]}</a>
                 </div>
             ))}

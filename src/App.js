@@ -20,18 +20,23 @@ function App() {
     const [enterpriseLinks, setEnterpriseLinks] = useState([])
 
     useEffect(() => {
-        if (results.length == 0 || results[0][0] === 'Text') {
+        if (results.length === 0) return;
+
+        const data = {
+            type: results[0][0],
+            indicator: results[0][1],
+            numDays,
+            startDate,
+        }
+
+        if (data.type === 'Text') {
             setGeneralHunting();
             setInternalTools();
             setEnterpriseLinks();
         } else {
-            const data = {
-                numDays,
-                startDate
-            }
-            setGeneralHunting(<GeneralHunting type={results[0][0]} indicator={results[0][1]} listen={results}/>)
-            setInternalTools(<InternalTools type={results[0][0]} indicator={results[0][1]} data={data} listen={results}/>)
-            setEnterpriseLinks(<EnterpriseLinks type={results[0][0]} indicator={results[0][1]} listen={results}/>)
+            setGeneralHunting(<GeneralHunting data={data} listen={results}/>)
+            setInternalTools(<InternalTools data={data} listen={results}/>)
+            setEnterpriseLinks(<EnterpriseLinks data={data} listen={results}/>)
         }
     }, [results]);
 
@@ -62,7 +67,7 @@ function App() {
                 </div>
             </div>
 
-            <div className="Divider"></div>
+            <div className="Divider"/>
 
             <div className="MainDesktop">
                 {generalHunting}

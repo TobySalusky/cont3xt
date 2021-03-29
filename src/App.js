@@ -15,9 +15,15 @@ function App() {
     const [startDate, setStartDate] = useState(7)
     const [results, setResults] = useState([])
 
+    const [instance, setInstance] = useState(0)
+
     const [generalHunting, setGeneralHunting] = useState([])
     const [internalTools, setInternalTools] = useState([])
     const [enterpriseLinks, setEnterpriseLinks] = useState([])
+
+    useEffect(() => {
+        setInstance(instance + 1);
+    }, [results, numDays]);
 
     useEffect(() => {
         if (results.length === 0) return;
@@ -34,11 +40,11 @@ function App() {
             setInternalTools();
             setEnterpriseLinks();
         } else {
-            setGeneralHunting(<GeneralHunting data={data} listen={results}/>)
-            setInternalTools(<InternalTools data={data} listen={results}/>)
-            setEnterpriseLinks(<EnterpriseLinks data={data} listen={results}/>)
+            setGeneralHunting(<GeneralHunting data={data} listen={instance}/>)
+            setInternalTools(<InternalTools data={data} listen={instance}/>)
+            setEnterpriseLinks(<EnterpriseLinks data={data} listen={instance}/>)
         }
-    }, [results]);
+    }, [instance]);
 
     useEffect(() => {
         setStartDate(dateNDaysAgo(numDays))

@@ -29,8 +29,9 @@ function App() {
         if (results.length === 0) return;
 
         const data = {
-            type: results[0][0],
-            indicator: results[0][1],
+            type: results[0].type,
+            subType: results[0].subType,
+            indicator: results[0].indicator,
             numDays,
             startDate,
         }
@@ -67,7 +68,7 @@ function App() {
                 <div className="ResultArea">
                     {results.map(result =>
                         (
-                            <ResultsBox resultType={result[0]} indicator={result[1]}/>
+                            <ResultsBox result={result}/>
                         )
                     )}
                 </div>

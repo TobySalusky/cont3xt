@@ -6,8 +6,8 @@ function ResultsBox(props) {
 
     return (
         <div className="ResultBox">
-            <p className="ResultType" style={(props.resultType !== 'Invalid Input') ? {color: 'orange'} : {color: '#FF5C5C'}}>{props.resultType}:</p>
-            <p>{props.indicator}</p>
+            <p className="ResultType" style={{color: 'orange'}}>{props.result.type}{(props.result.subType === 'None') ? '' : '('+props.result.subType+')'}:</p>
+            <p>{props.result.indicator}</p>
         </div>
     );
 }

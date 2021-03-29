@@ -11,9 +11,12 @@ function SearchBar(props) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
 
     const typeValidation = {
         phone: /^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$/,
-        domain: /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/,
+        domain: /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/, //TODO: don't accept hyphen as first or last
         email: /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-](\.?[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-])+@([a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+)$/,
-        ip: /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/,
+        ip: /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/, //TODO: don't accept hyphen as first or last
+        MD5: /^[A-Fa-f0-9]{32}$/,
+        SHA1: /^[A-Fa-f0-9]{40}$/,
+        SHA256: /^[A-Fa-f0-9]{64}$/,
     }
 
     useEffect(() => {
@@ -24,6 +27,9 @@ function SearchBar(props) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
         else if (typeValidation.ip.test(query)) type = 'IP'
         else if (typeValidation.email.test(query)) type = 'Email'
         else if (typeValidation.domain.test(query)) type = 'Domain'
+        else if (typeValidation.MD5.test(query)) type = 'MD5'
+        else if (typeValidation.SHA1.test(query)) type = 'SHA1'
+        else if (typeValidation.SHA256.test(query)) type = 'SHA256'
 
         if (query !== '') {
             props.setResults((

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 
-function GeneralHunting(props) {
+function InternalTools(props) {
 
     const [links, setLinks] = useState([])
     const [active, setActive] = useState([])
@@ -13,17 +13,12 @@ function GeneralHunting(props) {
 
 
         let indicator = props.indicator;
+        let numDays = props.data.numDays;
+        let startDate = props.data.startDate;
         if (props.type === 'Domain') {
             const genLinks = [
                 ['PT Domain Lookup', "https://community.riskiq.com/research?query="+indicator],
-                ['Censys Domain Lookup', "https://censys.io/domain?q="+indicator],
-                ['Censys Certificate Lookup', "https://censys.io/certificates?q="+indicator],
-                ['CRT Lookup', "https://crt.sh/?q="+indicator+"&showSQL=Y"],
-                ['AlienVault Domain Lookup', "https://otx.alienvault.com/indicator/domain/"+indicator],
-                ['Domain Tools', "https://whois.domaintools.com/"+indicator],
-                ['Google Safe Browsing', "https://transparencyreport.google.com/safe-browsing/search?url="+indicator],
-                ['Url Scan Search', "https://urlscan.io/search/#"+indicator+"*"],
-                ['Domain Tools History', "https://research.domaintools.com/research/whois-history/search/?q="+indicator],
+                ['threathole', "http://threathole.com/test?days="+numDays+"&startDate="+startDate],
             ]
 
             const genActive = []
@@ -70,7 +65,7 @@ function GeneralHunting(props) {
     return (
         <div className="DesktopBox">
             <div className="DesktopTitle">
-                General Hunting
+                Internal Tools
             </div>
             {links.map((linkData, i) => (
                 <div className="LinkLine">
@@ -83,4 +78,4 @@ function GeneralHunting(props) {
     );
 }
 
-export default GeneralHunting;
+export default InternalTools;

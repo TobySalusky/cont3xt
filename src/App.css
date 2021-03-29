@@ -34,6 +34,14 @@
   padding-top: 30px;
 }
 
+.InputAreas {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
 .SearchBar {
   width: 80%;
   height: 50px;
@@ -41,6 +49,16 @@
   font-size: 30px;
   border-radius: 10px;
   border: none;
+}
+
+.NumDaysInput {
+  width: 3%;
+  height: 50px;
+  padding: 8px;
+  font-size: 30px;
+  border-radius: 10px;
+  border: none;
+  margin-right: 30px;
 }
 
 .SearchSubmit {

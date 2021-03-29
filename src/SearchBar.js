@@ -13,7 +13,7 @@ function SearchBar(props) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
         phone: /^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$/,
         domain: /^[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)+$/,
         email: /^$/, // TODO:
-        ip: /^$/,
+        ip: /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/,
     }
 
     useEffect(() => {
@@ -21,7 +21,9 @@ function SearchBar(props) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
 
         let type = 'Text';
         if (typeValidation.phone.test(query)) type = 'PhoneNumber'
+        else if (typeValidation.ip.test(query)) type = 'IP'
         else if (typeValidation.domain.test(query)) type = 'Domain'
+
 
         if (query !== '') {
             props.setResults((

@@ -36,15 +36,9 @@ function App() {
             startDate,
         }
 
-        if (data.type === 'Text') {
-            setGeneralHunting();
-            setInternalTools();
-            setEnterpriseLinks();
-        } else {
-            setGeneralHunting(<GeneralHunting data={data} listen={instance}/>)
-            setInternalTools(<InternalTools data={data} listen={instance}/>)
-            setEnterpriseLinks(<EnterpriseLinks data={data} listen={instance}/>)
-        }
+        setGeneralHunting(<GeneralHunting data={data} listen={instance}/>)
+        setInternalTools(<InternalTools data={data} listen={instance}/>)
+        setEnterpriseLinks(<EnterpriseLinks data={data} listen={instance}/>)
     }, [instance]);
 
     useEffect(() => {

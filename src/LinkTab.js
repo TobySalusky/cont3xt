@@ -1,50 +1,28 @@
 import './App.css';
 import { useState, useEffect } from 'react';
+import {fillLinkFormat} from "./LinkGeneration";
 
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 
-function EnterpriseLinks(props) {
+function LinkTab(props) {
 
     const [links, setLinks] = useState([])
     const [active, setActive] = useState([])
 
     useEffect(() => { // onMount
 
-        const indicator = props.data.indicator;
-        const numDays = props.data.numDays;
-        const startDate = props.data.startDate;
+        const linkFormats = props.config(props.data);
 
-        let genLinks;
-        switch (props.data.type) {
-            case 'Domain':
-                genLinks = [
-                    ['Censys Domain Lookup', "https://censys.io/domain?q="+indicator],
-                ]
-                break;
-            case 'IP':
-                genLinks = [
-                    ['AlienVault IP','https://otx.alienvault.com/indicator/ip/'+indicator],
-                ]
-                break;
-            default:
-                genLinks = []
-                break;
-        }
+        const genLinks = []
+        const genActive = []
+        linkFormats.map(linkData => {
+            genLinks.push([linkData[0], fillLinkFormat(linkData[1], props.data)]);
+            genActive.push(true);
+        })
 
-        if (genLinks.length === 0) {
-            setLinks([])
-            setActive([])
-        } else {
-
-            const genActive = []
-            genLinks.map(() => {
-                genActive.push(true);
-            })
-
-            setLinks(genLinks)
-            setActive(genActive)
-        }
+        setLinks(genLinks)
+        setActive(genActive)
 
     }, [props.listen]);
 
@@ -67,7 +45,7 @@ function EnterpriseLinks(props) {
     return (
         <div className="DesktopBox">
             <div className="DesktopTitle">
-                Enterprise Links
+                {props.title}
             </div>
             {links.map((linkData, i) => (
                 <div className="LinkLine">
@@ -80,4 +58,4 @@ function EnterpriseLinks(props) {
     );
 }
 
-export default EnterpriseLinks;
+export default LinkTab;

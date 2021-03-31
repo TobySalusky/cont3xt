@@ -2,10 +2,9 @@ import './App.css';
 import SearchBar from "./SearchBar";
 import ResultsBox from "./ResultsBox";
 import { useState, useEffect } from 'react';
-import GeneralHunting from "./GeneralHunting";
+import LinkTab from "./LinkTab";
 import NumDayInput from "./NumDayInput";
-import InternalTools from "./InternalTools";
-import EnterpriseLinks from "./EnterpriseLinks";
+import {GeneralHunting, InternalTools, EnterpriseLinks} from "./Configurations";
 
 // NOTE: Open All function is blocked unless popup blocking is disable for website (add notice when it doesn't work?)
 
@@ -20,6 +19,11 @@ function App() {
     const [generalHunting, setGeneralHunting] = useState([])
     const [internalTools, setInternalTools] = useState([])
     const [enterpriseLinks, setEnterpriseLinks] = useState([])
+
+    // debug
+    useEffect(() => {
+
+    }, []);
 
     useEffect(() => {
         setInstance(instance + 1);
@@ -36,9 +40,9 @@ function App() {
             startDate,
         }
 
-        setGeneralHunting(<GeneralHunting data={data} listen={instance}/>)
-        setInternalTools(<InternalTools data={data} listen={instance}/>)
-        setEnterpriseLinks(<EnterpriseLinks data={data} listen={instance}/>)
+        setGeneralHunting(<LinkTab title="General Hunting" config={GeneralHunting} data={data} listen={instance}/>)
+        setInternalTools(<LinkTab title="Internal Tools" config={InternalTools} data={data} listen={instance}/>)
+        setEnterpriseLinks(<LinkTab title="Enterprise Links" config={EnterpriseLinks} data={data} listen={instance}/>)
     }, [instance]);
 
     useEffect(() => {

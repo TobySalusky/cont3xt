@@ -7,12 +7,18 @@ import {fillLinkFormat} from "./LinkGeneration";
 
 function LinkTab(props) {
 
+    const [title, setTitle] = useState([])
     const [links, setLinks] = useState([])
     const [active, setActive] = useState([])
 
     useEffect(() => { // onMount
 
-        const linkFormats = props.config(props.data);
+        const configOutput = props.config(props.data);
+        console.log(configOutput)
+        const linkFormats = configOutput.genLinks;
+        console.log(linkFormats)
+
+        setTitle(configOutput.title)
 
         const genLinks = []
         const genActive = []
@@ -45,7 +51,7 @@ function LinkTab(props) {
     return (
         <div className="DesktopBox">
             <div className="DesktopTitle">
-                {props.title}
+                {title}
             </div>
             {links.map((linkData, i) => (
                 <div className="LinkLine">

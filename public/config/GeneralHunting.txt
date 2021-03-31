@@ -1,0 +1,15 @@
+title: General Hunting
+
+Domain:
+"PT Domain Lookup" https://community.riskiq.com/research?query=${indicator}
+"Censys Domain Lookup" https://censys.io/domain?q=${indicator}
+"Censys Certificate Lookup" https://censys.io/certificates?q=${indicator}
+"CRT Lookup" https://crt.sh/?q=${indicator}&showSQL=Y
+"AlienVault Domain Lookup" https://otx.alienvault.com/indicator/domain/${indicator}
+"Domain Tools" https://whois.domaintools.com/${indicator}
+"Google Safe Browsing" https://transparencyreport.google.com/safe-browsing/search?url=${indicator}
+"Url Scan Search" https://urlscan.io/search/#${indicator}*
+"Domain Tools History" https://research.domaintools.com/research/whois-history/search/?q=${indicator}
+
+IP:
+"AlienVault IP" https://otx.alienvault.com/indicator/ip/${indicator}

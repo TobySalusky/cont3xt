@@ -1,0 +1,8 @@
+title: Internal Tools
+
+Domain:
+"PT Domain Lookup" https://community.riskiq.com/research?query=${indicator}
+"threathole" http://threathole.com/test?days=${numDays}&startDate=${startDate}
+
+IP:
+"AlienVault IP" https://otx.alienvault.com/indicator/ip/${indicator}

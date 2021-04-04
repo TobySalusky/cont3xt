@@ -1,12 +1,10 @@
-/* eslint-disable */
-import {loadTxt} from "./FileLoading";
 
 export function readConfig(fullText) {
 
     const lines = fullText.split("\n");
 
     let title = 'Untitled';
-    let linkArrDict = {};
+    let linkDict = {};
 
     let linkArr;
 
@@ -24,9 +22,9 @@ export function readConfig(fullText) {
         } else if (line.endsWith(':')) { // Starting typed segments
 
             linkArr = [];
-            linkArrDict[line.substring(0, line.length - 1)] = linkArr;
+            linkDict[line.substring(0, line.length - 1)] = linkArr;
 
-        } else if (Object.keys(linkArrDict).length > 0 && line.startsWith('\"')) {
+        } else if (Object.keys(linkDict).length > 0 && line.startsWith('\"')) {
             let lastQuote = line.lastIndexOf('\"');
             let name = line.substring(1, lastQuote).trim();
             let formatLink = line.substring(lastQuote + 1).trim();
@@ -34,15 +32,23 @@ export function readConfig(fullText) {
         }
     }
 
+    return {title, linkDict};
+}
+
+export function createConfig(fullText) {
+
+    const {title, linkDict} = readConfig(fullText)
+
     return (data) => {
         let genLinks = []
-        if (data.type in linkArrDict) {
-            genLinks =linkArrDict[data.type];
+        if (data.type in linkDict) {
+            genLinks = linkDict[data.type];
         }
         return {title, genLinks};
     }
 }
 
+// deprecated
 /*export function GeneralHunting(data) {
     let genLinks;
     switch (data.type) {

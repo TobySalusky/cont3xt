@@ -1,98 +1,26 @@
 import './App.css';
-import SearchBar from "./SearchBar";
-import ResultsBox from "./ResultsBox";
-import { useState, useEffect } from 'react';
-import LinkTab from "./LinkTab";
-import NumDayInput from "./NumDayInput";
-import {GeneralHunting, InternalTools, EnterpriseLinks, loadConfig, readConfig} from "./Configurations";
+import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
+import Home from "./Home";
+import Edit from "./Edit";
+import Loader from "./Loader";
+import ConfigSelectPage from "./ConfigSelectPage";
+import GlobalProvider from "./GlobalContext";
 
-// NOTE: Open All function is blocked unless popup blocking is disable for website (add notice when it doesn't work?)
 
 function App() {
 
-    const [numDays, setNumDays] = useState(7)
-    const [startDate, setStartDate] = useState(7)
-    const [results, setResults] = useState([])
-
-    const [instance, setInstance] = useState(0)
-
-    const [desktopTabs, setDesktopTabs] = useState([])
-
-    const [rawConfigs, setRawConfigs] = useState({})
-
-    // debug
-    useEffect(() => {
-        let configs = {}
-        fetch('config/GeneralHunting.txt').then(r => r.text()).then(text => {
-            configs['GeneralHunting'] = text;
-        });
-        fetch('config/InternalTools.txt').then(r => r.text()).then(text => {
-            configs['InternalTools'] = text;
-
-        });
-        fetch('config/EnterpriseLinks.txt').then(r => r.text()).then(text => {
-            configs['EnterpriseLinks'] = text;
-        });
-        setRawConfigs(configs)
-    }, []);
-
-    useEffect(() => {
-        setInstance(instance + 1);
-    }, [results, numDays]);
-
-    useEffect(() => {
-        if (results.length === 0) return;
-
-        const data = {
-            type: results[0].type,
-            subType: results[0].subType,
-            indicator: results[0].indicator,
-            numDays,
-            startDate,
-        }
-
-        console.log(Object.keys(rawConfigs))
-
-        setDesktopTabs([
-            <LinkTab config={readConfig(rawConfigs.GeneralHunting)} data={data} listen={instance}/>,
-            <LinkTab config={readConfig(rawConfigs.InternalTools)} data={data} listen={instance}/>,
-            <LinkTab config={readConfig(rawConfigs.EnterpriseLinks)} data={data} listen={instance}/>
-        ]);
-    }, [instance]);
-
-    useEffect(() => {
-        setStartDate(dateNDaysAgo(numDays))
-    }, [numDays]);
-
-    const dateNDaysAgo = (numDays) => {
-        const date = new Date();
-        date.setDate(date.getDate()-numDays);
-        return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
-    }
-
     return (
-        <div className="App">
-            <div className="TopBar">
-                <div className="InputAreas">
-                    <NumDayInput startDate={startDate} numDays = {numDays} setNumDays={setNumDays}/>
-                    <SearchBar setResults={setResults}/>
-                </div>
-
-                <div className="ResultArea">
-                    {results.map(result =>
-                        (
-                            <ResultsBox result={result}/>
-                        )
-                    )}
-                </div>
-            </div>
-
-            <div className="Divider"/>
-
-            <div className="MainDesktop">
-                {desktopTabs}
-            </div>
-        </div>
+        <Router>
+            <GlobalProvider>
+                <Loader>
+                    <Switch>
+                        <Route path ='/' exact component={Home}/>
+                        <Route path ='/configurations' component={ConfigSelectPage}/>
+                        <Route path ='/edit' component={Edit}/>
+                    </Switch>
+                </Loader>
+            </GlobalProvider>
+        </Router>
     );
 }
 

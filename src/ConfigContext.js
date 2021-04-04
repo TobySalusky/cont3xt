@@ -11,7 +11,7 @@ export const ConfigProvider = (props) => {
 export const EditConfigContext = createContext();
 
 export const EditConfigProvider = (props) => {
-    const [editConfigIndex, setEditConfigIndex] = useState([])
+    const [editConfigIndex, setEditConfigIndex] = useState(-1)
 
     return <EditConfigContext.Provider value={[editConfigIndex, setEditConfigIndex]}>{props.children}</EditConfigContext.Provider>;
 }

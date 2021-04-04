@@ -29,7 +29,9 @@ function Edit() {
 
 
     const saveConfig = () => {
-        let str = 'title: '+typeData['General'].title+'\n';
+        let title = typeData['General'].title
+        if (title === '') title = 'Untitled Config';
+        let str = 'title: '+title+'\n';
         Object.keys(typeData).map(thisType => {
             if (thisType !== 'General') {
                 let sectionStr = '\n'+thisType + ':\n'

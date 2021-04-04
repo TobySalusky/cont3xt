@@ -19,6 +19,10 @@ function ConfigSelectPage() {
                         <img className="IconButton" style={{marginLeft: 20}} src="./images/backArrow.png" alt="back arrow"/>
                     </Link>
                 </div>
+
+                <div className="CenterFull">
+                    <h1 style={{fontSize: 50}}>Configurations</h1>
+                </div>
             </div>
 
             <div className="ConfigArea">

@@ -118,7 +118,7 @@ export function GeneralPage() {
 
     return (
         <div className="LinkRowSettingsPage">
-            <h1 style={{fontSize: 50}}>General</h1>
+            <h1 style={{fontSize: 50}}>General Settings</h1>
             <div className="LinkSettingsRow">
                 <label className="GeneralLinkSettingLabel">Title:</label>
                 <input aria-label="hi" className="LinkSettingTitle" autoComplete='off' type="text" value={typeData['General'].title} onChange={setTitle}/>

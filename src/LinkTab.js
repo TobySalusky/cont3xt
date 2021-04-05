@@ -43,7 +43,7 @@ function LinkTab(props) {
     const openActive = () => {
         links.map((linkData, i) => {
             if (active[i]) {
-                window.open(linkData[1])
+                window.open(linkData[1], '_blank', 'noreferrer')
             }
         })
     }
@@ -56,7 +56,7 @@ function LinkTab(props) {
             {links.map((linkData, i) => (
                 <div className="LinkLine">
                     <input className="LinkCheck" type="checkbox" checked={active[i]} onChange={e => setActiveIndex(i, e.target.checked)}/>
-                    <a className="Link" target="_blank" href={linkData[1]}>{linkData[0]}</a>
+                    <a className="Link" target="_blank" rel="noreferrer" href={linkData[1]}>{linkData[0]}</a>
                 </div>
             ))}
             <button className="OpenLinksButton" onClick={openActive}>Open All</button>

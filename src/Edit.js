@@ -46,7 +46,6 @@ function Edit() {
                 if (hasEntry) str += sectionStr;
             }
         })
-        console.log(str);
 
         if (editConfigIndex === -1) {
             setRawConfigs([...rawConfigs, str])

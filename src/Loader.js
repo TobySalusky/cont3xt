@@ -16,7 +16,6 @@ function Loader (props) {
             configs.push(await (await fetch(paths[i])).text())
         }
         setRawConfigs(configs)
-        console.log(configs)
     }
 
     return (

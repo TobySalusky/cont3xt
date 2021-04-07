@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 // TODO: auto-format phone number results
 
-function SearchBar(props) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
+function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
 
     const [search, setSearch] = useState('');
     const [query, setQuery] = useState('');
@@ -53,11 +53,31 @@ function SearchBar(props) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
         // TODO: sanitize indicator (phone, etc.)
 
         if (query !== '') {
-            props.setResults((
-                [{type, subType, indicator: query}]
-            ))
+            let newResults = [{type, subType, indicator: query}]
+            setResults(newResults)
+
+            dnsQueries(newResults);
         }
     }, [query]);
+
+    const dnsQueries = async (newResults) => {
+        let axios = require('axios');
+
+        const instance = axios.create({
+            headers: {'Accept': 'application/dns-json'}
+        });
+
+        let arr = [...newResults];
+
+        for (let i = 0; i < newResults.length; i++) {
+            const result = newResults[i];
+            if (result.type === 'Domain') {
+                const data = await (await instance.get('https://cloudflare-dns.com/dns-query?name=' + result.indicator + '&type=A')).data
+                arr[i] = {...result, dns: data}
+            }
+        }
+        setResults(arr)
+    }
 
     const getQuery = e => {
         e.preventDefault();

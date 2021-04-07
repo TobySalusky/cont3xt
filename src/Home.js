@@ -7,6 +7,8 @@ import NumDayInput from "./NumDayInput";
 import {createConfig} from "./Configurations";
 import {Link} from 'react-router-dom';
 import {ConfigContext} from "./ConfigContext";
+import ResultsDNS from "./ResultsDNS";
+import LineCanvas from "./LineCanvas";
 
 // NOTE: Open All function is blocked unless popup blocking is disable for website (add notice when it doesn't work?)
 
@@ -37,8 +39,6 @@ function Home() {
             startDate,
         }
 
-        console.log(Object.keys(rawConfigs))
-
         setDesktopTabs(rawConfigs.map(config => <LinkTab config={createConfig(config)} data={data} listen={instance}/>));
     }, [instance]);
 
@@ -58,13 +58,16 @@ function Home() {
             <div className="TopBar">
                 <div className="InputAreas">
                     <NumDayInput startDate={startDate} numDays = {numDays} setNumDays={setNumDays}/>
-                    <SearchBar setResults={setResults}/>
+                    <SearchBar results={results} setResults={setResults}/>
                 </div>
 
                 <div className="ResultArea">
-                    {results.map(result =>
+                    {results.map(result => // <LineCanvas/>
                         (
-                            <ResultsBox result={result}/>
+                            <div>
+                                <ResultsBox result={result}/>
+                                <ResultsDNS dns={result.dns} dnsType="A"/>
+                            </div>
                         )
                     )}
                 </div>

@@ -14,9 +14,7 @@ function LinkTab(props) {
     useEffect(() => { // onMount
 
         const configOutput = props.config(props.data);
-        console.log(configOutput)
         const linkFormats = configOutput.genLinks;
-        console.log(linkFormats)
 
         setTitle(configOutput.title)
 

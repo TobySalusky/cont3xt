@@ -1,5 +1,6 @@
 import './App.css';
 import { useState, useEffect } from 'react';
+import History from "./History";
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 // TODO: auto-format phone number results
@@ -19,8 +20,30 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         SHA256: /^[A-Fa-f0-9]{64}$/,
     }
 
+    const argsFromURL = () => {
+        // eslint-disable-next-line no-restricted-globals
+        const params = new URLSearchParams(location.search);
+        let q = params.get('q')
+        q = q ? q : '';
+        return {q};
+    }
+
+    useEffect(() => { // Takes in URL Query Arguments on first-load/refresh
+
+        const args = argsFromURL();
+        console.log('found query!', args.q)
+        setQuery(args.q);
+
+    }, [])
+
     useEffect(() => {
-        // TODO: use query
+
+        if (query === '') return;
+
+        const currArgs = argsFromURL();
+        if (query !== currArgs.q) {
+            History.push('/?q='+query)
+        }
 
         const ipRegex = require('ip-regex');
 
@@ -52,12 +75,10 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
 
         // TODO: sanitize indicator (phone, etc.)
 
-        if (query !== '') {
-            let newResults = [{type, subType, indicator: query}]
-            setResults(newResults)
+        let newResults = [{type, subType, indicator: query}]
+        setResults(newResults)
 
-            dnsQueries(newResults);
-        }
+        dnsQueries(newResults);
     }, [query]);
 
     const dnsQueries = async (newResults) => {
@@ -68,15 +89,25 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         });
 
         let arr = [...newResults];
+        let diff = false;
 
         for (let i = 0; i < newResults.length; i++) {
             const result = newResults[i];
             if (result.type === 'Domain') {
-                const data = await (await instance.get('https://cloudflare-dns.com/dns-query?name=' + result.indicator + '&type=A')).data
-                arr[i] = {...result, dns: data}
+                diff = true;
+                const dataA = await (await instance.get('https://cloudflare-dns.com/dns-query?name=' + result.indicator + '&type=A')).data
+                const dataAAAA = await (await instance.get('https://cloudflare-dns.com/dns-query?name=' + result.indicator + '&type=AAAA')).data
+                const dataNS = await (await instance.get('https://cloudflare-dns.com/dns-query?name=' + result.indicator + '&type=NS')).data
+                const dataMX = await (await instance.get('https://cloudflare-dns.com/dns-query?name=' + result.indicator + '&type=MX')).data
+                const dataTXT = await (await instance.get('https://cloudflare-dns.com/dns-query?name=' + result.indicator + '&type=TXT')).data
+                const dataDmarcTXT = await (await instance.get('https://cloudflare-dns.com/dns-query?name=_dmarc.' + result.indicator + '&type=TXT')).data
+                arr[i] = {...result, dns: {A: dataA, AAAA: dataAAAA, NS: dataNS, MX: dataMX, TXT: dataTXT, dmarcTXT: dataDmarcTXT}}
             }
         }
-        setResults(arr)
+
+        if (diff) {
+            setResults(arr)
+        }
     }
 
     const getQuery = e => {

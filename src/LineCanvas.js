@@ -28,6 +28,9 @@ export default function LineCanvas(props) {
     }, [])
 
     return (
-        <canvas ref={canvasRef} {...props}/>
+        <div>
+            <canvas className="LineCanvas" ref={canvasRef} {...props}/>
+            {props.children}
+        </div>
     );
 }

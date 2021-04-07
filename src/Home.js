@@ -1,7 +1,7 @@
 import './App.css';
 import SearchBar from "./SearchBar";
 import ResultsBox from "./ResultsBox";
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import LinkTab from "./LinkTab";
 import NumDayInput from "./NumDayInput";
 import {createConfig} from "./Configurations";
@@ -14,6 +14,7 @@ import LineCanvas from "./LineCanvas";
 
 function Home() {
 
+    // STATE
     const [numDays, setNumDays] = useState(7)
     const [startDate, setStartDate] = useState(7)
     const [results, setResults] = useState([])
@@ -24,9 +25,22 @@ function Home() {
 
     const [rawConfigs, setRawConfigs] = useContext(ConfigContext)
 
-    useEffect(() => {
+    // REFS
+    const resultBoxRef = useRef(null);
+    const dnsRefs = useRef([]);
+
+    const refresh = () => {
+        window.location.reload(false);
+    }
+
+    useEffect(() => { // on mount
+        window.addEventListener("popstate", refresh)
+        console.log('page refreshed!')
+    }, [])
+
+    useEffect(() => { // TODO: maybe remove instance (unnecessary)
         setInstance(instance + 1);
-    }, [results, numDays]);
+    }, [results, numDays, rawConfigs]);
 
     useEffect(() => {
         if (results.length === 0) return;
@@ -52,6 +66,17 @@ function Home() {
         return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
     }
 
+    const genResults = () => {
+        return results.map(result => // <LineCanvas/>
+            (
+                <div>
+                    <ResultsBox result={result}/>
+                    <ResultsDNS dns={result.dns}/>
+                </div>
+            )
+        );
+    }
+
     return (
 
         <div className="App">
@@ -62,14 +87,7 @@ function Home() {
                 </div>
 
                 <div className="ResultArea">
-                    {results.map(result => // <LineCanvas/>
-                        (
-                            <div>
-                                <ResultsBox result={result}/>
-                                <ResultsDNS dns={result.dns} dnsType="A"/>
-                            </div>
-                        )
-                    )}
+                    {genResults()}
                 </div>
             </div>
 

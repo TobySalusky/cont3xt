@@ -4,7 +4,8 @@
   background-color: #696969;
   color: white;
 
-  height: 100vh;
+  min-height: 100vh;
+  height: 100%;
   margin: 0;
   padding: 0;
 
@@ -99,6 +100,7 @@
   flex-direction: row;
 
   margin-bottom: 20px;
+  text-align: left;
 }
 
 .ResultType {
@@ -345,4 +347,11 @@
   justify-content: flex-start;
   align-items: flex-start;
   flex-wrap: wrap;
+}
+
+.LineCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: red;
 }

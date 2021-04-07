@@ -5,12 +5,13 @@ import Edit from "./Edit";
 import Loader from "./Loader";
 import ConfigSelectPage from "./ConfigSelectPage";
 import GlobalProvider from "./GlobalContext";
+import History from "./History";
 
 
 function App() {
 
     return (
-        <Router>
+        <Router history={History}>
             <GlobalProvider>
                 <Loader>
                     <Switch>

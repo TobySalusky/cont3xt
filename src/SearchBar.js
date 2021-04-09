@@ -1,6 +1,7 @@
 import './App.css';
-import { useState, useEffect } from 'react';
-import History from "./History";
+import { useState, useEffect, useContext } from 'react';
+import {useUpdateArgsURL} from "./URLHandler";
+import {QueryContext} from "./SearchContext";
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 // TODO: auto-format phone number results
@@ -8,7 +9,8 @@ import History from "./History";
 function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
 
     const [search, setSearch] = useState('');
-    const [query, setQuery] = useState('');
+    const [query, setQuery] = useContext(QueryContext);
+    const updateArgsURL = useUpdateArgsURL();
 
     const typeValidation = {
         phone: /^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$/,
@@ -20,30 +22,15 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         SHA256: /^[A-Fa-f0-9]{64}$/,
     }
 
-    const argsFromURL = () => {
-        // eslint-disable-next-line no-restricted-globals
-        const params = new URLSearchParams(location.search);
-        let q = params.get('q')
-        q = q ? q : '';
-        return {q};
-    }
-
-    useEffect(() => { // Takes in URL Query Arguments on first-load/refresh
-
-        const args = argsFromURL();
-        console.log('found query!', args.q)
-        setQuery(args.q);
-
-    }, [])
-
     useEffect(() => {
 
-        if (query === '') return;
+        updateArgsURL()
 
-        const currArgs = argsFromURL();
-        if (query !== currArgs.q) {
-            History.push('/?q='+query)
+        if (query === '') {
+            setResults([])
+            return;
         }
+
 
         const ipRegex = require('ip-regex');
 
@@ -81,7 +68,7 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         dnsQueries(newResults);
     }, [query]);
 
-    const dnsQueries = async (newResults) => {
+    const dnsQueries = async (newResults) => { // TODO: FIX ISSUE where if the url is changed very quick between domains, the older one can sometimes override the newest addition
         let axios = require('axios');
 
         const instance = axios.create({

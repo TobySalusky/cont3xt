@@ -29,13 +29,14 @@ function ResultsDNS({dns}) {
                                 <p style={{color: 'orange'}}>{dnsType}</p>
                             </div>
                         )
+                    } else if (dns[dnsType].Answer !== undefined) {
+                        return dns[dnsType].Answer.map(e => (
+                            <div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, marginLeft: 30, fontSize: 12}}>
+                                <p style={{paddingRight: 8}}>{e.data}</p>
+                                <p style={{color: 'orange'}}>{dnsType}</p>
+                            </div>
+                        ))
                     }
-                    return dns[dnsType].Answer.map(e => (
-                        <div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, marginLeft: 30, fontSize: 12}}>
-                            <p style={{paddingRight: 8}}>{e.data}</p>
-                            <p style={{color: 'orange'}}>{dnsType}</p>
-                        </div>
-                    ))
                 })
             }
         </div>

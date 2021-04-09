@@ -9,13 +9,15 @@ import {Link} from 'react-router-dom';
 import {ConfigContext} from "./ConfigContext";
 import ResultsDNS from "./ResultsDNS";
 import LineCanvas from "./LineCanvas";
+import {NumDaysContext} from "./SearchContext";
+import {useReadArgsURL} from "./URLHandler";
 
 // NOTE: Open All function is blocked unless popup blocking is disable for website (add notice when it doesn't work?)
 
 function Home() {
 
     // STATE
-    const [numDays, setNumDays] = useState(7)
+    const [numDays, setNumDays] = useContext(NumDaysContext)
     const [startDate, setStartDate] = useState(7)
     const [results, setResults] = useState([])
 
@@ -24,21 +26,21 @@ function Home() {
     const [desktopTabs, setDesktopTabs] = useState([])
 
     const [rawConfigs, setRawConfigs] = useContext(ConfigContext)
+    const readArgsURL = useReadArgsURL();
 
     // REFS
     const resultBoxRef = useRef(null);
     const dnsRefs = useRef([]);
 
-    const refresh = () => {
-        window.location.reload(false);
+    const readURL = () => {
+        readArgsURL()
     }
-
     useEffect(() => { // on mount
-        window.addEventListener("popstate", refresh)
-        console.log('page refreshed!')
+        window.addEventListener("popstate", readURL)
+        readArgsURL()
     }, [])
 
-    useEffect(() => { // TODO: maybe remove instance (unnecessary)
+    useEffect(() => { // TODO: maybe remove instance (may be unnecessary)
         setInstance(instance + 1);
     }, [results, numDays, rawConfigs]);
 
@@ -82,7 +84,7 @@ function Home() {
         <div className="App">
             <div className="TopBar">
                 <div className="InputAreas">
-                    <NumDayInput startDate={startDate} numDays = {numDays} setNumDays={setNumDays}/>
+                    <NumDayInput startDate={startDate}/>
                     <SearchBar results={results} setResults={setResults}/>
                 </div>
 

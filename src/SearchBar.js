@@ -24,13 +24,12 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
 
     useEffect(() => {
 
-        updateArgsURL()
-
         if (query === '') {
             setResults([])
             return;
         }
 
+        updateArgsURL()
 
         const ipRegex = require('ip-regex');
 

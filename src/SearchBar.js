@@ -106,6 +106,7 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         }
 
         if (diff) {
+            console.log('dns:', arr[0])
             setResults(arr)
         }
     }

@@ -69,11 +69,16 @@ function Home() {
     }
 
     const genResults = () => {
+
+        dnsRefs.current = []
+
         return results.map(result => // <LineCanvas/>
             (
                 <div>
-                    <ResultsBox result={result}/>
-                    <ResultsDNS dns={result.dns}/>
+                    <LineCanvas dnsRefs={dnsRefs} resultBoxRef={resultBoxRef}>
+                        <ResultsBox result={result} resultBoxRef={resultBoxRef}/>
+                        <ResultsDNS dns={result.dns} dnsRefs={dnsRefs}/>
+                    </LineCanvas>
                 </div>
             )
         );

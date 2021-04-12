@@ -88,6 +88,10 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                 const dataTXT = await (await instance.get('https://cloudflare-dns.com/dns-query?name=' + result.indicator + '&type=TXT')).data
                 const dataDmarcTXT = await (await instance.get('https://cloudflare-dns.com/dns-query?name=_dmarc.' + result.indicator + '&type=TXT')).data
                 arr[i] = {...result, dns: {A: dataA, AAAA: dataAAAA, NS: dataNS, MX: dataMX, TXT: dataTXT, dmarcTXT: dataDmarcTXT}}
+
+            } else if (result.type === 'IP') {
+                const res = await instance.get(`http://localhost:53661/v1/as/ip/${result.indicator}`)
+                console.log(res)
             }
         }
 

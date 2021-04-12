@@ -5,7 +5,7 @@ import './App.css';
 function ResultsBox(props) {
 
     return (
-        <div className="ResultBox">
+        <div className="ResultBox" ref={props.resultBoxRef}>
             <p className="ResultType" style={{color: 'orange'}}>{props.result.type}{(props.result.subType === 'None') ? '' : '('+props.result.subType+')'}:</p>
             <p>{props.result.indicator}</p>
         </div>

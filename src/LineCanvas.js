@@ -1,10 +1,13 @@
 import './App.css';
 import { useRef, useEffect, useLayoutEffect } from 'react';
+import {useWindowDimen} from './ResizeUtil'
 
 
 export default function LineCanvas(props) {
 
     const canvasRef = useRef(null)
+
+    const windowDimen = useWindowDimen()
 
     const drawLine = (ctx, from, to) => {
 
@@ -22,7 +25,6 @@ export default function LineCanvas(props) {
     }
 
     useLayoutEffect(() => {
-        console.log('TRIGGERED')
         if (props.dnsRefs.current.length === 0 || props.dnsRefs.current.some(val => val !== null)) {
             const canvas = canvasRef.current
             const ctx = canvas.getContext('2d')
@@ -38,10 +40,9 @@ export default function LineCanvas(props) {
                 const rect = div.getBoundingClientRect()
                 drawLine(ctx, start, {x: rect.x, y: rect.y + rect.height/2})
             }
-
         }
 
-    }, [props.dnsRefs.current])
+    }, [props.dnsRefs.current, windowDimen])
 
     return (
         <div>

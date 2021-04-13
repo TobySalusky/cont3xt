@@ -77,7 +77,7 @@ function Home() {
                 <div>
                     <LineCanvas dnsRefs={dnsRefs} resultBoxRef={resultBoxRef}>
                         <ResultsBox result={result} resultBoxRef={resultBoxRef}/>
-                        <ResultsDNS dns={result.dns} dnsRefs={dnsRefs}/>
+                        <ResultsDNS dns={result.dns} dnsRefs={dnsRefs} ipData={result.ipData}/>
                     </LineCanvas>
                 </div>
             )

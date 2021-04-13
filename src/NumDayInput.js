@@ -12,7 +12,6 @@ function NumDayInput({startDate}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPE
     const updateArgsURL = useUpdateArgsURL();
 
     const updateDayURL = () => {
-        console.log('DAY INPUT!')
         updateArgsURL()
     }
 

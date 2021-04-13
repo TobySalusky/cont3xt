@@ -4,7 +4,7 @@ import { Tooltip } from '@material-ui/core';
 
 import { withStyles } from '@material-ui/core/styles';
 
-const LightTooltip = withStyles((theme) => ({
+const DarkTooltip = withStyles(() => ({
     tooltip: {
         backgroundColor: '#222222',
         color: 'white',
@@ -14,7 +14,7 @@ const LightTooltip = withStyles((theme) => ({
 }))(Tooltip);
 
 
-export default function ResultsDNS({dns, dnsRefs}) {
+export default function ResultsDNS({dns, ipData, dnsRefs}) {
 
     const refIndex = useRef(0);
 
@@ -38,7 +38,29 @@ export default function ResultsDNS({dns, dnsRefs}) {
 
     const reset = () => {
         refIndex.current = 0
-        return []
+
+        console.log(dns)
+        console.log(ipData)
+        return null
+    }
+
+    const genBoxIP = (data) => {
+        if (data.error !== undefined) return (
+            <div ref={appendRef()} className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, marginLeft: 40, fontSize: 12}}>
+                <p style={{color: '#FF6666', fontWeight: 'bold'}}>Error {data.status}</p>
+            </div>
+        );
+
+        return (
+            <div ref={appendRef()} className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, marginLeft: 40, fontSize: 12}}>
+                <DarkTooltip title={data.link} interactive>
+                    <div style={{display: 'flex', justifyContent:'flex-start'}}>
+                        <p style={{color: 'orange', fontWeight: 'bold', paddingRight: 8}}>Name:</p>
+                        <p>{data.name}</p>
+                    </div>
+                </DarkTooltip>
+            </div>
+        );
     }
 
     const genAnswerBox = (dnsAnswer, dnsType) => {
@@ -46,12 +68,12 @@ export default function ResultsDNS({dns, dnsRefs}) {
         const charLimit = 30;
 
         let content = (data.length > charLimit) ? (
-            <LightTooltip title={data} classes={{tooltip:{color: 'red'}}} interactive>
+            <DarkTooltip title={data} interactive>
                 <div style={{display: 'flex', justifyContent:'flex-start', paddingRight: 8}}>
                     <p>{data.substring(0, charLimit)}</p>
                     <p style={{color: 'orange'}}>...</p>
                 </div>
-            </LightTooltip>
+            </DarkTooltip>
         ) : <p style={{paddingRight: 8}}>{data}</p>
 
         return (
@@ -65,7 +87,8 @@ export default function ResultsDNS({dns, dnsRefs}) {
     return (
         <div>
             {reset()}
-            {
+
+            { // DNS
                 (dns === undefined) ? null :
 
                 Object.keys(dns).map(dnsType => {
@@ -83,6 +106,10 @@ export default function ResultsDNS({dns, dnsRefs}) {
                         return dns[dnsType].Answer.map(dnsAnswer => genAnswerBox(dnsAnswer, dnsType))
                     }
                 })
+            }
+
+            { // IP DATA
+                (ipData === undefined) ? null : genBoxIP(ipData)
             }
         </div>
     );

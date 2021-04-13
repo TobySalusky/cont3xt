@@ -67,8 +67,22 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         dnsQueries(newResults);
     }, [query]);
 
+    const fetchDataIP = async (ip) => {
+        const axios = require('axios');
+        let query_url = 'https://rdap.db.ripe.net/ip/' + ip.toString();
+        const res = await axios.get(query_url, {
+            validateStatus: false,
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        const data = await res.data
+
+        return (res.status === 200) ? {status: res.status, name: data.name, link: data.links[0].value} : {status: res.status, error: res.status};
+    }
+
     const dnsQueries = async (newResults) => { // TODO: FIX ISSUE where if the url is changed very quick between domains, the older one can sometimes override the newest addition
-        let axios = require('axios');
+        const axios = require('axios');
 
         const instance = axios.create({
             headers: {'Accept': 'application/dns-json'}
@@ -79,8 +93,8 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
 
         for (let i = 0; i < newResults.length; i++) {
             const result = newResults[i];
+            let thisDiff = true;
             if (result.type === 'Domain') {
-                diff = true;
                 const dataA = await (await instance.get('https://cloudflare-dns.com/dns-query?name=' + result.indicator + '&type=A')).data
                 const dataAAAA = await (await instance.get('https://cloudflare-dns.com/dns-query?name=' + result.indicator + '&type=AAAA')).data
                 const dataNS = await (await instance.get('https://cloudflare-dns.com/dns-query?name=' + result.indicator + '&type=NS')).data
@@ -90,9 +104,14 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                 arr[i] = {...result, dns: {A: dataA, AAAA: dataAAAA, NS: dataNS, MX: dataMX, TXT: dataTXT, dmarcTXT: dataDmarcTXT}}
 
             } else if (result.type === 'IP') {
-                const res = await instance.get(`http://localhost:53661/v1/as/ip/${result.indicator}`)
-                console.log(res)
+
+                const ipData = await fetchDataIP(result.indicator)
+                arr[i] = {...result, ipData}
+
+            } else {
+                thisDiff = false;
             }
+            if (thisDiff) diff = true;
         }
 
         if (diff) {

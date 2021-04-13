@@ -103,6 +103,15 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                 const dataDmarcTXT = await (await instance.get('https://cloudflare-dns.com/dns-query?name=_dmarc.' + result.indicator + '&type=TXT')).data
                 arr[i] = {...result, dns: {A: dataA, AAAA: dataAAAA, NS: dataNS, MX: dataMX, TXT: dataTXT, dmarcTXT: dataDmarcTXT}}
 
+                if (dataA.Answer !== undefined) {
+                    for (let j = 0; j < dataA.Answer.length; j++) {
+                        fetchDataIP(dataA.Answer[j].data).then(ipData => {
+                            dataA.Answer[j] = {...dataA.Answer[j], ipData}
+                            setResults([...arr])
+                        })
+                    }
+                }
+
             } else if (result.type === 'IP') {
 
                 const ipData = await fetchDataIP(result.indicator)

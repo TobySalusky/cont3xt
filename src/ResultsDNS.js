@@ -14,9 +14,9 @@ const DarkTooltip = withStyles(() => ({
 }))(Tooltip);
 
 
-export default function ResultsDNS({dns, ipData, dnsRefs}) {
+export default function ResultsDNS({dns, ipData, refData}) {
 
-    const refIndex = useRef(0);
+    const {refIndex, refStack, topRefs, subRefs} = refData;
 
     const errorTable = {
         1: {name: "FormErr", description: "Format Error"},
@@ -30,29 +30,61 @@ export default function ResultsDNS({dns, ipData, dnsRefs}) {
         9: {name: "NotAuth", description: "Not Authorized"},
     }
 
-    const appendRef = () => {
-        const i = refIndex.current
+    const topRef = (underCount) => {
+
+        const appendFunc = appendRef()
+
         refIndex.current = refIndex.current + 1;
-        return el => dnsRefs.current[i] = el;
+        const i = refIndex.current;
+        refStack.current.push({index: i, count: 0, maxCount: underCount})
+
+        return el => {
+            appendFunc(el)
+            topRefs.current[i] = el;
+        }
     }
 
-    const reset = () => {
-        refIndex.current = 0
+    const appendRef = () => {
 
-        console.log(dns)
-        console.log(ipData)
-        return null
+        let stackElem = refStack.current[refStack.current.length - 1]
+
+        const mainIndex = {...{a:stackElem.index}}.a;
+        const subIndex = {...{a:stackElem.count}}.a;
+
+        const returnFunc = el => {
+            if (subRefs.current[mainIndex] === undefined) subRefs.current[mainIndex] = []
+            subRefs.current[mainIndex][subIndex] = el;
+        }
+
+        stackElem.count++;
+        refStack.current[refStack.current.length - 1] = stackElem
+
+        if (refStack.current.length - 1 !== 0 && stackElem.count === stackElem.maxCount) {
+            refStack.current.pop()
+        }
+
+        return returnFunc;
     }
 
     const genBoxIP = (data) => {
-        if (data.error !== undefined) return (
-            <div ref={appendRef()} className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, marginLeft: 40, fontSize: 12}}>
-                <p style={{color: '#FF6666', fontWeight: 'bold'}}>Error {data.status}</p>
-            </div>
-        );
+        const ref = appendRef()
+
+        if (data.error !== undefined) {
+            return (
+                <div ref={ref} className="ResultBox" style={{
+                    justifyContent: 'space-between',
+                    marginBottom: 5,
+                    padding: 5,
+                    marginLeft: 40,
+                    fontSize: 12
+                }}>
+                    <p style={{color: '#FF6666', fontWeight: 'bold'}}>Error {data.status}</p>
+                </div>
+            );
+        }
 
         return (
-            <div ref={appendRef()} className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, marginLeft: 40, fontSize: 12}}>
+            <div ref={ref} className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, marginLeft: 40, fontSize: 12}}>
                 <DarkTooltip title={data.link} interactive>
                     <div style={{display: 'flex', justifyContent:'flex-start'}}>
                         <p style={{color: 'orange', fontWeight: 'bold', paddingRight: 8}}>Name:</p>
@@ -63,7 +95,7 @@ export default function ResultsDNS({dns, ipData, dnsRefs}) {
         );
     }
 
-    const genAnswerBox = (dnsAnswer, dnsType) => {
+    const genBoxDNS = (dnsAnswer, dnsType) => {
         const data = dnsAnswer.data
         const charLimit = 30;
 
@@ -76,17 +108,35 @@ export default function ResultsDNS({dns, ipData, dnsRefs}) {
             </DarkTooltip>
         ) : <p style={{paddingRight: 8}}>{data}</p>
 
+        let hasChild = dnsAnswer.ipData !== undefined
+
         return (
-            <div ref={appendRef()} className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, marginLeft: 40, fontSize: 12}}>
-                {content}
-                <p style={{color: 'orange'}}>{dnsType}</p>
+            <div>
+                <div ref={hasChild ? topRef(1) : appendRef()} className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, marginLeft: 40, fontSize: 12}}>
+                    {content}
+                    <p style={{color: 'orange'}}>{dnsType}</p>
+                </div>
+                {hasChild ?
+                    <div style={{paddingLeft:30}}>{genBoxIP(dnsAnswer.ipData)}</div> : null
+                }
             </div>
         );
     }
 
+    const test = () => {
+        return null
+    }
+
+    const resetRefs = () => {
+        topRefs.current = [topRefs.current[0]]
+        refIndex.current = 0
+        refStack.current = [{index: 0, count: 0}]
+        return null
+    }
+
     return (
         <div>
-            {reset()}
+            {resetRefs()}
 
             { // DNS
                 (dns === undefined) ? null :
@@ -103,7 +153,7 @@ export default function ResultsDNS({dns, ipData, dnsRefs}) {
                             </div>
                         )
                     } else if (dns[dnsType].Answer !== undefined) {
-                        return dns[dnsType].Answer.map(dnsAnswer => genAnswerBox(dnsAnswer, dnsType))
+                        return dns[dnsType].Answer.map(dnsAnswer => genBoxDNS(dnsAnswer, dnsType))
                     }
                 })
             }
@@ -111,6 +161,8 @@ export default function ResultsDNS({dns, ipData, dnsRefs}) {
             { // IP DATA
                 (ipData === undefined) ? null : genBoxIP(ipData)
             }
+
+            {test()}
         </div>
     );
 }

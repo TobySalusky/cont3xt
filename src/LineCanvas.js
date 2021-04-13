@@ -9,6 +9,8 @@ export default function LineCanvas(props) {
 
     const windowDimen = useWindowDimen()
 
+    const {refIndex, refStack, topRefs, subRefs} = props.refData;
+
     const drawLine = (ctx, from, to) => {
 
         const mid = {x:from.x, y: Math.max(from.y, to.y - 50)}
@@ -25,24 +27,30 @@ export default function LineCanvas(props) {
     }
 
     useLayoutEffect(() => {
-        if (props.dnsRefs.current.length === 0 || props.dnsRefs.current.some(val => val !== null)) {
+        if (subRefs.current.length === 0 || subRefs.current.some(val => val !== null)) { // TODO: fix culling statement!
             const canvas = canvasRef.current
             const ctx = canvas.getContext('2d')
 
             ctx.strokeStyle = 'lightgray'
 
-            const mainRect = props.resultBoxRef.current.getBoundingClientRect()
-            const start = {x: mainRect.x+20, y: mainRect.y+mainRect.height}
-
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            for (const div of props.dnsRefs.current) {
-                const rect = div.getBoundingClientRect()
-                drawLine(ctx, start, {x: rect.x, y: rect.y + rect.height/2})
-            }
+            try {
+                for (let i = 0; i < topRefs.current.length; i++) {
+                    for (const div of subRefs.current[i]) {
+                        if (topRefs.current[i] !== null && div !== null) {
+                            const mainRect = topRefs.current[i].getBoundingClientRect()
+                            const start = {x: mainRect.x+20, y: mainRect.y+mainRect.height}
+
+                            const rect = div.getBoundingClientRect()
+                            drawLine(ctx, start, {x: rect.x, y: rect.y + rect.height/2})
+                        }
+                    }
+                }
+            } catch (e) {} // TODO: rewrite so this isn't a thing
         }
 
-    }, [props.dnsRefs.current, windowDimen])
+    }, [subRefs.current, windowDimen])
 
     return (
         <div>

@@ -29,8 +29,11 @@ function Home() {
     const readArgsURL = useReadArgsURL();
 
     // REFS
-    const resultBoxRef = useRef(null);
-    const dnsRefs = useRef([]);
+    const refStack = useRef([]);
+    const refIndex = useRef(0);
+
+    const topRefs = useRef([]);
+    const subRefs = useRef([[]]);
 
     const readURL = () => {
         readArgsURL()
@@ -70,14 +73,14 @@ function Home() {
 
     const genResults = () => {
 
-        dnsRefs.current = []
+        subRefs.current = [[]]
 
-        return results.map(result => // <LineCanvas/>
+        return results.map(result => // <LineCanvas refData={{refIndex, refStack, topRefs, subRefs}}>
             (
                 <div>
-                    <LineCanvas dnsRefs={dnsRefs} resultBoxRef={resultBoxRef}>
-                        <ResultsBox result={result} resultBoxRef={resultBoxRef}/>
-                        <ResultsDNS dns={result.dns} dnsRefs={dnsRefs} ipData={result.ipData}/>
+                    <LineCanvas refData={{refIndex, refStack, topRefs, subRefs}}>
+                        <ResultsBox result={result} resultBoxRef={el => topRefs.current[0] = el}/>
+                        <ResultsDNS dns={result.dns} refData={{refIndex, refStack, topRefs, subRefs}} ipData={result.ipData}/>
                     </LineCanvas>
                 </div>
             )

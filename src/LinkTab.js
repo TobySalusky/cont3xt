@@ -21,7 +21,7 @@ function LinkTab(props) {
         const genLinks = []
         const genActive = []
         linkFormats.map(linkData => {
-            genLinks.push([linkData[0], fillLinkFormat(linkData[1], props.data)]);
+            genLinks.push({label: linkData.label, link: fillLinkFormat(linkData.formatLink, props.data), color: linkData.color});
             genActive.push(true);
         })
 
@@ -41,7 +41,7 @@ function LinkTab(props) {
     const openActive = () => {
         links.map((linkData, i) => {
             if (active[i]) {
-                window.open(linkData[1], '_blank', 'noreferrer')
+                window.open(linkData.link, '_blank', 'noreferrer')
             }
         })
     }
@@ -54,7 +54,7 @@ function LinkTab(props) {
             {links.map((linkData, i) => (
                 <div className="LinkLine">
                     <input className="LinkCheck" type="checkbox" checked={active[i]} onChange={e => setActiveIndex(i, e.target.checked)}/>
-                    <a className="Link" target="_blank" rel="noreferrer" href={linkData[1]}>{linkData[0]}</a>
+                    <a className="Link" style={{color: linkData.color}} target="_blank" rel="noreferrer" href={linkData.link}>{linkData.label}</a>
                 </div>
             ))}
             <button className="OpenLinksButton" onClick={openActive}>Open All</button>

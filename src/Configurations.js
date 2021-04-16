@@ -26,9 +26,24 @@ export function readConfig(fullText) {
 
         } else if (Object.keys(linkDict).length > 0 && line.startsWith('\"')) {
             let lastQuote = line.lastIndexOf('\"');
-            let name = line.substring(1, lastQuote).trim();
-            let formatLink = line.substring(lastQuote + 1).trim();
-            linkArr.push([name, formatLink])
+            let label = line.substring(1, lastQuote).trim();
+
+            let afterName = line.substring(lastQuote + 1).trim();
+            let firstSpace = afterName.indexOf(' ')
+
+            let formatLink = afterName.trim();
+            let settings = ''
+            if (firstSpace !== -1) {
+                formatLink = afterName.substring(0, firstSpace).trim()
+                settings = afterName.substring(firstSpace).trim()
+            }
+
+            let color = 'orange';
+            if (settings.length > 0) {
+                color = settings.replace('color:', '').trim()
+            }
+
+            linkArr.push({label, formatLink, color})
         }
     }
 

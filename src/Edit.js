@@ -38,7 +38,9 @@ function Edit() {
                 let hasEntry = false
                 typeData[thisType].map(dict => {
                     if (dict.label !== undefined && dict.label !== '' && dict.formatLink !== undefined && dict.formatLink !== '') {
-                        sectionStr += '\"'+dict.label+'\" '+dict.formatLink+'\n'
+                        sectionStr += '\"'+dict.label+'\" '+dict.formatLink
+                        if (true) sectionStr += 'color: '+dict.color;
+                        sectionStr += '\n';
                         hasEntry = true
                     }
                 })
@@ -71,8 +73,8 @@ function Edit() {
             const existingConfig = readConfig(rawConfigs[editConfigIndex])
             const linkDict = existingConfig.linkDict;
             Object.keys(linkDict).map(thisType => {
-                data[thisType] = linkDict[thisType].map(e => {
-                    return {label: e[0], formatLink: e[1]}
+                data[thisType] = linkDict[thisType].map(linkData => {
+                    return {...linkData}
                 })
             })
             data['General'] = {title: existingConfig.title}
@@ -159,13 +161,19 @@ export function LinkRow(props) {
 
     const setLabel = (e) => {
         let dict = {...typeData}
-        dict[props.type][props.index] = {label: e.target.value, formatLink: dict[props.type][props.index].formatLink}
+        dict[props.type][props.index] = {...dict[props.type][props.index], label: e.target.value}
         setTypeData(dict)
     }
 
     const setFormatLink = (e) => {
         let dict = {...typeData}
-        dict[props.type][props.index] = {label: dict[props.type][props.index].label, formatLink: e.target.value}
+        dict[props.type][props.index] = {...dict[props.type][props.index], formatLink: e.target.value}
+        setTypeData(dict)
+    }
+
+    const setColor = (colorStr) => {
+        let dict = {...typeData}
+        dict[props.type][props.index] = {...dict[props.type][props.index], color: colorStr}
         setTypeData(dict)
     }
 
@@ -181,7 +189,7 @@ export function LinkRow(props) {
 
     return (
         <div className="LinkSettingsRow">
-            <LinkRowColor/>
+            <LinkRowColor color={typeData[props.type][props.index].color} setColor={setColor}/>
             <input className="LinkSettingName" autoComplete='off' type="text" value={typeData[props.type][props.index].label} onChange={setLabel}/>
             <input className="LinkSettingFormatLink" autoComplete='off' type="text" value={typeData[props.type][props.index].formatLink} onChange={setFormatLink}/>
             <button className="LinkSettingRemove" onClick={remove}>-</button>
@@ -211,72 +219,93 @@ export class LinkTypeTab extends Component {
     }
 }
 
-export class LinkRowColor extends Component {
-    state = {
+export function LinkRowColor(props) {
+
+    const [state, setState] = useState({
         displayColorPicker: false,
         color: {
-            r: '255',
-            g: '105',
-            b: '0',
-            a: '1',
+            r: 255,
+            g: 0,
+            b: 0,
+            a: 1,
         },
-    };
+    })
 
-    handleClick = () => {
-        this.setState({ displayColorPicker: !this.state.displayColorPicker })
-    };
+    useEffect(() => {
 
-    handleClose = () => {
-        this.setState({ displayColorPicker: false })
-    };
+        const parse = require('color-parse')
+        let initCol = parse(props.color ?? 'orange')
 
-    handleChange = (color) => {
-        this.setState({ color: color.rgb })
-    };
-
-    render() {
-
-        const styles = reactCSS({
-            'default': {
-                color: {
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '5px',
-                    background: `rgba(${ this.state.color.r }, ${ this.state.color.g }, ${ this.state.color.b }, ${ this.state.color.a })`,
-                },
-                swatch: {
-                    padding: '5px',
-                    background: '#fff',
-                    borderRadius: '1px',
-                    boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
-                    display: 'inline-block',
-                    cursor: 'pointer',
-                },
-                popover: {
-                    position: 'absolute',
-                    zIndex: '2',
-                },
-                cover: {
-                    position: 'fixed',
-                    top: '0px',
-                    right: '0px',
-                    bottom: '0px',
-                    left: '0px',
-                },
+        setState({
+            displayColorPicker: false,
+            color: {
+                r: initCol.values[0],
+                g: initCol.values[1],
+                b: initCol.values[2],
+                a: initCol.alpha,
             },
-        });
+        })
+    }, [])
 
-        return (
-            <div className="Center">
-                <div style={ styles.swatch } onClick={ this.handleClick }>
-                    <div style={ styles.color } />
-                </div>
-                { this.state.displayColorPicker ? <div style={ styles.popover }>
-                    <div style={ styles.cover } onClick={ this.handleClose }/>
-                    <SketchPicker color={ this.state.color } onChange={ this.handleChange } />
-                </div> : null }
+    useEffect(() => {
+        props.setColor(colorString())
+    }, [state.color])
 
+    const handleClick = () => {
+        setState({ ...state, displayColorPicker: !state.displayColorPicker })
+    };
+
+    const handleClose = () => {
+        setState({ ...state, displayColorPicker: false })
+    };
+
+    const handleChange = (color) => {
+        setState({ ...state, color: color.rgb })
+    };
+
+    const colorString = () => `rgba(${ state.color.r }, ${ state.color.g }, ${ state.color.b }, ${ state.color.a })`;
+
+    const styles = reactCSS({
+        'default': {
+            color: {
+                width: '40px',
+                height: '40px',
+                borderRadius: '5px',
+                background: colorString(),
+            },
+            swatch: {
+                padding: '5px',
+                background: '#fff',
+                borderRadius: '1px',
+                boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
+                display: 'inline-block',
+                cursor: 'pointer',
+            },
+            popover: {
+                position: 'absolute',
+                zIndex: '2',
+            },
+            cover: {
+                position: 'fixed',
+                top: '0px',
+                right: '0px',
+                bottom: '0px',
+                left: '0px',
+            },
+        },
+    });
+
+    return (
+        <div className="Center">
+            <div style={ styles.swatch } onClick={ handleClick }>
+                <div style={ styles.color } />
             </div>
-        )
-    }
+            { state.displayColorPicker ? <div style={ styles.popover }>
+                <div style={ styles.cover } onClick={ handleClose }/>
+                <SketchPicker color={ state.color } onChange={ handleChange }/>
+            </div> : null }
+
+        </div>
+    );
+
 }

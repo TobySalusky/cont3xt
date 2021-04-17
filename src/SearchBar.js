@@ -81,6 +81,15 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         return (res.status === 200) ? {status: res.status, name: data.name, link: data.links[0].value} : {status: res.status, error: res.status};
     }
 
+    const CAAToText = (hexStr) => {
+        hexStr = hexStr.substring(11).split(' ').join('')
+        let str = ''
+        for (let i = 0; i < hexStr.length; i += 2) {
+            str += String.fromCharCode(parseInt(hexStr.substr(i, 2), 16))
+        }
+        return str
+    }
+
     const dnsQueries = async (newResults) => { // TODO: FIX ISSUE where if the url is changed very quick between domains, the older one can sometimes override the newest addition
         const axios = require('axios');
 
@@ -95,13 +104,20 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
             const result = newResults[i];
             let thisDiff = true;
             if (result.type === 'Domain') {
-                const dataA = await (await instance.get('https://cloudflare-dns.com/dns-query?name=' + result.indicator + '&type=A')).data
-                const dataAAAA = await (await instance.get('https://cloudflare-dns.com/dns-query?name=' + result.indicator + '&type=AAAA')).data
-                const dataNS = await (await instance.get('https://cloudflare-dns.com/dns-query?name=' + result.indicator + '&type=NS')).data
-                const dataMX = await (await instance.get('https://cloudflare-dns.com/dns-query?name=' + result.indicator + '&type=MX')).data
-                const dataTXT = await (await instance.get('https://cloudflare-dns.com/dns-query?name=' + result.indicator + '&type=TXT')).data
-                const dataDmarcTXT = await (await instance.get('https://cloudflare-dns.com/dns-query?name=_dmarc.' + result.indicator + '&type=TXT')).data
-                arr[i] = {...result, dns: {A: dataA, AAAA: dataAAAA, NS: dataNS, MX: dataMX, TXT: dataTXT, dmarcTXT: dataDmarcTXT}}
+                const dataA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${result.indicator}&type=A`)).data
+                const dataAAAA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${result.indicator}&type=AAAA`)).data
+                const dataNS = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${result.indicator}&type=NS`)).data
+                const dataMX = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${result.indicator}&type=MX`)).data
+                const dataTXT = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${result.indicator}&type=TXT`)).data
+                const dataDmarcTXT = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=_dmarc.${result.indicator}&type=TXT`)).data
+                const dataCAA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${result.indicator}&type=CAA`)).data
+                const dataSOA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${result.indicator}&type=SOA`)).data
+
+                if (dataCAA.Answer !== undefined) {
+                    dataCAA.Answer = dataCAA.Answer.map(entry => {return {...entry, data:CAAToText(entry.data)}})
+                }
+
+                arr[i] = {...result, dns: {A: dataA, AAAA: dataAAAA, NS: dataNS, MX: dataMX, TXT: dataTXT, dmarcTXT: dataDmarcTXT, CAA: dataCAA, SOA: dataSOA}}
 
                 if (dataA.Answer !== undefined) {
                     for (let j = 0; j < dataA.Answer.length; j++) {

@@ -82,12 +82,20 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
     }
 
     const CAAToText = (hexStr) => {
-        hexStr = hexStr.substring(11).split(' ').join('')
+        
+        hexStr = hexStr.split(' ').join('')
+
+        hexStr = hexStr.substring(4)
+
+        const tagLength = parseInt(hexStr.substring(0,4), 16)
+        hexStr = hexStr.substring(4)
+
         let str = ''
         for (let i = 0; i < hexStr.length; i += 2) {
             str += String.fromCharCode(parseInt(hexStr.substr(i, 2), 16))
         }
-        return str
+
+        return str.substring(0, tagLength) + ' ' +str.substring(tagLength)
     }
 
     const dnsQueries = async (newResults) => { // TODO: FIX ISSUE where if the url is changed very quick between domains, the older one can sometimes override the newest addition

@@ -82,7 +82,7 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
     }
 
     const CAAToText = (hexStr) => {
-        
+
         hexStr = hexStr.split(' ').join('')
 
         hexStr = hexStr.substring(4)

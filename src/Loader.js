@@ -1,7 +1,6 @@
 import {ConfigContext} from "./ConfigContext";
 import { useEffect, useContext } from 'react';
 
-
 function Loader (props) {
 
     const [rawConfigs, setRawConfigs] = useContext(ConfigContext)
@@ -16,6 +15,23 @@ function Loader (props) {
             configs.push(await (await fetch(paths[i])).text())
         }
         setRawConfigs(configs)
+
+        const axios = require('axios');
+        let test = await axios.get('/ip2asn', {
+            params: {
+                ip: '1.1.1.2'
+            }
+        })
+
+        console.log(test)
+
+        test = await axios.get('/whoisdomain', {
+            params: {
+                domain: 'test.com'
+            }
+        })
+
+        console.log(test)
     }
 
     return (

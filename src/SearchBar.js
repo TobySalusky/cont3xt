@@ -136,6 +136,18 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                     }
                 }
 
+                axios.get('/whoisdomain', {
+                    params: {
+                        domain: 'test.com'
+                    }
+                }).then(whoIsResult => {
+                    if (whoIsResult.status === 200) {
+                        arr[i] = {...arr[i], whoIsData: whoIsResult.data}
+                        setResults([...arr])
+                    }
+                })
+
+
             } else if (result.type === 'IP') {
 
                 const ipData = await fetchDataIP(result.indicator)

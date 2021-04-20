@@ -14,7 +14,7 @@ const DarkTooltip = withStyles(() => ({
 }))(Tooltip);
 
 
-export default function ResultsDNS({dns, ipData, refData}) {
+export default function ResultExtras({whoIs, dns, ipData, refData}) {
 
     const {refIndex, refStack, topRefs, subRefs} = refData;
 
@@ -101,20 +101,20 @@ export default function ResultsDNS({dns, ipData, refData}) {
 
         let content = (data.length > charLimit) ? (
             <DarkTooltip title={data} interactive>
-                <div style={{display: 'flex', justifyContent:'flex-start', paddingRight: 8}}>
+                <div style={{display: 'flex', justifyContent:'flex-start'}}>
                     <p>{data.substring(0, charLimit)}</p>
                     <p style={{color: 'orange'}}>...</p>
                 </div>
             </DarkTooltip>
-        ) : <p style={{paddingRight: 8}}>{data}</p>
+        ) : <p>{data}</p>
 
         let hasChild = dnsAnswer.ipData !== undefined
 
         return (
             <div>
                 <div ref={hasChild ? topRef(1) : appendRef()} className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, marginLeft: 40, fontSize: 12}}>
+                    <p style={{color: 'lightgreen', paddingRight: 8, fontWeight: 'bolder'}}>{dnsType}</p>
                     {content}
-                    <p style={{color: 'orange'}}>{dnsType}</p>
                 </div>
                 {hasChild ?
                     <div style={{paddingLeft:30}}>{genBoxIP(dnsAnswer.ipData)}</div> : null
@@ -138,6 +138,16 @@ export default function ResultsDNS({dns, ipData, refData}) {
         <div>
             {resetRefs()}
 
+            {
+                (whoIs === undefined) ? null :
+                    <div ref={appendRef()} className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, marginLeft: 40, fontSize: 12}}>
+                        <div style={{display: 'flex', justifyContent:'flex-start'}}>
+                            <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>Country:</p>
+                            <p>{whoIs.adminCountry}</p>
+                        </div>
+                    </div>
+            }
+
             { // DNS
                 (dns === undefined) ? null :
 
@@ -147,9 +157,9 @@ export default function ResultsDNS({dns, ipData, refData}) {
                     } else if (dns[dnsType].Status !== 0) {
                         return (
                             <div ref={appendRef()} className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, marginLeft: 40, fontSize: 12}}>
+                                <p style={{paddingRight: 8, color: 'orange'}}>{dnsType}</p>
                                 <p style={{paddingRight: 8, color: '#FF6666', fontWeight: 'bold'}}>{errorTable[dns[dnsType].Status].name}:</p>
-                                <p style={{paddingRight: 8, color: '#FF6666', fontWeight: 'bold'}}>{errorTable[dns[dnsType].Status].description}</p>
-                                <p style={{color: 'orange'}}>{dnsType}</p>
+                                <p style={{color: '#FF6666', fontWeight: 'bold'}}>{errorTable[dns[dnsType].Status].description}</p>
                             </div>
                         )
                     } else if (dns[dnsType].Answer !== undefined) {

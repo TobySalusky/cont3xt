@@ -7,7 +7,7 @@ import NumDayInput from "./NumDayInput";
 import {createConfig} from "./Configurations";
 import {Link} from 'react-router-dom';
 import {ConfigContext} from "./ConfigContext";
-import ResultsDNS from "./ResultsDNS";
+import ResultExtras from "./ResultExtras";
 import LineCanvas from "./LineCanvas";
 import {NumDaysContext} from "./SearchContext";
 import {useReadArgsURL} from "./URLHandler";
@@ -80,7 +80,7 @@ function Home() {
                 <div>
                     <LineCanvas refData={{refIndex, refStack, topRefs, subRefs}}>
                         <ResultsBox result={result} resultBoxRef={el => topRefs.current[0] = el}/>
-                        <ResultsDNS dns={result.dns} refData={{refIndex, refStack, topRefs, subRefs}} ipData={result.ipData}/>
+                        <ResultExtras whoIs={result.whoIsData} dns={result.dns} refData={{refIndex, refStack, topRefs, subRefs}} ipData={result.ipData}/>
                     </LineCanvas>
                 </div>
             )

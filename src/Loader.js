@@ -4,7 +4,7 @@ import { useEffect, useContext } from 'react';
 function Loader (props) {
 
     const [rawConfigs, setRawConfigs] = useContext(ConfigContext)
-    useEffect(() => { // TODO: fix order
+    useEffect(() => {
         loadInitConfigs()
     }, []);
 
@@ -20,14 +20,6 @@ function Loader (props) {
         let test = await axios.get('/ip2asn', {
             params: {
                 ip: '1.1.1.2'
-            }
-        })
-
-        console.log(test)
-
-        test = await axios.get('/whoisdomain', {
-            params: {
-                domain: 'test.com'
             }
         })
 

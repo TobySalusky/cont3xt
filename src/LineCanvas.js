@@ -12,9 +12,7 @@ export default function LineCanvas(props) {
 
     const {topRefs, subRefs} = props.refData;
 
-    const [rerender, setRerender] = useState(0)
-
-    const drawLine = (ctx, from, to) => {
+    const drawLineUnder = (ctx, from, to) => {
 
         const mid = {x:from.x, y: Math.max(from.y, to.y - 50)}
 
@@ -29,6 +27,24 @@ export default function LineCanvas(props) {
         ctx.beginPath()
         ctx.moveTo(mid.x - mixX, mid.y - minY);
         ctx.bezierCurveTo(mid.x - mixX, to.y - minY, mid.x - mixX, to.y - minY, to.x - mixX, to.y - minY)
+        ctx.stroke()
+    }
+
+    const drawLineRight = (ctx, from, to) => {
+
+        const mid = {x:(from.x + to.x) / 2, y: (from.y + to.y) / 2}
+
+        const mixX = dimen.current.minX
+        const minY = dimen.current.minY
+
+        ctx.beginPath()
+        ctx.moveTo(from.x - mixX, from.y - minY);
+        ctx.bezierCurveTo((mid.x + from.x) / 2 - mixX, from.y - minY, (mid.x + from.x) / 2 - mixX, from.y - minY, mid.x - mixX, mid.y - minY)
+        ctx.stroke()
+
+        ctx.beginPath()
+        ctx.moveTo(mid.x - mixX, mid.y - minY);
+        ctx.bezierCurveTo((mid.x + to.x) / 2 - mixX, to.y - minY, (mid.x + to.x) / 2 - mixX, to.y - minY, to.x - mixX, to.y - minY)
         ctx.stroke()
     }
 
@@ -86,13 +102,20 @@ export default function LineCanvas(props) {
 
             try {
                 for (let i = 0; i < topRefs.current.length; i++) {
+
+                    const mainRect = topRefs.current[i].getBoundingClientRect()
+                    const leftStart = {x: mainRect.x+20, y: mainRect.y+mainRect.height}
+                    const rightStart = {x:mainRect.x + mainRect.width, y: mainRect.y + mainRect.height/2}
+
                     for (const div of subRefs.current[i]) {
                         if (topRefs.current[i] !== null && div !== null) {
-                            const mainRect = topRefs.current[i].getBoundingClientRect()
-                            const start = {x: mainRect.x+20, y: mainRect.y+mainRect.height}
 
                             const rect = div.getBoundingClientRect()
-                            drawLine(ctx, start, {x: rect.x, y: rect.y + rect.height/2})
+                            if (rect.x > mainRect.x + mainRect.width) {
+                                drawLineRight(ctx, rightStart, {x: rect.x, y: rect.y + rect.height/2})
+                            } else {
+                                drawLineUnder(ctx, leftStart, {x: rect.x, y: rect.y + rect.height/2})
+                            }
                         }
                     }
                 }

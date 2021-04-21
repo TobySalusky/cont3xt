@@ -14,9 +14,9 @@ const DarkTooltip = withStyles(() => ({
 }))(Tooltip);
 
 
-export default function ResultExtras({whoIs, dns, ipData, refData}) {
+export default function ResultDNS({dns, ipData, refUtils}) {
 
-    const {refIndex, refStack, topRefs, subRefs} = refData;
+    const {appendRef, topRef, resetRefs} = refUtils;
 
     const errorTable = {
         1: {name: "FormErr", description: "Format Error"},
@@ -30,41 +30,7 @@ export default function ResultExtras({whoIs, dns, ipData, refData}) {
         9: {name: "NotAuth", description: "Not Authorized"},
     }
 
-    const topRef = (underCount) => {
 
-        const appendFunc = appendRef()
-
-        refIndex.current = refIndex.current + 1;
-        const i = refIndex.current;
-        refStack.current.push({index: i, count: 0, maxCount: underCount})
-
-        return el => {
-            appendFunc(el)
-            topRefs.current[i] = el;
-        }
-    }
-
-    const appendRef = () => {
-
-        let stackElem = refStack.current[refStack.current.length - 1]
-
-        const mainIndex = {...{a:stackElem.index}}.a;
-        const subIndex = {...{a:stackElem.count}}.a;
-
-        const returnFunc = el => {
-            if (subRefs.current[mainIndex] === undefined) subRefs.current[mainIndex] = []
-            subRefs.current[mainIndex][subIndex] = el;
-        }
-
-        stackElem.count++;
-        refStack.current[refStack.current.length - 1] = stackElem
-
-        if (refStack.current.length - 1 !== 0 && stackElem.count === stackElem.maxCount) {
-            refStack.current.pop()
-        }
-
-        return returnFunc;
-    }
 
     const genBoxIP = (data) => {
         const ref = appendRef()
@@ -123,30 +89,9 @@ export default function ResultExtras({whoIs, dns, ipData, refData}) {
         );
     }
 
-    const test = () => {
-        return null
-    }
-
-    const resetRefs = () => {
-        topRefs.current = [topRefs.current[0]]
-        refIndex.current = 0
-        refStack.current = [{index: 0, count: 0}]
-        return null
-    }
-
     return (
         <div>
             {resetRefs()}
-
-            {
-                (whoIs === undefined) ? null :
-                    <div ref={appendRef()} className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, marginLeft: 40, fontSize: 12}}>
-                        <div style={{display: 'flex', justifyContent:'flex-start'}}>
-                            <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>Country:</p>
-                            <p>{whoIs.adminCountry}</p>
-                        </div>
-                    </div>
-            }
 
             { // DNS
                 (dns === undefined) ? null :
@@ -172,7 +117,6 @@ export default function ResultExtras({whoIs, dns, ipData, refData}) {
                 (ipData === undefined) ? null : genBoxIP(ipData)
             }
 
-            {test()}
         </div>
     );
 }

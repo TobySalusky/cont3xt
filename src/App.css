@@ -353,3 +353,15 @@
   position: absolute;
   pointer-events: none;
 }
+
+.WhoIsBox {
+  background-color: #303030;
+  border: 1px lightgray solid;
+  border-radius: 15px;
+  padding: 3px;
+
+  display: flex;
+  flex-direction: column;
+
+  margin-left: 40px;
+}

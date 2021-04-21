@@ -138,9 +138,10 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
 
                 axios.get('/whoisdomain', {
                     params: {
-                        domain: 'test.com'
+                        domain: result.indicator
                     }
                 }).then(whoIsResult => {
+                    console.log(whoIsResult)
                     if (whoIsResult.status === 200) {
                         arr[i] = {...arr[i], whoIsData: whoIsResult.data}
                         setResults([...arr])

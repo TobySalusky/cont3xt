@@ -1,13 +1,14 @@
 import './App.css';
 import SearchBar from "./SearchBar";
 import ResultsBox from "./ResultsBox";
+import ResultWhoIs from "./ResultWhoIs";
 import { useState, useEffect, useContext, useRef } from 'react';
 import LinkTab from "./LinkTab";
 import NumDayInput from "./NumDayInput";
 import {createConfig} from "./Configurations";
 import {Link} from 'react-router-dom';
 import {ConfigContext} from "./ConfigContext";
-import ResultExtras from "./ResultExtras";
+import ResultDNS from "./ResultDNS";
 import LineCanvas from "./LineCanvas";
 import {NumDaysContext} from "./SearchContext";
 import {useReadArgsURL} from "./URLHandler";
@@ -34,7 +35,7 @@ function Home() {
 
     const topRefs = useRef([]);
     const subRefs = useRef([[]]);
-
+    
     const readURL = () => {
         readArgsURL()
     }
@@ -71,6 +72,53 @@ function Home() {
         return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
     }
 
+    // LINE REFS
+    const topRef = (underCount) => {
+
+        const appendFunc = appendRef()
+
+        refIndex.current = refIndex.current + 1;
+        const i = refIndex.current;
+        refStack.current.push({index: i, count: 0, maxCount: underCount})
+
+        return el => {
+            appendFunc(el)
+            topRefs.current[i] = el;
+        }
+    }
+
+    const appendRef = () => {
+
+        let stackElem = refStack.current[refStack.current.length - 1]
+
+        const mainIndex = {...{a:stackElem.index}}.a;
+        const subIndex = {...{a:stackElem.count}}.a;
+
+        const returnFunc = el => {
+            if (subRefs.current[mainIndex] === undefined) subRefs.current[mainIndex] = []
+            subRefs.current[mainIndex][subIndex] = el;
+        }
+
+        stackElem.count++;
+        refStack.current[refStack.current.length - 1] = stackElem
+
+        if (refStack.current.length - 1 !== 0 && stackElem.count === stackElem.maxCount) {
+            refStack.current.pop()
+        }
+
+        return returnFunc;
+    }
+
+    const resetRefs = () => {
+        topRefs.current = [topRefs.current[0]]
+        refIndex.current = 0
+        refStack.current = [{index: 0, count: 0}]
+        return null
+    }
+
+    const refUtils = {appendRef, topRef, resetRefs}
+
+
     const genResults = () => {
 
         subRefs.current = [[]]
@@ -79,8 +127,13 @@ function Home() {
             (
                 <div>
                     <LineCanvas refData={{refIndex, refStack, topRefs, subRefs}}>
-                        <ResultsBox result={result} resultBoxRef={el => topRefs.current[0] = el}/>
-                        <ResultExtras whoIs={result.whoIsData} dns={result.dns} refData={{refIndex, refStack, topRefs, subRefs}} ipData={result.ipData}/>
+                        <div style={{display:'flex', flexDirection:'row'}}>
+                            <div style={{display:'flex', flexDirection:'column'}}>
+                                <ResultsBox result={result} resultBoxRef={el => topRefs.current[0] = el}/>
+                                <ResultDNS dns={result.dns} refUtils={refUtils} ipData={result.ipData}/>
+                            </div>
+                            <ResultWhoIs whoIs={result.whoIsData} refUtils={refUtils}/>
+                        </div>
                     </LineCanvas>
                 </div>
             )

@@ -1,6 +1,7 @@
 import './App.css';
-import { useRef, useState, useEffect, useLayoutEffect } from 'react';
+import React, {useRef, useState, useEffect, useLayoutEffect, useContext} from 'react';
 import {useWindowDimen} from './ResizeUtil'
+import {LineContext} from "./LineContext";
 
 
 export default function LineCanvas(props) {
@@ -11,6 +12,8 @@ export default function LineCanvas(props) {
     const windowDimen = useWindowDimen()
 
     const {topRefs, subRefs} = props.refData;
+
+    const [lineRefs] = useContext(LineContext)
 
     const drawLineUnder = (ctx, from, to) => {
 
@@ -59,26 +62,14 @@ export default function LineCanvas(props) {
             maxY = Math.max(maxY, rect.y + rect.height + 5)
         }
 
-        try {
-            for (let i = 0; i < topRefs.current.length; i++) {
-                const mainRect = topRefs.current[i].getBoundingClientRect()
-                edit(mainRect)
+        for (const lineID of Object.keys(lineRefs)) {
 
-                for (const div of subRefs.current[i]) {
-                    if (topRefs.current[i] !== null && div !== null) {
-
-                        const rect = div.getBoundingClientRect()
-                        edit(rect)
-                    }
-                }
+            const entry = lineRefs[lineID]
+            if (entry && entry.ref) {
+                const rect = entry.ref.getBoundingClientRect()
+                edit(rect)
             }
-        } catch (e) {
-            console.log('err catch')
-            minX = Number.MAX_VALUE
-            minY = Number.MAX_VALUE
-            maxX = Number.MIN_VALUE
-            maxY = Number.MIN_VALUE
-        } // TODO: rewrite so this isn't a thing
+        }
 
         return {minX, minY, maxX, maxY}
     }
@@ -100,29 +91,42 @@ export default function LineCanvas(props) {
                 dimen.current = newDimen
             }
 
-            try {
-                for (let i = 0; i < topRefs.current.length; i++) {
-
-                    const mainRect = topRefs.current[i].getBoundingClientRect()
-                    const leftStart = {x: mainRect.x+20, y: mainRect.y+mainRect.height}
-                    const rightStart = {x:mainRect.x + mainRect.width, y: mainRect.y + mainRect.height/2}
-
-                    for (const div of subRefs.current[i]) {
-                        if (topRefs.current[i] !== null && div !== null) {
-
-                            const rect = div.getBoundingClientRect()
-                            if (rect.x > mainRect.x + mainRect.width) {
-                                drawLineRight(ctx, rightStart, {x: rect.x, y: rect.y + rect.height/2})
-                            } else {
-                                drawLineUnder(ctx, leftStart, {x: rect.x, y: rect.y + rect.height/2})
-                            }
-                        }
-                    }
-                }
-            } catch (e) {} // TODO: rewrite so this isn't a thing
+            drawLines(ctx)
         }
 
-    }, [subRefs.current, windowDimen])
+    }, [lineRefs, windowDimen])
+
+    const drawLines = (ctx) => {
+        for (const lineID of Object.keys(lineRefs)) {
+
+            const entry = lineRefs[lineID]
+            if (entry && entry.lineFrom) {
+                const toRef = entry.ref
+
+                const fromEntry = lineRefs[entry.lineFrom]
+                const fromRef = (fromEntry) ? fromEntry.ref : undefined;
+
+                if (fromRef && toRef) {
+                    drawLineBetweenRefs(ctx, fromRef, toRef)
+                }
+            }
+        }
+    }
+
+    const drawLineBetweenRefs = (ctx, fromRef, toRef) => {
+
+        const fromRect = fromRef.getBoundingClientRect()
+        const rect = toRef.getBoundingClientRect()
+
+        let start;
+        if (rect.x > fromRect.x + fromRect.width) {
+            start = {x: fromRect.x + fromRect.width, y: fromRect.y + fromRect.height/2}
+            drawLineRight(ctx, start, {x: rect.x, y: rect.y + rect.height/2})
+        } else {
+            start = {x: fromRect.x+20, y: fromRect.y+fromRect.height}
+            drawLineUnder(ctx, start, {x: rect.x, y: rect.y + rect.height/2})
+        }
+    }
 
     return (
         <div>

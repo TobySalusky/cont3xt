@@ -12,6 +12,7 @@ import ResultDNS from "./ResultDNS";
 import LineCanvas from "./LineCanvas";
 import {NumDaysContext} from "./SearchContext";
 import {useReadArgsURL} from "./URLHandler";
+import LineElement from "./LineElement";
 
 // NOTE: Open All function is blocked unless popup blocking is disable for website (add notice when it doesn't work?)
 
@@ -35,7 +36,7 @@ function Home() {
 
     const topRefs = useRef([]);
     const subRefs = useRef([[]]);
-    
+
     const readURL = () => {
         readArgsURL()
     }
@@ -129,7 +130,10 @@ function Home() {
                     <LineCanvas refData={{refIndex, refStack, topRefs, subRefs}}>
                         <div style={{display:'flex', flexDirection:'row'}}>
                             <div style={{display:'flex', flexDirection:'column'}}>
-                                <ResultsBox result={result} resultBoxRef={el => topRefs.current[0] = el}/>
+                                <LineElement lineID="main" style={{marginBottom: 20}}>
+                                    <ResultsBox result={result} resultBoxRef={el => topRefs.current[0] = el}/>
+                                </LineElement>
+
                                 <ResultDNS dns={result.dns} refUtils={refUtils} ipData={result.ipData}/>
                             </div>
                             <ResultWhoIs whoIs={result.whoIsData} refUtils={refUtils}/>

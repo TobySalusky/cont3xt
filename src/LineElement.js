@@ -1,17 +1,19 @@
 import { useEffect, useContext } from 'react';
 import {LineContext} from "./LineContext";
 
-function LineElement (props) {
+function LineElement ({lineID, lineFrom, children, style}) {
 
-    const [lineRefs, setLineRefs] = useContext(LineContext)
+    const [lineRefs] = useContext(LineContext)
 
-    const settRef = (el) => {
-        el => lineRefs[]
+    const setRef = (el) => {
+        const dict = {ref: el}
+        if (lineFrom) dict.lineFrom = lineFrom
+        lineRefs[lineID] = dict
     }
 
     return (
-        <div ref={el => settRef(el)}>
-            {props.children}
+        <div className="LineElementDiv" style={style} ref={setRef}>
+            {children}
         </div>
     );
 }

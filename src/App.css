@@ -99,7 +99,6 @@
   display: flex;
   flex-direction: row;
 
-  margin-bottom: 20px;
   text-align: left;
 }
 
@@ -362,6 +361,11 @@
 
   display: flex;
   flex-direction: column;
-
-  margin-left: 40px;
 }
+
+/*   TODO: this is how you can turn off the results from stretching out to match eachother
+.LineElementDiv {
+  width: fit-content;
+  height: fit-content;
+}
+*/

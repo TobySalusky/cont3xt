@@ -1,4 +1,5 @@
 import './App.css';
+import LineElement from "./LineElement";
 
 export default function ResultWhoIs({whoIs, refUtils}) {
 
@@ -28,14 +29,16 @@ export default function ResultWhoIs({whoIs, refUtils}) {
 
             {
                 (whoIs === undefined) ? null :
-                    <div ref={appendRef()} className="WhoIsBox">
-                        <p style={{fontWeight:'bolder', color:'orange'}}>whois</p>
-                        {
-                            table?.map(entry => {
-                                return infoBox(entry[0], entry[1])
-                            })
-                        }
-                    </div>
+                    <LineElement lineID="whois" lineFrom="main" style={{marginLeft:50}}>
+                        <div className="WhoIsBox">
+                            <p style={{fontWeight:'bolder', color:'orange'}}>whois</p>
+                            {
+                                table?.map(entry => {
+                                    return infoBox(entry[0], entry[1])
+                                })
+                            }
+                        </div>
+                    </LineElement>
             }
         </div>
     );

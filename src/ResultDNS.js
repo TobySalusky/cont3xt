@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import { Tooltip } from '@material-ui/core';
 
 import { withStyles } from '@material-ui/core/styles';
+import LineElement from "./LineElement";
 
 const DarkTooltip = withStyles(() => ({
     tooltip: {
@@ -32,7 +33,7 @@ export default function ResultDNS({dns, ipData, refUtils}) {
 
 
 
-    const genBoxIP = (data) => {
+    const genBoxIP = (data, lineFromID) => {
         const ref = appendRef()
 
         if (data.error !== undefined) {
@@ -50,18 +51,20 @@ export default function ResultDNS({dns, ipData, refUtils}) {
         }
 
         return (
-            <div ref={ref} className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, marginLeft: 40, fontSize: 12}}>
-                <DarkTooltip title={data.link} interactive>
-                    <div style={{display: 'flex', justifyContent:'flex-start'}}>
-                        <p style={{color: 'orange', fontWeight: 'bold', paddingRight: 8}}>Name:</p>
-                        <p>{data.name}</p>
-                    </div>
-                </DarkTooltip>
-            </div>
+            <LineElement lineID={`${lineFromID}-ip`} lineFrom={lineFromID} style={{marginBottom: 5, marginLeft: 40}}>
+                <div ref={ref} className="ResultBox" style={{justifyContent: 'space-between', padding: 5, fontSize: 12}}>
+                    <DarkTooltip title={data.link} interactive>
+                        <div style={{display: 'flex', justifyContent:'flex-start'}}>
+                            <p style={{color: 'orange', fontWeight: 'bold', paddingRight: 8}}>Name:</p>
+                            <p>{data.name}</p>
+                        </div>
+                    </DarkTooltip>
+                </div>
+            </LineElement>
         );
     }
 
-    const genBoxDNS = (dnsAnswer, dnsType) => {
+    const genBoxDNS = (dnsAnswer, dnsType, i) => {
         const data = dnsAnswer.data
         const charLimit = 30;
 
@@ -76,14 +79,21 @@ export default function ResultDNS({dns, ipData, refUtils}) {
 
         let hasChild = dnsAnswer.ipData !== undefined
 
+        const boxLineID = `dns-${dnsType}-${i}`
+
         return (
             <div>
-                <div ref={hasChild ? topRef(1) : appendRef()} className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, marginLeft: 40, fontSize: 12}}>
-                    <p style={{color: 'lightgreen', paddingRight: 8, fontWeight: 'bolder'}}>{dnsType}</p>
-                    {content}
+                <div style={{marginBottom: 5, marginLeft: 40}}>
+                    <LineElement lineID={boxLineID} lineFrom="main">
+                        <div ref={hasChild ? topRef(1) : appendRef()} className="ResultBox" style={{justifyContent: 'space-between', padding: 5, fontSize: 12}}>
+                            <p style={{color: 'lightgreen', paddingRight: 8, fontWeight: 'bolder'}}>{dnsType}</p>
+                            {content}
+                        </div>
+                    </LineElement>
                 </div>
-                {hasChild ?
-                    <div style={{paddingLeft:30}}>{genBoxIP(dnsAnswer.ipData)}</div> : null
+
+                {dnsAnswer.ipData ?
+                    <div style={{marginLeft:30}}>{genBoxIP(dnsAnswer.ipData, boxLineID)}</div> : null
                 }
             </div>
         );
@@ -108,7 +118,7 @@ export default function ResultDNS({dns, ipData, refUtils}) {
                             </div>
                         )
                     } else if (dns[dnsType].Answer !== undefined) {
-                        return dns[dnsType].Answer.map(dnsAnswer => genBoxDNS(dnsAnswer, dnsType))
+                        return dns[dnsType].Answer.map((dnsAnswer,i) => genBoxDNS(dnsAnswer, dnsType, i))
                     }
                 })
             }

@@ -1,6 +1,7 @@
 import {TypeDataProvider} from "./Edit";
 import {ConfigProvider, EditConfigProvider} from "./ConfigContext";
 import {NumDaysProvider, QueryProvider} from "./SearchContext";
+import {LineProvider} from "./LineContext";
 
 function GlobalProvider(props) {
 
@@ -10,7 +11,9 @@ function GlobalProvider(props) {
                 <ConfigProvider>
                     <QueryProvider>
                         <NumDaysProvider>
-                            {props.children}
+                            <LineProvider>
+                                {props.children}
+                            </LineProvider>
                         </NumDaysProvider>
                     </QueryProvider>
                 </ConfigProvider>

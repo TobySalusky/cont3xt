@@ -11,8 +11,6 @@ export default function LineCanvas(props) {
 
     const windowDimen = useWindowDimen()
 
-    const {topRefs, subRefs} = props.refData;
-
     const [lineRefs] = useContext(LineContext)
 
     const drawLineUnder = (ctx, from, to) => {
@@ -78,21 +76,19 @@ export default function LineCanvas(props) {
     const getHeight = () => dimen.current.maxY - dimen.current.minY;
 
     useLayoutEffect(() => {
-        if (subRefs.current.length === 0 || subRefs.current.some(val => val !== null)) { // TODO: fix culling statement!
-            const canvas = canvasRef.current
-            const ctx = canvas.getContext('2d')
+        const canvas = canvasRef.current
+        const ctx = canvas.getContext('2d')
 
-            ctx.strokeStyle = 'lightgray'
+        ctx.strokeStyle = 'lightgray'
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            let newDimen = genDimens()
-            if (newDimen !== dimen.current) {
-                dimen.current = newDimen
-            }
-
-            drawLines(ctx)
+        let newDimen = genDimens()
+        if (newDimen !== dimen.current) {
+            dimen.current = newDimen
         }
+
+        drawLines(ctx)
 
     }, [lineRefs, windowDimen])
 

@@ -15,9 +15,7 @@ const DarkTooltip = withStyles(() => ({
 }))(Tooltip);
 
 
-export default function ResultDNS({dns, ipData, refUtils}) {
-
-    const {appendRef, topRef, resetRefs} = refUtils;
+export default function ResultDNS({dns, ipData}) {
 
     const errorTable = {
         1: {name: "FormErr", description: "Format Error"},
@@ -34,31 +32,20 @@ export default function ResultDNS({dns, ipData, refUtils}) {
 
 
     const genBoxIP = (data, lineFromID) => {
-        const ref = appendRef()
-
-        if (data.error !== undefined) {
-            return (
-                <div ref={ref} className="ResultBox" style={{
-                    justifyContent: 'space-between',
-                    marginBottom: 5,
-                    padding: 5,
-                    marginLeft: 40,
-                    fontSize: 12
-                }}>
-                    <p style={{color: '#FF6666', fontWeight: 'bold'}}>Error {data.status}</p>
-                </div>
-            );
-        }
 
         return (
             <LineElement lineID={`${lineFromID}-ip`} lineFrom={lineFromID} style={{marginBottom: 5, marginLeft: 40}}>
-                <div ref={ref} className="ResultBox" style={{justifyContent: 'space-between', padding: 5, fontSize: 12}}>
-                    <DarkTooltip title={data.link} interactive>
-                        <div style={{display: 'flex', justifyContent:'flex-start'}}>
-                            <p style={{color: 'orange', fontWeight: 'bold', paddingRight: 8}}>Name:</p>
-                            <p>{data.name}</p>
-                        </div>
-                    </DarkTooltip>
+                <div className="ResultBox" style={{justifyContent: 'space-between', padding: 5, fontSize: 12}}>
+                    {
+                        (data.error) ? <p style={{color: '#FF6666', fontWeight: 'bold'}}>Error {data.status}</p> :
+
+                            <DarkTooltip title={data.link} interactive>
+                                <div style={{display: 'flex', justifyContent:'flex-start'}}>
+                                    <p style={{color: 'orange', fontWeight: 'bold', paddingRight: 8}}>Name:</p>
+                                    <p>{data.name}</p>
+                                </div>
+                            </DarkTooltip>
+                    }
                 </div>
             </LineElement>
         );
@@ -85,7 +72,7 @@ export default function ResultDNS({dns, ipData, refUtils}) {
             <div>
                 <div style={{marginBottom: 5, marginLeft: 40}}>
                     <LineElement lineID={boxLineID} lineFrom="main">
-                        <div ref={hasChild ? topRef(1) : appendRef()} className="ResultBox" style={{justifyContent: 'space-between', padding: 5, fontSize: 12}}>
+                        <div className="ResultBox" style={{justifyContent: 'space-between', padding: 5, fontSize: 12}}>
                             <p style={{color: 'lightgreen', paddingRight: 8, fontWeight: 'bolder'}}>{dnsType}</p>
                             {content}
                         </div>
@@ -101,7 +88,6 @@ export default function ResultDNS({dns, ipData, refUtils}) {
 
     return (
         <div>
-            {resetRefs()}
 
             { // DNS
                 (dns === undefined) ? null :
@@ -111,12 +97,14 @@ export default function ResultDNS({dns, ipData, refUtils}) {
                         return null
                     } else if (dns[dnsType].Status !== 0) {
                         return (
-                            <div ref={appendRef()} className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, marginLeft: 40, fontSize: 12}}>
-                                <p style={{paddingRight: 8, color: 'orange'}}>{dnsType}</p>
-                                <p style={{paddingRight: 8, color: '#FF6666', fontWeight: 'bold'}}>{errorTable[dns[dnsType].Status].name}:</p>
-                                <p style={{color: '#FF6666', fontWeight: 'bold'}}>{errorTable[dns[dnsType].Status].description}</p>
-                            </div>
-                        )
+                            <LineElement lineID={`${dnsType}-err`} lineFrom="main" style={{marginLeft: 40, marginBottom: 5}}>
+                                <div className="ResultBox" style={{justifyContent: 'space-between', padding: 5, fontSize: 12}}>
+                                    <p style={{color: 'lightgreen', paddingRight: 8, fontWeight: 'bolder'}}>{dnsType}</p>
+                                    <p style={{paddingRight: 8, color: '#FF6666', fontWeight: 'bold'}}>{errorTable[dns[dnsType].Status].name}:</p>
+                                    <p style={{color: '#FF6666', fontWeight: 'bold'}}>{errorTable[dns[dnsType].Status].description}</p>
+                                </div>
+                            </LineElement>
+                        );
                     } else if (dns[dnsType].Answer !== undefined) {
                         return dns[dnsType].Answer.map((dnsAnswer,i) => genBoxDNS(dnsAnswer, dnsType, i))
                     }

@@ -2,6 +2,7 @@ import './App.css';
 import { useState, useEffect, useContext } from 'react';
 import {useUpdateArgsURL} from "./URLHandler";
 import {QueryContext} from "./SearchContext";
+import {LineContext} from "./LineContext";
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 // TODO: auto-format phone number results
@@ -11,6 +12,7 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
     const [search, setSearch] = useState('');
     const [query, setQuery] = useContext(QueryContext);
     const updateArgsURL = useUpdateArgsURL();
+    const [, setLineRefs] = useContext(LineContext)
 
     const typeValidation = {
         phone: /^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$/,
@@ -63,6 +65,8 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
 
         let newResults = [{type, subType, indicator: query}]
         setResults(newResults)
+
+        setLineRefs({})
 
         dnsQueries(newResults);
     }, [query]);

@@ -27,6 +27,19 @@ function Edit() {
     const [typeData, setTypeData] = useContext(TypeDataContext)
     const [editConfigIndex, setEditConfigIndex] = useContext(EditConfigContext)
 
+    const matchColor = (color1, color2) => {
+        const parse = require('color-parse')
+
+        if (!color1 || !color2) return false
+
+        let c1 = parse(color1)
+        let c2 = parse(color2)
+
+        return (c1.values[0] === c2.values[0] &&
+            c1.values[1] === c2.values[1] &&
+            c1.values[2] === c2.values[2] &&
+            c1.alpha === c2.alpha);
+    }
 
     const saveConfig = () => {
         let title = typeData['General'].title
@@ -39,7 +52,7 @@ function Edit() {
                 typeData[thisType].map(dict => {
                     if (dict.label !== undefined && dict.label !== '' && dict.formatLink !== undefined && dict.formatLink !== '') {
                         sectionStr += '\"'+dict.label+'\" '+dict.formatLink
-                        if (true) sectionStr += 'color: '+dict.color;
+                        if (!matchColor('orange', dict.color)) sectionStr += ' color: '+dict.color;
                         sectionStr += '\n';
                         hasEntry = true
                     }

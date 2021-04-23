@@ -1,9 +1,7 @@
 import './App.css';
 import LineElement from "./LineElement";
 
-export default function ResultWhoIs({whoIs, refUtils}) {
-
-    const {appendRef, resetRefs} = refUtils;
+export default function ResultWhoIs({whoIs}) {
 
     const infoBox = (title, data) => {
         return (
@@ -19,14 +17,13 @@ export default function ResultWhoIs({whoIs, refUtils}) {
     const table = (whoIs === undefined) ? null :
         [
             ['Country', whoIs.adminCountry],
+            ['Registrar', whoIs.registrar],
             ['Created', whoIs.creationDate],
             ['Updated', whoIs.updatedDate],
         ]
 
     return (
         <div>
-            {resetRefs()}
-
             {
                 (whoIs === undefined) ? null :
                     <LineElement lineID="whois" lineFrom="main" style={{marginLeft:50}}>

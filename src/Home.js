@@ -30,13 +30,6 @@ function Home() {
     const [rawConfigs, setRawConfigs] = useContext(ConfigContext)
     const readArgsURL = useReadArgsURL();
 
-    // REFS
-    const refStack = useRef([]);
-    const refIndex = useRef(0);
-
-    const topRefs = useRef([]);
-    const subRefs = useRef([[]]);
-
     const readURL = () => {
         readArgsURL()
     }
@@ -73,70 +66,20 @@ function Home() {
         return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
     }
 
-    // LINE REFS
-    const topRef = (underCount) => {
-
-        const appendFunc = appendRef()
-
-        refIndex.current = refIndex.current + 1;
-        const i = refIndex.current;
-        refStack.current.push({index: i, count: 0, maxCount: underCount})
-
-        return el => {
-            appendFunc(el)
-            topRefs.current[i] = el;
-        }
-    }
-
-    const appendRef = () => {
-
-        let stackElem = refStack.current[refStack.current.length - 1]
-
-        const mainIndex = {...{a:stackElem.index}}.a;
-        const subIndex = {...{a:stackElem.count}}.a;
-
-        const returnFunc = el => {
-            if (subRefs.current[mainIndex] === undefined) subRefs.current[mainIndex] = []
-            subRefs.current[mainIndex][subIndex] = el;
-        }
-
-        stackElem.count++;
-        refStack.current[refStack.current.length - 1] = stackElem
-
-        if (refStack.current.length - 1 !== 0 && stackElem.count === stackElem.maxCount) {
-            refStack.current.pop()
-        }
-
-        return returnFunc;
-    }
-
-    const resetRefs = () => {
-        topRefs.current = [topRefs.current[0]]
-        refIndex.current = 0
-        refStack.current = [{index: 0, count: 0}]
-        return null
-    }
-
-    const refUtils = {appendRef, topRef, resetRefs}
-
-
     const genResults = () => {
 
-        subRefs.current = [[]]
-
-        return results.map(result => // <LineCanvas refData={{refIndex, refStack, topRefs, subRefs}}>
+        return results.map(result =>
             (
                 <div>
-                    <LineCanvas refData={{refIndex, refStack, topRefs, subRefs}}>
+                    <LineCanvas>
                         <div style={{display:'flex', flexDirection:'row'}}>
                             <div style={{display:'flex', flexDirection:'column'}}>
-                                <LineElement lineID="main" style={{marginBottom: 20}}>
-                                    <ResultsBox result={result} resultBoxRef={el => topRefs.current[0] = el}/>
-                                </LineElement>
 
-                                <ResultDNS dns={result.dns} refUtils={refUtils} ipData={result.ipData}/>
+                                <ResultsBox result={result}/>
+
+                                <ResultDNS dns={result.dns} ipData={result.ipData}/>
                             </div>
-                            <ResultWhoIs whoIs={result.whoIsData} refUtils={refUtils}/>
+                            <ResultWhoIs whoIs={result.whoIsData}/>
                         </div>
                     </LineCanvas>
                 </div>

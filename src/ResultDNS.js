@@ -1,21 +1,10 @@
 import './App.css';
-import { useRef } from 'react';
-import { Tooltip } from '@material-ui/core';
-
-import { withStyles } from '@material-ui/core/styles';
 import LineElement from "./LineElement";
-
-const DarkTooltip = withStyles(() => ({
-    tooltip: {
-        backgroundColor: '#222222',
-        color: 'white',
-        border: '1px solid #888888',
-        fontSize: 12,
-    },
-}))(Tooltip);
+import DarkTooltip from "./DarkTooltip";
+import IPASNBox from "./IPASNBox";
 
 
-export default function ResultDNS({dns, ipData}) {
+export default function ResultDNS({dns}) {
 
     const errorTable = {
         1: {name: "FormErr", description: "Format Error"},
@@ -35,18 +24,7 @@ export default function ResultDNS({dns, ipData}) {
 
         return (
             <LineElement lineID={`${lineFromID}-ip`} lineFrom={lineFromID} style={{marginBottom: 5, marginLeft: 40}}>
-                <div className="ResultBox" style={{justifyContent: 'space-between', padding: 5, fontSize: 12}}>
-                    {
-                        (data.error) ? <p style={{color: '#FF6666', fontWeight: 'bold'}}>Error {data.status}</p> :
-
-                            <DarkTooltip title={data.link} interactive>
-                                <div style={{display: 'flex', justifyContent:'flex-start'}}>
-                                    <p style={{color: 'orange', fontWeight: 'bold', paddingRight: 8}}>Name:</p>
-                                    <p>{data.name}</p>
-                                </div>
-                            </DarkTooltip>
-                    }
-                </div>
+                <IPASNBox ipData={data}/>
             </LineElement>
         );
     }
@@ -109,10 +87,6 @@ export default function ResultDNS({dns, ipData}) {
                         return dns[dnsType].Answer.map((dnsAnswer,i) => genBoxDNS(dnsAnswer, dnsType, i))
                     }
                 })
-            }
-
-            { // IP DATA
-                (ipData === undefined) ? null : genBoxIP(ipData)
             }
 
         </div>

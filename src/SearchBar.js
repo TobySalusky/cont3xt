@@ -3,6 +3,7 @@ import { useState, useEffect, useContext } from 'react';
 import {useUpdateArgsURL} from "./URLHandler";
 import {QueryContext} from "./SearchContext";
 import {LineContext} from "./LineContext";
+import axios from 'axios';
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 // TODO: auto-format phone number results
@@ -72,7 +73,7 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
     }, [query]);
 
     const fetchDataIP = async (ip) => {
-        const axios = require('axios');
+
         let query_url = 'https://rdap.db.ripe.net/ip/' + ip.toString();
         const res = await axios.get(query_url, {
             validateStatus: false,
@@ -83,6 +84,19 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         const data = await res.data
 
         return (res.status === 200) ? {status: res.status, name: data.name, link: data.links[0].value} : {status: res.status, error: res.status};
+    }
+
+    const fetchSpurDataIP = async (ip, spurToken) => {
+
+        const spurTest = await axios.get(`https://api.spur.us/v1/context/${ip}`, {
+            headers: {
+                'Token': spurToken
+            }
+        })
+
+        console.log('spur', spurTest)
+
+        return spurTest
     }
 
     const CAAToText = (hexStr) => {
@@ -103,7 +117,6 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
     }
 
     const dnsQueries = async (newResults) => { // TODO: FIX ISSUE where if the url is changed very quick between domains, the older one can sometimes override the newest addition
-        const axios = require('axios');
 
         const instance = axios.create({
             headers: {'Accept': 'application/dns-json'}
@@ -156,7 +169,13 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
             } else if (result.type === 'IP') {
 
                 const ipData = await fetchDataIP(result.indicator)
-                arr[i] = {...result, ipData}
+                arr[i] = {...arr[i], ipData}
+
+                const {REACT_APP_SPUR_TOKEN} = process.env
+                if (REACT_APP_SPUR_TOKEN) {
+                    const spurResult = await fetchSpurDataIP(result.indicator, REACT_APP_SPUR_TOKEN)
+                    arr[i] = {...arr[i], spurResult}
+                }
 
             } else {
                 thisDiff = false;
@@ -165,7 +184,7 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         }
 
         if (diff) {
-            console.log('dns:', arr[0])
+            console.log('result:', arr[0])
             setResults(arr)
         }
     }

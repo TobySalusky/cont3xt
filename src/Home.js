@@ -13,6 +13,8 @@ import LineCanvas from "./LineCanvas";
 import {NumDaysContext} from "./SearchContext";
 import {useReadArgsURL} from "./URLHandler";
 import LineElement from "./LineElement";
+import ResultSpur from "./ResultSpur";
+import IPASNBox from "./IPASNBox";
 
 // NOTE: Open All function is blocked unless popup blocking is disable for website (add notice when it doesn't work?)
 
@@ -78,8 +80,16 @@ function Home() {
                                 <ResultsBox result={result}/>
 
                                 <ResultDNS dns={result.dns} ipData={result.ipData}/>
+
+                                {(!result.ipData) ? null :
+                                    <LineElement lineID="ip-asn" lineFrom="main" style={{marginBottom: 5, marginLeft: 40}}>
+                                        <IPASNBox ipData={result.ipData}/>
+                                    </LineElement>
+                                }
+
                             </div>
                             <ResultWhoIs whoIs={result.whoIsData}/>
+                            <ResultSpur result={result}/>
                         </div>
                     </LineCanvas>
                 </div>

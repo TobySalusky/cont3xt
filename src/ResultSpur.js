@@ -6,57 +6,112 @@ import DarkTooltip from "./DarkTooltip";
 export default function ResultSpur({result}) {
 
     const infoBox = (title, data) => {
+        let text = data.val
+        let colors = data.colorData
+
+        console.log(text, colors)
+
         return (
             <div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12}}>
                 <div style={{display: 'flex', justifyContent:'flex-start'}}>
                     <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>{title}:</p>
-                    <p>{data}</p>
+
+                    {
+                        colors.map(colorEntry => {
+                            const snip = text.substring(0, colorEntry[1]).replace(' ', '\xa0')
+                            text = text.substring(colorEntry[1])
+                            return <p style={{color: colorEntry[0]}}>{snip}</p>
+                        })
+                    }
+
                 </div>
             </div>
         );
     }
 
-    const toText = (variable) => {
+    const colors = {
+        plain: 'white',
+        brackets: 'yellow',
+        comma: 'orange',
+        number: '#77e8ec',
+        boolean: '#ff699e',
+        string: '#adffc6',
+        key:'#cb91ff'
+    }
+
+    const toColorText = (variable) => {
+
+        let returnVar = undefined;
+        let colorData = [];
+
         const isDict = variable => {
             return typeof variable === "object" && !Array.isArray(variable);
         };
 
         if (isDict(variable)) {
             let str = '{'
+            colorData.push([colors.brackets, 1])
+
             let init = true
             for (const key of Object.keys(variable)) {
-                let val = toText(variable[key])
+                let entry = toColorText(variable[key])
+                const val = entry.val
 
-                if (val && key !== 'exists') {
-                    if (!init) str += ', '
+                if (val) {
+                    if (!init) {
+                        str += ', '
+                        colorData.push([colors.comma, 2])
+                    }
                     str += `${key}: ${val}`
+                    colorData = [...colorData, [colors.key, key.length], [colors.plain, 2], ...entry.colorData]
                     init = false
                 }
             }
-
             str += '}'
+            colorData.push([colors.brackets, 1])
 
-            return (str === '{}') ? undefined : str
+            if (str !== '{}') returnVar = str
 
         } else if (Array.isArray(variable)) {
+
             let str = '['
+            colorData.push([colors.brackets, 1])
+
             let init = true
             for (const element of variable) {
-                let val = toText(element)
+                let entry = toColorText(element)
+                const val = entry.val
 
                 if (val) {
-                    if (!init) str += ', '
+                    if (!init) {
+                        str += ', '
+                        colorData.push([colors.comma, 2])
+                    }
                     str += val
+                    colorData = [...colorData, ...entry.colorData]
                     init = false
                 }
             }
             str += ']'
+            colorData.push([colors.brackets, 1])
 
-            console.log(str)
+            if (str !== '[]') returnVar = str
+        } else {
 
-            return (str === '[]') ? undefined : str
+            returnVar = variable
+
+            let col = colors.plain
+            if (typeof variable === "boolean"){
+                col = colors.boolean
+            } else if (typeof variable === "number") {
+                col = colors.number
+            } else if (typeof variable === "string") {
+                col = colors.string
+            }
+            colorData.push([col, (''+returnVar).length])
         }
-        return variable
+
+        return {val: returnVar, colorData}
     }
 
     const genBoxSpur = () => {
@@ -67,9 +122,9 @@ export default function ResultSpur({result}) {
                     <p style={{fontWeight:'bolder', color:'cyan'}}>SPUR</p>
                     {
                         Object.keys(result.spurResult.data).map(key => {
-                            const text = toText(result.spurResult.data[key])
+                            const colorText = toColorText(result.spurResult.data[key])
 
-                            return (text && key !== 'ip') ? infoBox(key, toText(result.spurResult.data[key])) : null
+                            return (colorText.val && key !== 'ip') ? infoBox(key, colorText) : null
                         })
                     }
                 </div>

@@ -25,12 +25,36 @@ export default function ResultSpur({result}) {
             let str = '{'
             let init = true
             for (const key of Object.keys(variable)) {
-                if (!init) str += ', '
-                str += `${key}: ${variable[key]}`
-                init = false
+                let val = toText(variable[key])
+
+                if (val && key !== 'exists') {
+                    if (!init) str += ', '
+                    str += `${key}: ${val}`
+                    init = false
+                }
             }
 
-            return str + '}'
+            str += '}'
+
+            return (str === '{}') ? undefined : str
+
+        } else if (Array.isArray(variable)) {
+            let str = '['
+            let init = true
+            for (const element of variable) {
+                let val = toText(element)
+
+                if (val) {
+                    if (!init) str += ', '
+                    str += val
+                    init = false
+                }
+            }
+            str += ']'
+
+            console.log(str)
+
+            return (str === '[]') ? undefined : str
         }
         return variable
     }
@@ -43,7 +67,9 @@ export default function ResultSpur({result}) {
                     <p style={{fontWeight:'bolder', color:'cyan'}}>SPUR</p>
                     {
                         Object.keys(result.spurResult.data).map(key => {
-                            return infoBox(key, toText(result.spurResult.data[key]))
+                            const text = toText(result.spurResult.data[key])
+
+                            return (text && key !== 'ip') ? infoBox(key, toText(result.spurResult.data[key])) : null
                         })
                     }
                 </div>

@@ -191,7 +191,9 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
 
     const getQuery = e => {
         e.preventDefault();
-        setQuery(search);
+        if (query !== search && search !== '') {
+            setQuery(search);
+        }
         setSearch('');
     }
 

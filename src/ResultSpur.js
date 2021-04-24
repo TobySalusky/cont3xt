@@ -12,8 +12,8 @@ export default function ResultSpur({result}) {
         console.log(text, colors)
 
         return (
-            <div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12}}>
-                <div style={{display: 'flex', justifyContent:'flex-start'}}>
+            <div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}>
+                <div style={{display: 'flex', justifyContent:'flex-start', maxWidth: 500, flexWrap: "wrap"}}>
                     <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>{title}:</p>
 
                     {

@@ -61,8 +61,13 @@ export default function ResultDNS({dns}) {
                 <div style={{marginBottom: 5, marginLeft: 40}}>
                     <LineElement lineID={boxLineID} lineFrom="main">
                         <div className="ResultBox" style={{justifyContent: 'space-between', padding: 5, fontSize: 12}}>
-                            <p style={{color: 'lightgreen', paddingRight: 8, fontWeight: 'bolder'}}>{dnsType}</p>
-                            {content}
+                            <div className="SpaceBetweenRow">
+                                <p style={{color: 'lightgreen', paddingRight: 8, fontWeight: 'bolder'}}>{dnsType}</p>
+                                {content}
+                            </div>
+                            <img className="ExternalLink" src="./images/externalLink.svg" alt="external link"
+                                onClick={() => window.open(`/?q=${data}`, '_blank', 'noreferrer')}
+                            />
                         </div>
                     </LineElement>
                 </div>

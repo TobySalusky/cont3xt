@@ -384,3 +384,19 @@
   height: fit-content;
 }
 */
+
+.ExternalLink {
+  margin-left: 6px;
+  width: 15px;
+  height: 15px;
+
+  cursor: pointer;
+}
+
+.SpaceBetweenRow {
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+  display: flex;
+  width: 100%;
+}

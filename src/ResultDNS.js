@@ -2,6 +2,7 @@ import './App.css';
 import LineElement from "./LineElement";
 import DarkTooltip from "./DarkTooltip";
 import IPASNBox from "./IPASNBox";
+import {SpurBox} from "./SpurBox";
 
 
 export default function ResultDNS({dns}) {
@@ -20,11 +21,20 @@ export default function ResultDNS({dns}) {
 
 
 
-    const genBoxIP = (data, lineFromID) => {
+    const genAsnBoxIP = (data, lineFromID) => {
 
         return (
             <LineElement lineID={`${lineFromID}-ip`} lineFrom={lineFromID} style={{marginBottom: 5, marginLeft: 40}}>
                 <IPASNBox ipData={data}/>
+            </LineElement>
+        );
+    }
+
+    const genSpurBoxIP = (spurResult, lineFromID) => {
+
+        return (
+            <LineElement lineID={`${lineFromID}-spur`} lineFrom={lineFromID} style={{marginBottom: 5, marginLeft: 40}}>
+                <SpurBox spurResult={spurResult}/>
             </LineElement>
         );
     }
@@ -58,7 +68,11 @@ export default function ResultDNS({dns}) {
                 </div>
 
                 {dnsAnswer.ipData ?
-                    <div style={{marginLeft:30}}>{genBoxIP(dnsAnswer.ipData, boxLineID)}</div> : null
+                    <div style={{marginLeft:30}}>{genAsnBoxIP(dnsAnswer.ipData, boxLineID)}</div> : null
+                }
+
+                {dnsAnswer.spurResult ?
+                    <div style={{marginLeft:30}}>{genSpurBoxIP(dnsAnswer.spurResult, boxLineID)}</div> : null
                 }
             </div>
         );

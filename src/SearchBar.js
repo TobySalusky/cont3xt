@@ -146,10 +146,21 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
 
                 if (dataA.Answer !== undefined) {
                     for (let j = 0; j < dataA.Answer.length; j++) {
-                        fetchDataIP(dataA.Answer[j].data).then(ipData => {
+                        const ipA = dataA.Answer[j].data
+
+                        fetchDataIP(ipA).then(ipData => {
                             dataA.Answer[j] = {...dataA.Answer[j], ipData}
                             setResults([...arr])
                         })
+
+                        const {REACT_APP_SPUR_TOKEN} = process.env
+                        if (REACT_APP_SPUR_TOKEN) {
+                            fetchSpurDataIP(ipA, REACT_APP_SPUR_TOKEN).then(spurResult => {
+                                dataA.Answer[j] = {...dataA.Answer[j], spurResult}
+                                setResults([...arr])
+                                console.log([...arr])
+                            })
+                        }
                     }
                 }
 

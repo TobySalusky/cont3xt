@@ -3,13 +3,11 @@ import LineElement from "./LineElement";
 import DarkTooltip from "./DarkTooltip";
 
 
-export default function ResultSpur({result}) {
+export function SpurBox({spurResult}) {
 
     const infoBox = (title, data) => {
         let text = data.val
         let colors = data.colorData
-
-        console.log(text, colors)
 
         return (
             <div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}>
@@ -114,33 +112,35 @@ export default function ResultSpur({result}) {
         return {val: returnVar, colorData}
     }
 
-    const genBoxSpur = () => {
+    return (
+        <div className="WhoIsBox">
+            <p style={{fontWeight:'bolder', color:'cyan'}}>SPUR</p>
+            {
+                Object.keys(spurResult.data).map(key => {
+                    const colorText = toColorText(spurResult.data[key])
 
-        return (
-            <LineElement lineID="spur" lineFrom="main" style={{marginLeft: 40, marginBottom: 5}}>
-                <div className="WhoIsBox">
-                    <p style={{fontWeight:'bolder', color:'cyan'}}>SPUR</p>
-                    {
-                        Object.keys(result.spurResult.data).map(key => {
-                            const colorText = toColorText(result.spurResult.data[key])
+                    return (colorText.val && key !== 'ip') ? infoBox(key, colorText) : null
+                })
+            }
+        </div>
+    );
+}
 
-                            return (colorText.val && key !== 'ip') ? infoBox(key, colorText) : null
-                        })
-                    }
-                </div>
-            </LineElement>
-        );
-    }
-
-
+export function MainSpurBox({spurResult}) {
     return (
         <div>
-
             {
-                (result.spurResult && result.spurResult.data) ? genBoxSpur() : null
+                (spurResult && spurResult.data) ? (
+                    <LineElement lineID="spur" lineFrom="main" style={{marginLeft: 40, marginBottom: 5}}>
+                        {
+                            (spurResult && spurResult.data) ? (
+                                <SpurBox spurResult={spurResult}/>
+                            ) : null
+                        }
+                    </LineElement>
+                ) : null
             }
 
         </div>
     );
 }
-

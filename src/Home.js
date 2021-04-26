@@ -13,7 +13,7 @@ import LineCanvas from "./LineCanvas";
 import {NumDaysContext} from "./SearchContext";
 import {useReadArgsURL} from "./URLHandler";
 import LineElement from "./LineElement";
-import ResultSpur from "./ResultSpur";
+import {MainSpurBox} from "./SpurBox";
 import IPASNBox from "./IPASNBox";
 
 // NOTE: Open All function is blocked unless popup blocking is disable for website (add notice when it doesn't work?)
@@ -89,7 +89,7 @@ function Home() {
 
                             </div>
                             <ResultWhoIs whoIs={result.whoIsData}/>
-                            <ResultSpur result={result}/>
+                            <MainSpurBox spurResult={result.spurResult}/>
                         </div>
                     </LineCanvas>
                 </div>

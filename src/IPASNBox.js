@@ -17,13 +17,15 @@ export default function IPASNBox({ipData}) {
                             </div>
                         </DarkTooltip>
     
-                        <img className="ExternalLink" src="./images/copy.svg" alt="copy"
-                             onClick={() => navigator.clipboard.writeText(ipData.name)}
-                        />
-                        
-                        <img className="ExternalLink" src="./images/externalLink.svg" alt="external link"
-                             onClick={() => window.open(`/?q=${ipData.name}`, '_blank', 'noreferrer')}
-                        />
+                        <div>
+                            <img className="ExternalLink" src="./images/copy.svg" alt="copy"
+                                 onClick={() => navigator.clipboard.writeText(ipData.name)}
+                            />
+    
+                            <img className="ExternalLink" src="./images/externalLink.svg" alt="external link"
+                                 onClick={() => window.open(`/?q=${ipData.name}`, '_blank', 'noreferrer')}
+                            />
+                        </div>
 
                     </div>
             }

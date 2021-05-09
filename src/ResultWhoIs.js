@@ -14,7 +14,7 @@ export default function ResultWhoIs({whoIs}) {
         );
     }
 
-    const table = (whoIs === undefined) ? null :
+    const table = (whoIs === undefined) ? null : // TODO: add list of possible key names for different registrars
         [
             ['Country', whoIs.adminCountry],
             ['Registrar', whoIs.registrar],

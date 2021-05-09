@@ -3,7 +3,7 @@ import LineElement from "./LineElement";
 import DarkTooltip from "./DarkTooltip";
 import IPASNBox from "./IPASNBox";
 import {SpurBox} from "./SpurBox";
-
+import { jsonLines } from "./Util";
 
 export default function ResultDNS({dns}) {
 
@@ -65,9 +65,22 @@ export default function ResultDNS({dns}) {
                                 <p style={{color: 'lightgreen', paddingRight: 8, fontWeight: 'bolder'}}>{dnsType}</p>
                                 {content}
                             </div>
+    
+                            <img className="ExternalLink" src="./images/copy.svg" alt="copy"
+                                 onClick={() => navigator.clipboard.writeText(data)}
+                            />
                             <img className="ExternalLink" src="./images/externalLink.svg" alt="external link"
                                 onClick={() => window.open(`/?q=${data}`, '_blank', 'noreferrer')}
                             />
+                            
+                            {!dnsAnswer.spurResult ? null :
+                                <div style={{display: 'flex', flexDirection: 'row'}}>
+                                    <p style={{marginLeft: 10}}>|</p>
+                                    <DarkTooltip title={jsonLines(dnsAnswer.spurResult.data)} interactive>
+                                        <img className="ExternalLink" src="./images/copy.svg" alt="spur"/>
+                                    </DarkTooltip>
+                                </div>
+                            }
                         </div>
                     </LineElement>
                 </div>

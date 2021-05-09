@@ -15,7 +15,6 @@ import {useReadArgsURL} from "./URLHandler";
 import LineElement from "./LineElement";
 import {MainSpurBox} from "./SpurBox";
 import IPASNBox from "./IPASNBox";
-import TestElem from "./TestElem";
 
 // NOTE: Open All function is blocked unless popup blocking is disable for website (add notice when it doesn't work?)
 function Home() {
@@ -76,8 +75,6 @@ function Home() {
                     <LineCanvas>
                         <div style={{display:'flex', flexDirection:'row'}}>
                             <div style={{display:'flex', flexDirection:'column'}}>
-    
-                                <TestElem/>
                                 
                                 <ResultsBox result={result}/>
 

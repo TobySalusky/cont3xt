@@ -4,6 +4,7 @@ import DarkTooltip from "./DarkTooltip";
 import IPASNBox from "./IPASNBox";
 import {SpurBox} from "./SpurBox";
 import { jsonLines } from "./Util";
+import ComponentTooltip from './ComponentTooltip';
 
 export default function ResultDNS({dns}) {
 
@@ -26,15 +27,6 @@ export default function ResultDNS({dns}) {
         return (
             <LineElement lineID={`${lineFromID}-ip`} lineFrom={lineFromID} style={{marginBottom: 5, marginLeft: 40}}>
                 <IPASNBox ipData={data}/>
-            </LineElement>
-        );
-    }
-
-    const genSpurBoxIP = (spurResult, lineFromID) => {
-
-        return (
-            <LineElement lineID={`${lineFromID}-spur`} lineFrom={lineFromID} style={{marginBottom: 5, marginLeft: 40}}>
-                <SpurBox spurResult={spurResult}/>
             </LineElement>
         );
     }
@@ -76,9 +68,12 @@ export default function ResultDNS({dns}) {
                             {!dnsAnswer.spurResult ? null :
                                 <div style={{display: 'flex', flexDirection: 'row'}}>
                                     <p style={{marginLeft: 10}}>|</p>
-                                    <DarkTooltip title={jsonLines(dnsAnswer.spurResult.data)} interactive>
+    
+                                    <ComponentTooltip comp={
+                                        <SpurBox spurResult={dnsAnswer.spurResult}/>
+                                    }>
                                         <img className="ExternalLink" style={{width: 60}} src="./images/spur.png" alt="spur"/>
-                                    </DarkTooltip>
+                                    </ComponentTooltip>
                                 </div>
                             }
                         </div>
@@ -88,10 +83,6 @@ export default function ResultDNS({dns}) {
                 {dnsAnswer.ipData ?
                     <div style={{marginLeft:30}}>{genAsnBoxIP(dnsAnswer.ipData, boxLineID)}</div> : null
                 }
-
-                {/*dnsAnswer.spurResult ?
-                    <div style={{marginLeft:30}}>{genSpurBoxIP(dnsAnswer.spurResult, boxLineID)}</div> : null
-                */}
             </div>
         );
     }

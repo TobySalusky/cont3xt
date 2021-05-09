@@ -18,7 +18,7 @@ export default function ResultWhoIs({whoIs}) {
         [
             ['Country', whoIs.adminCountry],
             ['Registrar', whoIs.registrar],
-            ['Created', whoIs.creationDate],
+            ['Created', [whoIs.creationDate, whoIs.created]],
             ['Updated', whoIs.updatedDate],
         ]
 
@@ -30,8 +30,19 @@ export default function ResultWhoIs({whoIs}) {
                         <div className="WhoIsBox">
                             <p style={{fontWeight:'bolder', color:'orange'}}>whois</p>
                             {
-                                table?.map(entry => {
-                                    return infoBox(entry[0], entry[1])
+                                table?.map(([label, values]) => {
+                                    let value = undefined
+                                    if (Array.isArray(values)) {
+                                        for (const val of values) {
+                                            if (val) {
+                                                value = val
+                                                break;
+                                            }
+                                        }
+                                    } else {
+                                        value = values
+                                    }
+                                    return value ? infoBox(label, value) : null
                                 })
                             }
                         </div>

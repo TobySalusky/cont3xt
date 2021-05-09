@@ -26,8 +26,6 @@ export const toColorText = (variable) => {
 			
 			if (key === 'exists') continue
 			
-			if (key === 'anonymous' && variable[key] === false) continue
-			
 			let entry = toColorText(variable[key])
 			const val = entry.val
 			

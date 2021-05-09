@@ -70,7 +70,7 @@ export default function ResultDNS({dns}) {
                                     <p style={{marginLeft: 10}}>|</p>
     
                                     <ComponentTooltip comp={
-                                        <SpurBox spurResult={dnsAnswer.spurResult}/>
+                                        <SpurBox spurResult={dnsAnswer.spurResult} notitle/>
                                     }>
                                         <img className="ExternalLink" style={{width: 60}} src="./images/spur.png" alt="spur"/>
                                     </ComponentTooltip>

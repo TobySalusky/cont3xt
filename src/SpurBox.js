@@ -4,7 +4,7 @@ import DarkTooltip from "./DarkTooltip";
 import { toColorText } from "./Util";
 
 
-export function SpurBox({spurResult}) {
+export function SpurBox({spurResult, notitle}) {
 
     const infoBox = (title, data) => {
         let text = data.val
@@ -30,12 +30,15 @@ export function SpurBox({spurResult}) {
 
     return (
         <div className="WhoIsBox">
-            <p style={{fontWeight:'bolder', color:'cyan'}}>SPUR</p>
+            {notitle ? null :
+                <p style={{fontWeight:'bolder', color:'cyan'}}>SPUR</p>
+            }
+            
             {
                 Object.keys(spurResult.data).map(key => {
                     const colorText = toColorText(spurResult.data[key])
 
-                    return (colorText.val && key !== 'ip') ? infoBox(key, colorText) : null
+                    return (colorText.val && key !== 'ip' && (key !== 'anonymous' || spurResult.data.anonymous === true)) ? infoBox(key, colorText) : null
                 })
             }
         </div>

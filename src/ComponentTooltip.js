@@ -7,15 +7,21 @@ const StyledTooltip = styled.span`
   position: fixed;
   left: ${(p) => p.pos.x}px;
   top: ${(p) => p.pos.y}px;
-  
+
   transform: translateX(-50%) scale(${(p) => p.show ? 1 : 0});
   opacity: ${(p) => p.show ? 1 : 0};
-  
+
   transition-property: transform, opacity !important;
   transition-duration: ${(p) => !p.show ? 0.2 : 0.1}s !important;
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1) !important;
   transition-delay: ${(p) => (!p.show && p.interactive) ? 0.1 : 0}s;
   transform-origin: top center;
+
+  --shadow-color: ${(p) => p.shadowColor};
+  filter: drop-shadow(${(p) => p.shadowOff}px ${(p) => p.shadowOff}px ${(p) => p.shadowBlur}px var(--shadow-color))
+  drop-shadow(-${(p) => p.shadowOff}px ${(p) => p.shadowOff}px ${(p) => p.shadowBlur}px var(--shadow-color))
+  drop-shadow(${(p) => p.shadowOff}px -${(p) => p.shadowOff}px ${(p) => p.shadowBlur}px var(--shadow-color))
+  drop-shadow(-${(p) => p.shadowOff}px -${(p) => p.shadowOff}px ${(p) => p.shadowBlur}px var(--shadow-color));
 `;
 
 const findPos = (el, dir = 'bottom', space = 10) => {
@@ -32,7 +38,7 @@ const findPos = (el, dir = 'bottom', space = 10) => {
 	return pos
 }
 
-export default function ComponentTooltip({comp, interactive = true, children, ...props}) {
+export default function ComponentTooltip({comp, noInteract, noShadow, children, ...props}) {
 	
 	const [show, setShow] = useState(false)
 	const posRef = useRef({x: 0, y: 0})
@@ -54,9 +60,9 @@ export default function ComponentTooltip({comp, interactive = true, children, ..
 			})}
 			
 			<Portal>
-				<StyledTooltip pos={posRef.current} show={show} interactive={interactive} onMouseOver={() => {
-					setShow(true)
-				}} onMouseOut={handleOut}>
+				<StyledTooltip pos={posRef.current} show={show} interactive={!noInteract} onMouseOver={() => {
+					if (!noInteract) setShow(true)
+				}} onMouseOut={handleOut} shadowColor={noShadow ? 'transparent' : 'rgba(0, 0, 0, 0.5)'} shadowOff={5} shadowBlur={5}>
 					{comp}
 				</StyledTooltip>
 			</Portal>

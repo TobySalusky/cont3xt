@@ -77,7 +77,7 @@ export default function ResultDNS({dns}) {
                                 <div style={{display: 'flex', flexDirection: 'row'}}>
                                     <p style={{marginLeft: 10}}>|</p>
                                     <DarkTooltip title={jsonLines(dnsAnswer.spurResult.data)} interactive>
-                                        <img className="ExternalLink" src="./images/copy.svg" alt="spur"/>
+                                        <img className="ExternalLink" style={{width: 60}} src="./images/spur.png" alt="spur"/>
                                     </DarkTooltip>
                                 </div>
                             }
@@ -89,9 +89,9 @@ export default function ResultDNS({dns}) {
                     <div style={{marginLeft:30}}>{genAsnBoxIP(dnsAnswer.ipData, boxLineID)}</div> : null
                 }
 
-                {dnsAnswer.spurResult ?
+                {/*dnsAnswer.spurResult ?
                     <div style={{marginLeft:30}}>{genSpurBoxIP(dnsAnswer.spurResult, boxLineID)}</div> : null
-                }
+                */}
             </div>
         );
     }

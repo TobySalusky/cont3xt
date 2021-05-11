@@ -144,25 +144,28 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
 
                 arr[i] = {...result, dns: {A: dataA, AAAA: dataAAAA, NS: dataNS, MX: dataMX, TXT: dataTXT, dmarcTXT: dataDmarcTXT, CAA: dataCAA, SOA: dataSOA}}
 
-                if (dataA.Answer !== undefined) {
-                    for (let j = 0; j < dataA.Answer.length; j++) {
-                        const ipA = dataA.Answer[j].data
-
-                        fetchDataIP(ipA).then(ipData => {
-                            dataA.Answer[j] = {...dataA.Answer[j], ipData}
-                            setResults([...arr])
-                        })
-
-                        const {REACT_APP_SPUR_TOKEN} = process.env
-                        if (REACT_APP_SPUR_TOKEN) {
-                            fetchSpurDataIP(ipA, REACT_APP_SPUR_TOKEN).then(spurResult => {
-                                dataA.Answer[j] = {...dataA.Answer[j], spurResult}
+                for (const data of [dataA, dataAAAA]) {
+                    if (data.Answer !== undefined) {
+                        for (let j = 0; j < data.Answer.length; j++) {
+                            const ip = data.Answer[j].data
+            
+                            fetchDataIP(ip).then(ipData => {
+                                data.Answer[j] = {...data.Answer[j], ipData}
                                 setResults([...arr])
-                                console.log([...arr])
                             })
+            
+                            const {REACT_APP_SPUR_TOKEN} = process.env
+                            if (REACT_APP_SPUR_TOKEN) {
+                                fetchSpurDataIP(ip, REACT_APP_SPUR_TOKEN).then(spurResult => {
+                                    data.Answer[j] = {...data.Answer[j], spurResult}
+                                    setResults([...arr])
+                                    console.log([...arr])
+                                })
+                            }
                         }
                     }
                 }
+                
 
                 axios.get('/whoisdomain', {
                     params: {

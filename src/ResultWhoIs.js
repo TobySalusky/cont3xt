@@ -18,6 +18,7 @@ export default function ResultWhoIs({whoIs}) {
         [
             ['Country', whoIs.adminCountry],
             ['Registrar', whoIs.registrar],
+            ['Organization', whoIs.registrantOrganization],
             ['Created', [whoIs.creationDate, whoIs.created]],
             ['Updated', whoIs.updatedDate],
         ]

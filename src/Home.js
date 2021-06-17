@@ -15,6 +15,8 @@ import {useReadArgsURL} from "./URLHandler";
 import LineElement from "./LineElement";
 import {MainSpurBox} from "./SpurBox";
 import IPASNBox from "./IPASNBox";
+import { DisplayStatsContext } from './DisplayStatsContext';
+import { camelToCapWords } from './Util/StringUtil';
 
 // NOTE: Open All function is blocked unless popup blocking is disable for website (add notice when it doesn't work?)
 function Home() {
@@ -30,7 +32,9 @@ function Home() {
 
     const [rawConfigs, setRawConfigs] = useContext(ConfigContext)
     const readArgsURL = useReadArgsURL();
-
+    
+    const [displayStats, setDisplayStats] = useContext(DisplayStatsContext)
+    
     const readURL = () => {
         readArgsURL()
     }
@@ -98,34 +102,40 @@ function Home() {
 
     return (
 
-        <div className="App">
-            <div className="TopBar">
-                <div className="InputAreas">
-                    <NumDayInput startDate={startDate}/>
-                    <SearchBar results={results} setResults={setResults}/>
+        <div className="HomeWrapper">
+            <div className="HomeLeftSideBar">
+                {Object.keys(displayStats).map(key =>
+                    <p className="SideBarStatLabel">{camelToCapWords(key)}: <p className="SideBarStatValue">{displayStats[key]}</p></p>
+                )}
+            </div>
+            <div className="App">
+                <div className="TopBar">
+                    <div className="InputAreas">
+                        <NumDayInput startDate={startDate}/>
+                        <SearchBar results={results} setResults={setResults}/>
+                    </div>
+        
+                    <div className="ResultArea">
+                        {genResults()}
+                    </div>
                 </div>
-
-                <div className="ResultArea">
-                    {genResults()}
+    
+                <div className="Divider"/>
+    
+                <div className="Desktop">
+                    <div className="DesktopSide"/>
+        
+                    <div className="MainDesktop">
+                        {desktopTabs}
+                    </div>
+        
+                    <div className="DesktopSide">
+                        <Link to="/configurations">
+                            <img className="IconButton" src="./images/settingsBars.png" alt="settings button"/>
+                        </Link>
+                    </div>
                 </div>
             </div>
-
-            <div className="Divider"/>
-
-            <div className="Desktop">
-                <div className="DesktopSide"/>
-
-                <div className="MainDesktop">
-                    {desktopTabs}
-                </div>
-
-                <div className="DesktopSide">
-                    <Link to="/configurations">
-                        <img className="IconButton" src="./images/settingsBars.png" alt="settings button"/>
-                    </Link>
-                </div>
-            </div>
-
         </div>
     );
 }

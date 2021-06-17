@@ -13,6 +13,39 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
+  flex: 25;
+}
+
+.HomeWrapper {
+  min-height: 100vh;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-direction: row;
+}
+
+.HomeLeftSideBar {
+  flex: 1;
+  background-color: #303030;
+  border-right: 2px solid black;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px;
+  padding-top: 20px;
+}
+
+.SideBarStatLabel {
+  font-size: 15px;
+  color: white;
+}
+
+.SideBarStatValue {
+  font-size: 15px;
+  color: #ff699e;
 }
 
 .TopBar {

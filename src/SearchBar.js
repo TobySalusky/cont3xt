@@ -4,6 +4,7 @@ import {useUpdateArgsURL} from "./URLHandler";
 import {QueryContext} from "./SearchContext";
 import {LineContext} from "./LineContext";
 import axios from 'axios';
+import { DisplayStatsContext } from './DisplayStatsContext';
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 // TODO: auto-format phone number results
@@ -14,6 +15,7 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
     const [query, setQuery] = useContext(QueryContext);
     const updateArgsURL = useUpdateArgsURL();
     const [, setLineRefs] = useContext(LineContext)
+    const [displayStats, setDisplayStats] = useContext(DisplayStatsContext)
 
     const typeValidation = {
         phone: /^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$/,
@@ -159,6 +161,10 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                                 fetchSpurDataIP(ip, REACT_APP_SPUR_TOKEN).then(spurResult => {
                                     data.Answer[j] = {...data.Answer[j], spurResult}
                                     setResults([...arr])
+                                    let newSpurCount = spurResult.headers['x-balance-remaining']
+                                    if (!displayStats.spurBalance || newSpurCount < displayStats.spurBalance) {
+                                        setDisplayStats({...displayStats, spurBalance: newSpurCount})
+                                    }
                                     console.log([...arr])
                                 })
                             }
@@ -172,7 +178,7 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                         domain: result.indicator
                     }
                 }).then(whoIsResult => {
-                    console.log(whoIsResult)
+                    console.log('who is:', whoIsResult)
                     if (whoIsResult.status === 200) {
                         arr[i] = {...arr[i], whoIsData: whoIsResult.data}
                         setResults([...arr])

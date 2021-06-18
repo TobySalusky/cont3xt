@@ -5,6 +5,7 @@ import IPASNBox from "./IPASNBox";
 import {SpurBox} from "./SpurBox";
 import { jsonLines } from "./Util";
 import ComponentTooltip from './ComponentTooltip';
+import { colorTable } from './Util/Colors';
 
 export default function ResultDNS({dns}) {
 
@@ -101,8 +102,8 @@ export default function ResultDNS({dns}) {
                             <LineElement lineID={`${dnsType}-err`} lineFrom="main" style={{marginLeft: 40, marginBottom: 5}}>
                                 <div className="ResultBox" style={{justifyContent: 'space-between', padding: 5, fontSize: 12}}>
                                     <p style={{color: 'lightgreen', paddingRight: 8, fontWeight: 'bolder'}}>{dnsType}</p>
-                                    <p style={{paddingRight: 8, color: '#FF6666', fontWeight: 'bold'}}>{errorTable[dns[dnsType].Status].name}:</p>
-                                    <p style={{color: '#FF6666', fontWeight: 'bold'}}>{errorTable[dns[dnsType].Status].description}</p>
+                                    <p style={{paddingRight: 8, color: colorTable.error, fontWeight: 'bold'}}>{errorTable[dns[dnsType].Status].name}:</p>
+                                    <p style={{color: colorTable.error, fontWeight: 'bold'}}>{errorTable[dns[dnsType].Status].description}</p>
                                 </div>
                             </LineElement>
                         );

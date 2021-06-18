@@ -17,6 +17,7 @@ import {MainSpurBox} from "./SpurBox";
 import IPASNBox from "./IPASNBox";
 import { DisplayStatsContext } from './DisplayStatsContext';
 import { camelToCapWords } from './Util/StringUtil';
+import ValidationBox from './Components/ValidationBox';
 
 // NOTE: Open All function is blocked unless popup blocking is disable for website (add notice when it doesn't work?)
 function Home() {
@@ -82,6 +83,8 @@ function Home() {
                                 
                                 <ResultsBox result={result}/>
 
+                                <ValidationBox status={result.valid}/>
+                                
                                 <ResultDNS dns={result.dns} ipData={result.ipData}/>
 
                                 {(!result.ipData) ? null :

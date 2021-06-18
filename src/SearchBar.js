@@ -127,6 +127,7 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         let arr = [...newResults];
         let diff = false;
 
+        // DNS records
         for (let i = 0; i < newResults.length; i++) {
             const result = newResults[i];
             let thisDiff = true;
@@ -172,8 +173,8 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                     }
                 }
                 
-
-                axios.get('/whoisdomain', {
+                // get whois data
+                axios.get('/who-is-domain', {
                     params: {
                         domain: result.indicator
                     }
@@ -188,16 +189,55 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
 
             } else if (result.type === 'IP') {
 
+                // AP2ISN
+                // TODO: use backend AP2ISN
                 const ipData = await fetchDataIP(result.indicator)
                 arr[i] = {...arr[i], ipData}
 
-                const {REACT_APP_SPUR_TOKEN} = process.env
+                // Spur
+                const {REACT_APP_SPUR_TOKEN} = process.env300
                 if (REACT_APP_SPUR_TOKEN) {
                     const spurResult = await fetchSpurDataIP(result.indicator, REACT_APP_SPUR_TOKEN)
                     arr[i] = {...arr[i], spurResult}
                 }
 
-            } else {
+            } else if (result.type === 'Email') {
+    
+                // Verify Email
+                axios.get('/verify-email', {
+                    params: {
+                        email: result.indicator
+                    }
+                }).then(infoResult => {
+                    console.log('email info:', infoResult)
+                    let status;
+                    if (infoResult.data === 'err') {
+                        status = 'err';
+                    } else {
+                        status = infoResult.data.success;
+                    }
+    
+                    arr[i] = {...arr[i], valid: status}
+                    setResults([...arr])
+                    console.log(arr)
+                })
+                
+            } else if (result.type === 'PhoneNumber') {
+    
+                // Verify Phone Number
+                axios.get('/verify-phone-number', {
+                    params: {
+                        phoneNumber: result.indicator
+                    }
+                }).then(validResult => {
+                    console.log('phone number validation:', validResult.data)
+        
+                    arr[i] = {...arr[i], valid: validResult.data}
+                    setResults([...arr])
+                    console.log(arr)
+                }).catch(err => console.log('phone-number validation error:', err))
+    
+            }else {
                 thisDiff = false;
             }
             if (thisDiff) diff = true;

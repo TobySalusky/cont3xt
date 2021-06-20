@@ -1,5 +1,5 @@
 import History from "./History";
-import {QueryContext, NumDaysContext} from "./SearchContext";
+import {QueryContext, NumDaysContext} from "../State/SearchContext";
 import {useContext} from "react";
 
 export function argsFromURL() {

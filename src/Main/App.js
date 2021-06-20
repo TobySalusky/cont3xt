@@ -1,11 +1,11 @@
-import './App.css';
+import '../Style/App.css';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
-import Home from "./Home";
-import Edit from "./Edit";
-import Loader from "./Loader";
-import ConfigSelectPage from "./ConfigSelectPage";
-import GlobalProvider from "./GlobalContext";
-import History from "./History";
+import Home from "../Pages/Home";
+import Edit from "../Pages/Edit";
+import Loader from "../State/Loader";
+import ConfigSelectPage from "../Pages/ConfigSelectPage";
+import GlobalProvider from "../State/GlobalContext";
+import History from "../Util/History";
 
 
 function App() {

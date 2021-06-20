@@ -1,4 +1,4 @@
-import {TypeDataProvider} from "./Edit";
+import {TypeDataProvider} from "../Pages/Edit";
 import {ConfigProvider, EditConfigProvider} from "./ConfigContext";
 import {NumDaysProvider, QueryProvider} from "./SearchContext";
 import {LineProvider} from "./LineContext";

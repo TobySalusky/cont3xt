@@ -1,7 +1,7 @@
-import './App.css';
+import '../Style/App.css';
 import { useContext, useEffect } from 'react';
-import {NumDaysContext} from "./SearchContext";
-import {argsFromURL, useUpdateArgsURL} from "./URLHandler";
+import {NumDaysContext} from "../State/SearchContext";
+import {argsFromURL, useUpdateArgsURL} from "../Util/URLHandler";
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 // TODO: auto-format phone number results

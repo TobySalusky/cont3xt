@@ -1,7 +1,7 @@
-import './App.css';
+import '../Style/App.css';
 import LineElement from "./LineElement";
-import DarkTooltip from "./DarkTooltip";
-import { toColorText } from "./Util";
+import DarkTooltip from "../Style/DarkTooltip";
+import { toColorText } from "../Util/Util";
 
 
 export function SpurBox({spurResult, notitle}) {

@@ -1,4 +1,4 @@
-import DarkTooltip from "./DarkTooltip";
+import DarkTooltip from "../Style/DarkTooltip";
 
 
 export default function IPASNBox({ipData}) {

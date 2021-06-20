@@ -1,11 +1,11 @@
-import './App.css';
+import '../Style/App.css';
 import LineElement from "./LineElement";
-import DarkTooltip from "./DarkTooltip";
+import DarkTooltip from "../Style/DarkTooltip";
 import IPASNBox from "./IPASNBox";
 import {SpurBox} from "./SpurBox";
-import { jsonLines } from "./Util";
+import { jsonLines } from "../Util/Util";
 import ComponentTooltip from './ComponentTooltip';
-import { colorTable } from './Util/Colors';
+import { colorTable } from '../Util/Colors';
 
 export default function ResultDNS({dns}) {
 

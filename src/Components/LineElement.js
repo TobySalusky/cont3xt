@@ -1,5 +1,5 @@
 import { useEffect, useContext } from 'react';
-import {LineContext} from "./LineContext";
+import {LineContext} from "../State/LineContext";
 
 function LineElement ({lineID, lineFrom, children, style}) {
 

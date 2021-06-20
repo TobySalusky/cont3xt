@@ -1,23 +1,23 @@
-import './App.css';
-import SearchBar from "./SearchBar";
-import ResultsBox from "./ResultsBox";
-import ResultWhoIs from "./ResultWhoIs";
+import '../Style/App.css';
+import SearchBar from "../Components/SearchBar";
+import ResultsBox from "../Components/ResultsBox";
+import ResultWhoIs from "../Components/ResultWhoIs";
 import { useState, useEffect, useContext, useRef } from 'react';
-import LinkTab from "./LinkTab";
-import NumDayInput from "./NumDayInput";
-import {createConfig} from "./Configurations";
+import LinkTab from "../Components/LinkTab";
+import NumDayInput from "../Components/NumDayInput";
+import {createConfig} from "../Util/Configurations";
 import {Link} from 'react-router-dom';
-import {ConfigContext} from "./ConfigContext";
-import ResultDNS from "./ResultDNS";
-import LineCanvas from "./LineCanvas";
-import {NumDaysContext} from "./SearchContext";
-import {useReadArgsURL} from "./URLHandler";
-import LineElement from "./LineElement";
-import {MainSpurBox} from "./SpurBox";
-import IPASNBox from "./IPASNBox";
-import { DisplayStatsContext } from './DisplayStatsContext';
-import { camelToCapWords } from './Util/StringUtil';
-import ValidationBox from './Components/ValidationBox';
+import {ConfigContext} from "../State/ConfigContext";
+import ResultDNS from "../Components/ResultDNS";
+import LineCanvas from "../Components/LineCanvas";
+import {NumDaysContext} from "../State/SearchContext";
+import {useReadArgsURL} from "../Util/URLHandler";
+import LineElement from "../Components/LineElement";
+import {MainSpurBox} from "../Components/SpurBox";
+import IPASNBox from "../Components/IPASNBox";
+import { DisplayStatsContext } from '../State/DisplayStatsContext';
+import { camelToCapWords } from '../Util/StringUtil';
+import ValidationBox from '../Components/ValidationBox';
 
 // NOTE: Open All function is blocked unless popup blocking is disable for website (add notice when it doesn't work?)
 function Home() {

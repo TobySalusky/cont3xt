@@ -1,5 +1,5 @@
-import '../App.css';
-import LineElement from "../LineElement";
+import '../Style/App.css';
+import LineElement from "./LineElement";
 import { colorTable } from '../Util/Colors';
 
 export default function ValidationBox({status}) {

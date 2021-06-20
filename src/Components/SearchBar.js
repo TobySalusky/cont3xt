@@ -1,10 +1,10 @@
-import './App.css';
+import '../Style/App.css';
 import { useState, useEffect, useContext } from 'react';
-import {useUpdateArgsURL} from "./URLHandler";
-import {QueryContext} from "./SearchContext";
-import {LineContext} from "./LineContext";
+import {useUpdateArgsURL} from "../Util/URLHandler";
+import {QueryContext} from "../State/SearchContext";
+import {LineContext} from "../State/LineContext";
 import axios from 'axios';
-import { DisplayStatsContext } from './DisplayStatsContext';
+import { DisplayStatsContext } from '../State/DisplayStatsContext';
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 // TODO: auto-format phone number results
@@ -195,9 +195,9 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                 arr[i] = {...arr[i], ipData}
 
                 // Spur
-                const {REACT_APP_SPUR_TOKEN} = process.env300
+                const {REACT_APP_SPUR_TOKEN} = process.env
                 if (REACT_APP_SPUR_TOKEN) {
-                    const spurResult = await fetchSpurDataIP(result.indicator, REACT_APP_SPUR_TOKEN)
+                    const spurResult = await fetchSpurDataIP(result.indicator, REACT_APP_SPUR_TOKEN) // TODO: change spur count here too!
                     arr[i] = {...arr[i], spurResult}
                 }
 

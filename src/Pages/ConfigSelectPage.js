@@ -1,8 +1,8 @@
-import './App.css';
+import '../Style/App.css';
 import {Link} from "react-router-dom";
-import {ConfigContext, EditConfigContext} from "./ConfigContext";
+import {ConfigContext, EditConfigContext} from "../State/ConfigContext";
 import { useContext, useState } from 'react';
-import {readConfig} from "./Configurations";
+import {readConfig} from "../Util/Configurations";
 
 
 

@@ -1,4 +1,4 @@
-import './App.css';
+import '../Style/App.css';
 import LineElement from "./LineElement";
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?

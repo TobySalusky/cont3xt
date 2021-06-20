@@ -1,7 +1,7 @@
-import './App.css';
+import '../Style/App.css';
 import React, {useRef, useState, useEffect, useLayoutEffect, useContext} from 'react';
-import {useWindowDimen} from './ResizeUtil'
-import {LineContext} from "./LineContext";
+import {useWindowDimen} from '../Util/ResizeUtil'
+import {LineContext} from "../State/LineContext";
 
 
 export default function LineCanvas(props) {

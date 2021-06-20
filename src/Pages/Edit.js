@@ -1,11 +1,11 @@
-import './App.css';
+import '../Style/App.css';
 import {Component, createContext, useContext, useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 
 import reactCSS from 'reactcss'
 import {SketchPicker} from 'react-color'
-import {ConfigContext, EditConfigContext} from "./ConfigContext";
-import {readConfig} from "./Configurations";
+import {ConfigContext, EditConfigContext} from "../State/ConfigContext";
+import {readConfig} from "../Util/Configurations";
 
 export const TypeDataContext = createContext();
 

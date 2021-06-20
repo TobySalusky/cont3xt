@@ -1,6 +1,6 @@
-import './App.css';
+import '../Style/App.css';
 import { useState, useEffect } from 'react';
-import {fillLinkFormat} from "./LinkGeneration";
+import {fillLinkFormat} from "../Util/LinkGeneration";
 
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?

@@ -1,4 +1,4 @@
-import './App.css';
+import '../Style/App.css';
 import LineElement from "./LineElement";
 
 export default function ResultWhoIs({whoIs}) {

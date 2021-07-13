@@ -1,8 +1,7 @@
 import '../Style/App.css';
 import SearchBar from "../Components/SearchBar";
 import ResultsBox from "../Components/ResultsBox";
-import ResultWhoIs from "../Components/ResultWhoIs";
-import { useState, useEffect, useContext, useRef } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import LinkTab from "../Components/LinkTab";
 import NumDayInput from "../Components/NumDayInput";
 import {createConfig} from "../Util/Configurations";
@@ -13,7 +12,6 @@ import LineCanvas from "../Components/LineCanvas";
 import {NumDaysContext} from "../State/SearchContext";
 import {useReadArgsURL} from "../Util/URLHandler";
 import LineElement from "../Components/LineElement";
-import {MainSpurBox} from "../Components/SpurBox";
 import IPASNBox from "../Components/IPASNBox";
 import { DisplayStatsContext } from '../State/DisplayStatsContext';
 import { camelToCapWords } from '../Util/StringUtil';
@@ -23,7 +21,7 @@ import ValidationBox from '../Components/ValidationBox';
 function Home() {
 
     // STATE
-    const [numDays, setNumDays] = useContext(NumDaysContext)
+    const [numDays, ] = useContext(NumDaysContext)
     const [startDate, setStartDate] = useState(7)
     const [results, setResults] = useState([])
 
@@ -31,10 +29,10 @@ function Home() {
 
     const [desktopTabs, setDesktopTabs] = useState([])
 
-    const [rawConfigs, setRawConfigs] = useContext(ConfigContext)
+    const [rawConfigs, ] = useContext(ConfigContext)
     const readArgsURL = useReadArgsURL();
     
-    const [displayStats, setDisplayStats] = useContext(DisplayStatsContext)
+    const [displayStats, ] = useContext(DisplayStatsContext)
     
     const readURL = () => {
         readArgsURL()
@@ -94,8 +92,6 @@ function Home() {
                                 }
 
                             </div>
-                            <ResultWhoIs whoIs={result.whoIsData}/>
-                            <MainSpurBox spurResult={result.spurResult}/>
                         </div>
                     </LineCanvas>
                 </div>

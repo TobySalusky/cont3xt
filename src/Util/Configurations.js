@@ -24,8 +24,8 @@ export function readConfig(fullText) {
             linkArr = [];
             linkDict[line.substring(0, line.length - 1)] = linkArr;
 
-        } else if (Object.keys(linkDict).length > 0 && line.startsWith('\"')) {
-            let lastQuote = line.lastIndexOf('\"');
+        } else if (Object.keys(linkDict).length > 0 && line.startsWith('"')) {
+            let lastQuote = line.lastIndexOf('"');
             let label = line.substring(1, lastQuote).trim();
 
             let afterName = line.substring(lastQuote + 1).trim();

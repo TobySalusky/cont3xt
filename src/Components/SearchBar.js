@@ -88,17 +88,58 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         return (res.status === 200) ? {status: res.status, name: data.name, link: data.links[0].value} : {status: res.status, error: res.status};
     }
 
+    const fetchCensysDataIP = async (ip) => {
+        // censys
+        const {REACT_APP_CENSYS_API_ID, REACT_APP_CENSYS_API_SECRET} = process.env
+        if (REACT_APP_CENSYS_API_ID && REACT_APP_CENSYS_API_SECRET) {
+            const { SearchClient } = require("@censys/node");
+            const c = new SearchClient({
+                apiId: REACT_APP_CENSYS_API_ID,
+                apiSecret: REACT_APP_CENSYS_API_SECRET,
+            });
+        
+            let fields = [
+                "ip",
+                "location",
+                "protocols",
+                "updated_at",
+                "443.https.get.title",
+                "443.https.get.headers.server",
+                "443.https.get.headers.x_powered_by",
+                "443.https.get.metadata.description",
+                "443.https.tls.certificate.parsed.subject_dn",
+                "443.https.tls.certificate.parsed.names",
+                "443.https.tls.certificate.parsed.subject.common_name",
+            ];
+        
+            let query2 = c.v1.ipv4.search(
+                ip, fields
+            );
+            
+            let censysObj = {};
+            
+            for await (let page of query2) {
+                console.log('test censys', page);
+                censysObj = {...censysObj, ...page};
+            }
+        
+            return {data: censysObj};
+        }
+        console.log('no censys api authentication provided.');
+        return undefined;
+    }
+    
     const fetchSpurDataIP = async (ip, spurToken) => {
 
-        const spurTest = await axios.get(`https://api.spur.us/v1/context/${ip}`, {
+        const spurRes = await axios.get(`https://api.spur.us/v1/context/${ip}`, {
             headers: {
                 'Token': spurToken
             }
         })
 
-        console.log('spur', spurTest)
+        console.log('spur', spurRes)
 
-        return spurTest
+        return spurRes
     }
 
     const CAAToText = (hexStr) => {
@@ -169,6 +210,13 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                                     console.log([...arr])
                                 })
                             }
+                            
+                            const censysResult = await fetchCensysDataIP(ip);
+                            if (censysResult) {
+                                console.log('?',censysResult)
+                                data.Answer[j] = {...data.Answer[j], censysResult}
+                                setResults([...arr])
+                            }
                         }
                     }
                 }
@@ -181,11 +229,10 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                 }).then(whoIsResult => {
                     console.log('who is:', whoIsResult)
                     if (whoIsResult.status === 200) {
-                        arr[i] = {...arr[i], whoIsData: whoIsResult.data}
+                        arr[i] = {...arr[i], whoisResult: whoIsResult}
                         setResults([...arr])
                     }
                 })
-
 
             } else if (result.type === 'IP') {
 
@@ -199,6 +246,12 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                 if (REACT_APP_SPUR_TOKEN) {
                     const spurResult = await fetchSpurDataIP(result.indicator, REACT_APP_SPUR_TOKEN) // TODO: change spur count here too!
                     arr[i] = {...arr[i], spurResult}
+                }
+    
+                // censys
+                const censysResult = await fetchCensysDataIP(result.indicator);
+                if (censysResult) {
+                    arr[i] = {...arr[i], censysResult}
                 }
 
             } else if (result.type === 'Email') {

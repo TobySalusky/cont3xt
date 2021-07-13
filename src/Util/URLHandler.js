@@ -14,8 +14,8 @@ export function argsFromURL() {
 
 export function useReadArgsURL() {
 
-    const [query, setQuery] = useContext(QueryContext)
-    const [numDays, setNumDays] = useContext(NumDaysContext)
+    const [, setQuery] = useContext(QueryContext)
+    const [, setNumDays] = useContext(NumDaysContext)
 
     const readArgsURL = () => {
         const args = argsFromURL();
@@ -28,8 +28,8 @@ export function useReadArgsURL() {
 
 export function useUpdateArgsURL() {
 
-    const [query, setQuery] = useContext(QueryContext)
-    const [numDays, setNumDays] = useContext(NumDaysContext)
+    const [query, ] = useContext(QueryContext)
+    const [numDays, ] = useContext(NumDaysContext)
 
 
     const updateArgsURL = () => {

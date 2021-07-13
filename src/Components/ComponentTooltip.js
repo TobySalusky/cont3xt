@@ -38,7 +38,7 @@ const findPos = (el, dir = 'bottom', space = 10) => {
 	return pos
 }
 
-export default function ComponentTooltip({comp, noInteract, noShadow, children, ...props}) {
+export default function ComponentTooltip({comp, noInteract, noShadow, children, style, ...props}) {
 	
 	const [show, setShow] = useState(false)
 	const posRef = useRef({x: 0, y: 0})
@@ -53,7 +53,7 @@ export default function ComponentTooltip({comp, noInteract, noShadow, children, 
 	}
 	
 	return (
-		<>
+		<div style={style}>
 			{React.cloneElement(children, {
 				onMouseOver: handleOver,
 				onMouseOut: handleOut,
@@ -66,6 +66,6 @@ export default function ComponentTooltip({comp, noInteract, noShadow, children, 
 					{comp}
 				</StyledTooltip>
 			</Portal>
-		</>
+		</div>
 	);
 }

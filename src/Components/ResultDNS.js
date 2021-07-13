@@ -2,10 +2,11 @@ import '../Style/App.css';
 import LineElement from "./LineElement";
 import DarkTooltip from "../Style/DarkTooltip";
 import IPASNBox from "./IPASNBox";
-import {SpurBox} from "./SpurBox";
+import {ColorDictBox} from "./ColorDictBox";
 import { jsonLines } from "../Util/Util";
 import ComponentTooltip from './ComponentTooltip';
 import { colorTable } from '../Util/Colors';
+import { Integrations } from "./Integrations";
 
 export default function ResultDNS({dns}) {
 
@@ -53,7 +54,7 @@ export default function ResultDNS({dns}) {
             <div>
                 <div style={{marginBottom: 5, marginLeft: 40}}>
                     <LineElement lineID={boxLineID} lineFrom="main">
-                        <div className="ResultBox" style={{justifyContent: 'space-between', padding: 5, fontSize: 12}}>
+                        <div className="ResultBox" style={{justifyContent: 'space-between', alignItems:'center', padding: 5, fontSize: 12}}>
                             <div className="SpaceBetweenRow">
                                 <p style={{color: 'lightgreen', paddingRight: 8, fontWeight: 'bolder'}}>{dnsType}</p>
                                 {content}
@@ -66,17 +67,8 @@ export default function ResultDNS({dns}) {
                                 onClick={() => window.open(`/?q=${data}`, '_blank', 'noreferrer')}
                             />
                             
-                            {!dnsAnswer.spurResult ? null :
-                                <div style={{display: 'flex', flexDirection: 'row'}}>
-                                    <p style={{marginLeft: 10}}>|</p>
-    
-                                    <ComponentTooltip comp={
-                                        <SpurBox spurResult={dnsAnswer.spurResult} notitle/>
-                                    }>
-                                        <img className="ExternalLink" style={{width: 60}} src="./images/spur.png" alt="spur"/>
-                                    </ComponentTooltip>
-                                </div>
-                            }
+                            <Integrations integrations={{spurResult: dnsAnswer.spurResult, censysResult: dnsAnswer.censysResult}}/>
+                            
                         </div>
                     </LineElement>
                 </div>

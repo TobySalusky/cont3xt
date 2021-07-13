@@ -4,27 +4,30 @@ import axios from 'axios';
 
 function Loader (props) {
 
-    const [rawConfigs, setRawConfigs] = useContext(ConfigContext)
-    useEffect(() => {
-        loadInitConfigs()
-    }, []);
-
+    const [, setRawConfigs] = useContext(ConfigContext)
+    
     const loadInitConfigs = async () => {
+        
         const paths = ['config/GeneralHunting.txt', 'config/InternalTools.txt', 'config/EnterpriseLinks.txt']
         let configs = []
         for (let i = 0; i < paths.length; i++) {
             configs.push(await (await fetch(paths[i])).text())
         }
         setRawConfigs(configs)
-
+        
         let test = await axios.get('/ip2asn', {
             params: {
                 ip: '1.1.1.2'
             }
         })
-
+        
         console.log(test)
     }
+    
+    useEffect(() => {
+        loadInitConfigs()
+    }, []);
+    
 
     return (
         <div>

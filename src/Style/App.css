@@ -1,3 +1,10 @@
+/* tag types */
+span {
+  display: flex;
+  flex-direction: row;
+}
+
+
 .App {
   text-align: center;
 
@@ -417,6 +424,10 @@
   height: fit-content;
 }
 */
+
+.WhiteFilter {
+  filter: brightness(0) invert(1);
+}
 
 .ExternalLink {
   margin-left: 6px;

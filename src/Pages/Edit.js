@@ -212,10 +212,6 @@ export function LinkRow(props) {
 
 export class LinkTypeTab extends Component {
 
-    constructor(props) {
-        super(props);
-    }
-
     render() {
 
         const styles = reactCSS({

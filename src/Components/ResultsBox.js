@@ -1,15 +1,21 @@
 import '../Style/App.css';
 import LineElement from "./LineElement";
+import { Integrations } from "./Integrations";
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 
-function ResultsBox(props) {
+function ResultsBox({result}) {
 
     return (
         <LineElement lineID="main" style={{marginBottom: 10}}>
             <div className="ResultBox">
-                <p className="ResultType" style={{color: 'orange'}}>{props.result.type}{(props.result.subType === 'None') ? '' : '('+props.result.subType+')'}:</p>
-                <p>{props.result.indicator}</p>
+                <p className="ResultType" style={{color: 'orange'}}>{result.type}{(result.subType === 'None') ? '' : '('+result.subType+')'}:</p>
+                <p>{result.indicator}</p>
+                <Integrations integrations={{
+                    spurResult: result.spurResult,
+                    censysResult: result.censysResult,
+                    whoisResult: result.whoisResult,
+                }}/>
             </div>
         </LineElement>
     );

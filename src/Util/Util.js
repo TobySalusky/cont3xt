@@ -8,7 +8,7 @@ export const typeColors = {
 	key:'#cb91ff'
 }
 
-export const toColorText = (variable) => {
+export const toColorText = (variable, punctuation = true) => {
 	
 	let returnVar = undefined;
 	let colorData = [];

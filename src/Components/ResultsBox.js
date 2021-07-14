@@ -15,6 +15,9 @@ function ResultsBox({result}) {
                     spurResult: result.spurResult,
                     censysResult: result.censysResult,
                     whoisResult: result.whoisResult,
+                    passiveTotalWhoisResult: result.passiveTotalWhoisResult,
+                    passiveTotalSubDomainsResult: result.passiveTotalSubDomainsResult,
+                    passiveTotalPassiveDNSResult: result.passiveTotalPassiveDNSResult,
                 }}/>
             </div>
         </LineElement>

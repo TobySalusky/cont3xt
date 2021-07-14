@@ -425,10 +425,6 @@ span {
 }
 */
 
-.WhiteFilter {
-  filter: brightness(0) invert(1);
-}
-
 .ExternalLink {
   margin-left: 6px;
   width: 15px;

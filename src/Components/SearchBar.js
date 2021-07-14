@@ -9,6 +9,123 @@ import { DisplayStatsContext } from '../State/DisplayStatsContext';
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 // TODO: auto-format phone number results
 
+const fetchDataIP = async (ip) => {
+    
+    let query_url = 'https://rdap.db.ripe.net/ip/' + ip.toString();
+    const res = await axios.get(query_url, {
+        validateStatus: false,
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    const data = await res.data
+    
+    return (res.status === 200) ? {status: res.status, name: data.name, link: data.links[0].value} : {status: res.status, error: res.status};
+}
+
+const fetchCensysDataIP = async (ip) => {
+    // censys
+    const {REACT_APP_CENSYS_API_ID, REACT_APP_CENSYS_API_SECRET} = process.env
+    if (REACT_APP_CENSYS_API_ID && REACT_APP_CENSYS_API_SECRET) {
+        const { SearchClient } = require("@censys/node");
+        const c = new SearchClient({
+            apiId: REACT_APP_CENSYS_API_ID,
+            apiSecret: REACT_APP_CENSYS_API_SECRET,
+        });
+        
+        let fields = [
+            "ip",
+            "location",
+            "protocols",
+            "updated_at",
+            "443.https.get.title",
+            "443.https.get.headers.server",
+            "443.https.get.headers.x_powered_by",
+            "443.https.get.metadata.description",
+            "443.https.tls.certificate.parsed.subject_dn",
+            "443.https.tls.certificate.parsed.names",
+            "443.https.tls.certificate.parsed.subject.common_name",
+        ];
+        
+        let query2 = c.v1.ipv4.search(
+            ip, fields
+        );
+        
+        let censysObj = {};
+        
+        for await (let page of query2) {
+            console.log('test censys', page);
+            censysObj = {...censysObj, ...page};
+        }
+        
+        return {data: censysObj};
+    }
+    console.log('no censys api authentication provided.');
+    return undefined;
+}
+
+const fetchPassiveTotalWhois = async (domain) => {
+    const {REACT_APP_PASSIVETOTAL_API_USER, REACT_APP_PASSIVETOTAL_API_KEY} = process.env;
+    const passiveTotalWhois = await axios.get('https://api.passivetotal.org/v2/whois', {
+        params: {
+            query: domain,
+            history: false
+        },
+        auth: {
+            username: REACT_APP_PASSIVETOTAL_API_USER,
+            password: REACT_APP_PASSIVETOTAL_API_KEY
+        }
+    });
+    
+    console.log('passivetotal whois',passiveTotalWhois);
+    return passiveTotalWhois;
+}
+
+const fetchPassiveTotalSubDomains = async (domain) => {
+    const {REACT_APP_PASSIVETOTAL_API_USER, REACT_APP_PASSIVETOTAL_API_KEY} = process.env;
+    const passiveTotalSubDomainsResult = await axios.get('https://api.passivetotal.org/v2/enrichment/subdomains', {
+        params: {
+            query: domain
+        },
+        auth: {
+            username: REACT_APP_PASSIVETOTAL_API_USER,
+            password: REACT_APP_PASSIVETOTAL_API_KEY
+        }
+    });
+    
+    console.log('passivetotal subdomains',passiveTotalSubDomainsResult);
+    return passiveTotalSubDomainsResult;
+}
+
+const fetchPassiveTotalPassiveDNS = async (ip) => {
+    const {REACT_APP_PASSIVETOTAL_API_USER, REACT_APP_PASSIVETOTAL_API_KEY} = process.env;
+    const passiveTotalPassiveDNS = await axios.get('https://api.passivetotal.org/v2/dns/passive', {
+        params: {
+            query: ip
+        },
+        auth: {
+            username: REACT_APP_PASSIVETOTAL_API_USER,
+            password: REACT_APP_PASSIVETOTAL_API_KEY
+        }
+    });
+    
+    console.log('passivetotal passive dns', passiveTotalPassiveDNS);
+    return passiveTotalPassiveDNS;
+}
+
+const fetchSpurDataIP = async (ip, spurToken) => {
+    
+    const spurRes = await axios.get(`https://api.spur.us/v1/context/${ip}`, {
+        headers: {
+            'Token': spurToken
+        }
+    })
+    
+    console.log('spur', spurRes)
+    
+    return spurRes
+}
+
 function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
 
     const [search, setSearch] = useState('');
@@ -74,73 +191,6 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         dnsQueries(newResults);
     }, [query]);
 
-    const fetchDataIP = async (ip) => {
-
-        let query_url = 'https://rdap.db.ripe.net/ip/' + ip.toString();
-        const res = await axios.get(query_url, {
-            validateStatus: false,
-            headers: {
-                'Accept': 'application/json'
-            }
-        })
-        const data = await res.data
-
-        return (res.status === 200) ? {status: res.status, name: data.name, link: data.links[0].value} : {status: res.status, error: res.status};
-    }
-
-    const fetchCensysDataIP = async (ip) => {
-        // censys
-        const {REACT_APP_CENSYS_API_ID, REACT_APP_CENSYS_API_SECRET} = process.env
-        if (REACT_APP_CENSYS_API_ID && REACT_APP_CENSYS_API_SECRET) {
-            const { SearchClient } = require("@censys/node");
-            const c = new SearchClient({
-                apiId: REACT_APP_CENSYS_API_ID,
-                apiSecret: REACT_APP_CENSYS_API_SECRET,
-            });
-        
-            let fields = [
-                "ip",
-                "location",
-                "protocols",
-                "updated_at",
-                "443.https.get.title",
-                "443.https.get.headers.server",
-                "443.https.get.headers.x_powered_by",
-                "443.https.get.metadata.description",
-                "443.https.tls.certificate.parsed.subject_dn",
-                "443.https.tls.certificate.parsed.names",
-                "443.https.tls.certificate.parsed.subject.common_name",
-            ];
-        
-            let query2 = c.v1.ipv4.search(
-                ip, fields
-            );
-            
-            let censysObj = {};
-            
-            for await (let page of query2) {
-                console.log('test censys', page);
-                censysObj = {...censysObj, ...page};
-            }
-        
-            return {data: censysObj};
-        }
-        console.log('no censys api authentication provided.');
-        return undefined;
-    }
-    
-    const fetchSpurDataIP = async (ip, spurToken) => {
-
-        const spurRes = await axios.get(`https://api.spur.us/v1/context/${ip}`, {
-            headers: {
-                'Token': spurToken
-            }
-        })
-
-        console.log('spur', spurRes)
-
-        return spurRes
-    }
 
     const CAAToText = (hexStr) => {
 
@@ -233,6 +283,18 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                         setResults([...arr])
                     }
                 })
+                
+                // passivetotal ======
+                fetchPassiveTotalWhois(result.indicator).then(res => { // whois
+                    arr[i] = {...arr[i], passiveTotalWhoisResult: res}
+                    setResults([...arr])
+                })
+    
+                fetchPassiveTotalPassiveDNS(result.indicator).then(res => { // sub-domains
+                    arr[i] = {...arr[i], passiveTotalSubDomainsResult: res}
+                    setResults([...arr])
+                })
+                
 
             } else if (result.type === 'IP') {
 
@@ -253,6 +315,12 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                 if (censysResult) {
                     arr[i] = {...arr[i], censysResult}
                 }
+                
+                // passivetotal
+                fetchPassiveTotalPassiveDNS(result.indicator).then(res => { // passive dns
+                    arr[i] = {...arr[i], passiveTotalPassiveDNSResult: res}
+                    setResults([...arr])
+                })
 
             } else if (result.type === 'Email') {
     

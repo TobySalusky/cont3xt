@@ -1,22 +1,16 @@
 import '../Style/App.css';
-import { toColorText } from "../Util/Util";
+import { toColorElems, toColorText } from "../Util/Util";
+import { LinkBack } from "./LinkBack";
+import { Copy } from "./Copy";
 
 const infoBox = (title, data) => {
-    let text = data.val
-    let colors = data.colorData
     
     return (
         <div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}>
             <div style={{display: 'flex', justifyContent:'flex-start', maxWidth: 500, flexWrap: "wrap"}}>
                 <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>{title}:</p>
                 
-                {
-                    colors.map(colorEntry => {
-                        const snip = text.substring(0, colorEntry[1]).replace(' ', '\xa0')
-                        text = text.substring(colorEntry[1])
-                        return <p style={{color: colorEntry[0]}}>{snip}</p>
-                    })
-                }
+                {toColorElems(data)}
             
             </div>
         </div>
@@ -44,38 +38,48 @@ export function PassiveTotalPassiveDNSColorDictBox({data}) {
     
     const infoBoxResults = (results) => {
         
+        let copyVal = '';
+        results.forEach((result, i) => {
+            if (i > 0) copyVal += '\n';
+            copyVal += `${toColorText(result.resolve).val}, ${toColorText({firstSeen: result.firstSeen}, false).val}, ${toColorText({lastSeen: result.lastSeen}, false).val}`;
+        });
+        
         return (
-            <div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}>
-                <div style={{display: 'flex', flexDirection: 'column', maxWidth: 700}}>
+            <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+                marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}
+            >
+                <span>
                     <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>Results:</p>
-                    
-                    {
-                        results.map(result => {
-    
-                            const colorText = toColorText(result)
-                            let text = colorText.val;
-                            const colors = colorText.colorData;
-                            let firstColon = false;
-                            
-                            return (
-                                <div style={{display: 'flex', justifyContent:'flex-start'}}>
-                                    {
-                                        colors.map(colorEntry => {
-                                            const snip = text.substring(0, colorEntry[1]).replace(' ', '\xa0')
-                                            text = text.substring(colorEntry[1])
-                                            
-                                            const visible = firstColon && snip !== '}';
-                                            
-                                            if (snip.indexOf(':') !== -1) firstColon = true;
-                                            
-                                            return visible ? <p style={{color: colorEntry[0]}}>{snip}</p> : null;
-                                        })
-                                    }
-                                </div>
-                            );
-                        })
-                    }
+                    <Copy value={copyVal}/>
+                </span>
                 
+                <div style={{display: 'flex', flexDirection: 'row', maxWidth: 800}}>
+                    <div style={{display: 'flex', flexDirection: 'column', marginRight: 5}}>
+                        {results.map(result =>
+                            <div style={{display: 'flex', justifyContent:'flex-start'}}>
+                                <LinkBack query={result.resolve} style={{width: 12, height: 12, margin: 0, marginRight: 5}}/>
+                                {toColorElems(toColorText(result.resolve, false, true))}
+                            </div>
+                        )}
+                    </div>
+                    <div style={{display: 'flex', flexDirection: 'column', marginRight: 5}}>
+                        {results.map(result =>
+                            <div style={{display: 'flex', justifyContent:'flex-start'}}>
+                                {
+                                    toColorElems(toColorText({firstSeen: result.firstSeen}, false, true))
+                                }
+                            </div>
+                        )}
+                    </div>
+                    <div style={{display: 'flex', flexDirection: 'column'}}>
+                        {results.map(result =>
+                            <div style={{display: 'flex', justifyContent:'flex-start'}}>
+                                {
+                                    toColorElems(toColorText({lastSeen: result.lastSeen}, false))
+                                }
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         );

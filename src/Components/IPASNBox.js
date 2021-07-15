@@ -1,4 +1,5 @@
 import DarkTooltip from "../Style/DarkTooltip";
+import { LinkBack } from "./LinkBack";
 
 
 export default function IPASNBox({ipData}) {
@@ -22,9 +23,7 @@ export default function IPASNBox({ipData}) {
                                  onClick={() => navigator.clipboard.writeText(ipData.name)}
                             />
     
-                            <img className="ExternalLink" src="./images/externalLink.svg" alt="external link"
-                                 onClick={() => window.open(`/?q=${ipData.name}`, '_blank', 'noreferrer')}
-                            />
+                            <LinkBack query={ipData.name}/>
                         </div>
 
                     </div>

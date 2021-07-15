@@ -8,7 +8,19 @@ export const typeColors = {
 	key:'#cb91ff'
 }
 
-export const toColorText = (variable, punctuation = true) => {
+export const toColorElems = (data) => {
+	
+	let text = data.val
+	let colors = data.colorData
+	
+	return colors.map(colorEntry => {
+		const snip = text.substring(0, colorEntry[1]).replace(' ', '\xa0')
+		text = text.substring(colorEntry[1])
+		return <p style={{color: colorEntry[0]}}>{snip}</p>
+	})
+}
+
+export const toColorText = (variable, brackets = true, appendComma = false, spaces = true) => {
 	
 	let returnVar = undefined;
 	let colorData = [];
@@ -18,8 +30,11 @@ export const toColorText = (variable, punctuation = true) => {
 	};
 	
 	if (isDict(variable)) {
-		let str = '{'
-		colorData.push([typeColors.brackets, 1])
+		let str = '';
+		if (brackets) {
+			str += '{';
+			colorData.push([typeColors.brackets, 1]);
+		}
 		
 		let init = true
 		for (const key of Object.keys(variable)) {
@@ -31,23 +46,30 @@ export const toColorText = (variable, punctuation = true) => {
 			
 			if (val) {
 				if (!init) {
-					str += ', '
-					colorData.push([typeColors.comma, 2])
+					str += spaces ? ', ' : ',';
+					colorData.push([typeColors.comma, spaces ? 2 : 1]);
 				}
-				str += `${key}: ${val}`
-				colorData = [...colorData, [typeColors.key, key.length], [typeColors.plain, 2], ...entry.colorData]
+				const sep = spaces ? ': ' : ':';
+				str += `${key}${sep}${val}`
+				colorData = [...colorData, [typeColors.key, key.length], [typeColors.plain, sep.length], ...entry.colorData]
 				init = false
 			}
 		}
-		str += '}'
-		colorData.push([typeColors.brackets, 1])
+		
+		if (brackets) {
+			str += '}'
+			colorData.push([typeColors.brackets, 1])
+		}
 		
 		if (str !== '{}') returnVar = str
 		
 	} else if (Array.isArray(variable)) {
 		
-		let str = '['
-		colorData.push([typeColors.brackets, 1])
+		let str = '';
+		if (brackets) {
+			str += '[';
+			colorData.push([typeColors.brackets, 1]);
+		}
 		
 		let init = true
 		for (const element of variable) {
@@ -56,16 +78,18 @@ export const toColorText = (variable, punctuation = true) => {
 			
 			if (val) {
 				if (!init) {
-					str += ', '
-					colorData.push([typeColors.comma, 2])
+					str += spaces ? ', ' : ',';
+					colorData.push([typeColors.comma, spaces ? 2 : 1]);
 				}
 				str += val
 				colorData = [...colorData, ...entry.colorData]
 				init = false
 			}
 		}
-		str += ']'
-		colorData.push([typeColors.brackets, 1])
+		if (brackets) {
+			str += ']';
+			colorData.push([typeColors.brackets, 1]);
+		}
 		
 		if (str !== '[]') returnVar = str
 	} else {
@@ -81,6 +105,31 @@ export const toColorText = (variable, punctuation = true) => {
 			col = typeColors.string
 		}
 		colorData.push([col, (''+returnVar).length])
+	}
+	
+	// TODO: figure out what to do when input fits no types (returnVar is undefined)
+	// add null case?
+	/*
+	if (!brackets) {
+		let newReturnVar = '';
+		const newColorData = [];
+		let i = 0;
+		for (const colorDataEntry of colorData) {
+			const len = colorDataEntry[1];
+			const sub = returnVar.substring(i, i+len);
+			if (sub !== '{' && sub !== '}' && sub !== '[' && sub !== ']') {
+				newReturnVar += sub;
+				newColorData.push(colorDataEntry)
+			}
+			i++;
+		}
+		returnVar = newReturnVar;
+		colorData = newColorData;
+	}*/
+	
+	if (appendComma) {
+		returnVar += ',';
+		colorData.push([typeColors.comma, 1]);
 	}
 	
 	return {val: returnVar, colorData}

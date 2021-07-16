@@ -1,7 +1,7 @@
 import '../Style/App.css';
 import { useState, useEffect, useContext } from 'react';
 import {useUpdateArgsURL} from "../Util/URLHandler";
-import {QueryContext} from "../State/SearchContext";
+import { Base64Context, QueryContext } from "../State/SearchContext";
 import {LineContext} from "../State/LineContext";
 import axios from 'axios';
 import { DisplayStatsContext } from '../State/DisplayStatsContext';
@@ -58,6 +58,8 @@ const fetchCensysDataIP = async (ip) => {
             censysObj = {...censysObj, ...page};
         }
         
+        if (Object.keys(censysObj).length === 0) return null;
+        
         return {data: censysObj};
     }
     console.log('no censys api authentication provided.');
@@ -113,11 +115,14 @@ const fetchPassiveTotalPassiveDNS = async (ip) => {
     return passiveTotalPassiveDNS;
 }
 
-const fetchSpurDataIP = async (ip, spurToken) => {
+const fetchSpurDataIP = async (ip) => {
+    const {REACT_APP_SPUR_TOKEN} = process.env
+    
+    if (!REACT_APP_SPUR_TOKEN) return null;
     
     const spurRes = await axios.get(`https://api.spur.us/v1/context/${ip}`, {
         headers: {
-            'Token': spurToken
+            'Token': REACT_APP_SPUR_TOKEN
         }
     })
     
@@ -126,14 +131,16 @@ const fetchSpurDataIP = async (ip, spurToken) => {
     return spurRes
 }
 
-function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
+
+function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
 
     const [search, setSearch] = useState('');
     const [query, setQuery] = useContext(QueryContext);
+    const [, setBase64] = useContext(Base64Context);
     const updateArgsURL = useUpdateArgsURL();
     const [, setLineRefs] = useContext(LineContext)
     const [displayStats, setDisplayStats] = useContext(DisplayStatsContext)
-
+    
     const typeValidation = {
         phone: /^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$/,
         domain: /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/, //TODO: don't accept hyphen as first or last
@@ -217,148 +224,172 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
 
         let arr = [...newResults];
         let diff = false;
-
-        // DNS records
-        for (let i = 0; i < newResults.length; i++) {
-            const result = newResults[i];
+    
+        const addToResultObject = (object, additionObj) => {
+            for (const key of Object.keys(additionObj)) {
+                object[key] = additionObj[key];
+            }
+            setResults([...arr]);
+        }
+        
+        const addIntegrationToResultObject = (object, integrationAdditionObj) => {
+            if (!object.integrations) object.integrations = {};
+            for (const key of Object.keys(integrationAdditionObj)) {
+                object.integrations[key] = integrationAdditionObj[key];
+            }
+            setResults([...arr]);
+        }
+        
+        const startIpAdditions = (object, ip) => {
+            // AP2ISN
+            // TODO: use backend AP2ISN
+            fetchDataIP(ip).then(res => {
+                addToResultObject(object, {ipData: res});
+            }).catch(err => {
+                console.log(err);
+            });
+    
+            // Spur
+            fetchSpurDataIP(ip).then(res => {
+                addIntegrationToResultObject(object, {spurResult: res});
+                let newSpurCount = res.headers['x-balance-remaining']
+                if (!displayStats.spurBalance || newSpurCount < displayStats.spurBalance) {
+                    setDisplayStats({...displayStats, spurBalance: newSpurCount})
+                }
+            }).catch(err => {
+                console.log(err);
+            });
+    
+            // censys
+            fetchCensysDataIP(ip).then(res => {
+                addIntegrationToResultObject(object, {censysResult: res});
+            }).catch(err => {
+                console.log(err);
+            });
+    
+            // passivetotal
+            fetchPassiveTotalPassiveDNS(ip).then(res => { // passive dns
+                addIntegrationToResultObject(object, {passiveTotalPassiveDNSResult: res});
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+        
+        const startDomainAdditions = async (object, domain) => {
+            
+            // DNS records
+            const dataA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${domain}&type=A`)).data
+            const dataAAAA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${domain}&type=AAAA`)).data
+            const dataNS = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${domain}&type=NS`)).data
+            const dataMX = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${domain}&type=MX`)).data
+            const dataTXT = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${domain}&type=TXT`)).data
+            const dataDmarcTXT = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=_dmarc.${domain}&type=TXT`)).data
+            const dataCAA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${domain}&type=CAA`)).data
+            const dataSOA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${domain}&type=SOA`)).data
+    
+            if (dataCAA.Answer !== undefined) {
+                dataCAA.Answer = dataCAA.Answer.map(entry => {return {...entry, data:CAAToText(entry.data)}})
+            }
+            addToResultObject(object,
+                {dns: {A: dataA, AAAA: dataAAAA, NS: dataNS, MX: dataMX, TXT: dataTXT, dmarcTXT: dataDmarcTXT, CAA: dataCAA, SOA: dataSOA}});
+    
+            // get whois data
+            axios.get('/who-is-domain', {
+                params: {
+                    domain: domain
+                }
+            }).then(whoIsResult => {
+                console.log('who is:', whoIsResult)
+                if (whoIsResult.status === 200) {
+                    addIntegrationToResultObject(object, {whoisResult: whoIsResult})
+                }
+            }).catch(err => {
+                console.log(err);
+            });
+    
+            // passivetotal ======
+            fetchPassiveTotalWhois(domain).then(res => { // whois
+                addIntegrationToResultObject(object, {passiveTotalWhoisResult: res})
+            }).catch(err => {
+                console.log(err);
+            });
+    
+            fetchPassiveTotalPassiveDNS(domain).then(res => { // sub-domains
+                addIntegrationToResultObject(object, {passiveTotalSubDomainsResult: res})
+            }).catch(err => {
+                console.log(err);
+            });
+            
+            // resolve more information for ip children
+            for (const data of [dataA, dataAAAA]) {
+                if (data.Answer !== undefined) {
+                    for (let j = 0; j < data.Answer.length; j++) {
+                        const ip = data.Answer[j].data
+                
+                        startIpAdditions(data.Answer[j], ip);
+                    }
+                }
+            }
+        }
+        
+        const startEmailAdditions = (object, email) => {
+            // Verify Email
+            axios.get('/verify-email', {
+                params: {
+                    email: email
+                }
+            }).then(infoResult => {
+                console.log('email info:', infoResult)
+                let status;
+                if (infoResult.data === 'err') {
+                    status = 'err';
+                } else {
+                    status = infoResult.data.success;
+                }
+        
+                addToResultObject(object, {valid: status});
+                console.log(arr)
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+    
+        const startPhoneNumberAdditions = (object, phoneNumber) => {
+            // Verify Phone Number
+            axios.get('/verify-phone-number', {
+                params: {
+                    phoneNumber: phoneNumber
+                }
+            }).then(validResult => {
+                console.log('phone number validation:', validResult.data)
+                addToResultObject(object, {valid: validResult.data})
+                console.log(arr)
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+        
+        
+        for (let i = 0; i < arr.length; i++) {
+            const result = arr[i];
             let thisDiff = true;
             if (result.type === 'Domain') {
-                const dataA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${result.indicator}&type=A`)).data
-                const dataAAAA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${result.indicator}&type=AAAA`)).data
-                const dataNS = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${result.indicator}&type=NS`)).data
-                const dataMX = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${result.indicator}&type=MX`)).data
-                const dataTXT = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${result.indicator}&type=TXT`)).data
-                const dataDmarcTXT = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=_dmarc.${result.indicator}&type=TXT`)).data
-                const dataCAA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${result.indicator}&type=CAA`)).data
-                const dataSOA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${result.indicator}&type=SOA`)).data
-
-                if (dataCAA.Answer !== undefined) {
-                    dataCAA.Answer = dataCAA.Answer.map(entry => {return {...entry, data:CAAToText(entry.data)}})
-                }
-
-                arr[i] = {...result, dns: {A: dataA, AAAA: dataAAAA, NS: dataNS, MX: dataMX, TXT: dataTXT, dmarcTXT: dataDmarcTXT, CAA: dataCAA, SOA: dataSOA}}
-
-                for (const data of [dataA, dataAAAA]) {
-                    if (data.Answer !== undefined) {
-                        for (let j = 0; j < data.Answer.length; j++) {
-                            const ip = data.Answer[j].data
-            
-                            fetchDataIP(ip).then(ipData => {
-                                data.Answer[j] = {...data.Answer[j], ipData}
-                                setResults([...arr])
-                            })
-            
-                            const {REACT_APP_SPUR_TOKEN} = process.env
-                            if (REACT_APP_SPUR_TOKEN) {
-                                fetchSpurDataIP(ip, REACT_APP_SPUR_TOKEN).then(spurResult => {
-                                    data.Answer[j] = {...data.Answer[j], spurResult}
-                                    setResults([...arr])
-                                    let newSpurCount = spurResult.headers['x-balance-remaining']
-                                    if (!displayStats.spurBalance || newSpurCount < displayStats.spurBalance) {
-                                        setDisplayStats({...displayStats, spurBalance: newSpurCount})
-                                    }
-                                    console.log([...arr])
-                                })
-                            }
-                            
-                            const censysResult = await fetchCensysDataIP(ip);
-                            if (censysResult) {
-                                console.log('?',censysResult)
-                                data.Answer[j] = {...data.Answer[j], censysResult}
-                                setResults([...arr])
-                            }
-                        }
-                    }
-                }
                 
-                // get whois data
-                axios.get('/who-is-domain', {
-                    params: {
-                        domain: result.indicator
-                    }
-                }).then(whoIsResult => {
-                    console.log('who is:', whoIsResult)
-                    if (whoIsResult.status === 200) {
-                        arr[i] = {...arr[i], whoisResult: whoIsResult}
-                        setResults([...arr])
-                    }
-                })
-                
-                // passivetotal ======
-                fetchPassiveTotalWhois(result.indicator).then(res => { // whois
-                    arr[i] = {...arr[i], passiveTotalWhoisResult: res}
-                    setResults([...arr])
-                })
-    
-                fetchPassiveTotalPassiveDNS(result.indicator).then(res => { // sub-domains
-                    arr[i] = {...arr[i], passiveTotalSubDomainsResult: res}
-                    setResults([...arr])
-                })
-                
-
+                await startDomainAdditions(result, result.indicator);
+               
             } else if (result.type === 'IP') {
-
-                // AP2ISN
-                // TODO: use backend AP2ISN
-                const ipData = await fetchDataIP(result.indicator)
-                arr[i] = {...arr[i], ipData}
-
-                // Spur
-                const {REACT_APP_SPUR_TOKEN} = process.env
-                if (REACT_APP_SPUR_TOKEN) {
-                    const spurResult = await fetchSpurDataIP(result.indicator, REACT_APP_SPUR_TOKEN) // TODO: change spur count here too!
-                    arr[i] = {...arr[i], spurResult}
-                }
-    
-                // censys
-                const censysResult = await fetchCensysDataIP(result.indicator);
-                if (censysResult) {
-                    arr[i] = {...arr[i], censysResult}
-                }
                 
-                // passivetotal
-                fetchPassiveTotalPassiveDNS(result.indicator).then(res => { // passive dns
-                    arr[i] = {...arr[i], passiveTotalPassiveDNSResult: res}
-                    setResults([...arr])
-                })
-
+                startIpAdditions(result, result.indicator);
+                
             } else if (result.type === 'Email') {
     
-                // Verify Email
-                axios.get('/verify-email', {
-                    params: {
-                        email: result.indicator
-                    }
-                }).then(infoResult => {
-                    console.log('email info:', infoResult)
-                    let status;
-                    if (infoResult.data === 'err') {
-                        status = 'err';
-                    } else {
-                        status = infoResult.data.success;
-                    }
-    
-                    arr[i] = {...arr[i], valid: status}
-                    setResults([...arr])
-                    console.log(arr)
-                })
+                startEmailAdditions(result, result.indicator);
                 
             } else if (result.type === 'PhoneNumber') {
     
-                // Verify Phone Number
-                axios.get('/verify-phone-number', {
-                    params: {
-                        phoneNumber: result.indicator
-                    }
-                }).then(validResult => {
-                    console.log('phone number validation:', validResult.data)
-        
-                    arr[i] = {...arr[i], valid: validResult.data}
-                    setResults([...arr])
-                    console.log(arr)
-                }).catch(err => console.log('phone-number validation error:', err))
+                startPhoneNumberAdditions(result, result.indicator);
     
-            }else {
+            } else {
                 thisDiff = false;
             }
             if (thisDiff) diff = true;
@@ -373,7 +404,9 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
     const getQuery = e => {
         e.preventDefault();
         if (query !== search && search !== '') {
+            setBase64(null);
             setQuery(search);
+            
         }
         setSearch('');
     }

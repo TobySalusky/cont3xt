@@ -66,7 +66,7 @@ export default function ResultDNS({dns}) {
                             />
                             <LinkBack query={data}/>
                             
-                            <Integrations integrations={{spurResult: dnsAnswer.spurResult, censysResult: dnsAnswer.censysResult}}/>
+                            <Integrations integrations={dnsAnswer.integrations}/>
                             
                         </div>
                     </LineElement>

@@ -115,6 +115,8 @@ const whiteFilter = {filter: 'brightness(0) invert(1)'};
 
 export function Integrations({integrations}) {
 	
+	if (!integrations) return null;
+	
 	const {
 		spurResult,
 		censysResult,
@@ -123,8 +125,6 @@ export function Integrations({integrations}) {
 		passiveTotalSubDomainsResult,
 		passiveTotalPassiveDNSResult,
 	} = integrations;
-	
-	if (!integrations) return null;
 	
 	let hasIntegrations = false;
 	for (const val of Object.values(integrations)) {

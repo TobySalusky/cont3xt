@@ -11,14 +11,7 @@ function ResultsBox({result}) {
             <div className="ResultBox">
                 <p className="ResultType" style={{color: 'orange'}}>{result.type}{(result.subType === 'None') ? '' : '('+result.subType+')'}:</p>
                 <p>{result.indicator}</p>
-                <Integrations integrations={{
-                    spurResult: result.spurResult,
-                    censysResult: result.censysResult,
-                    whoisResult: result.whoisResult,
-                    passiveTotalWhoisResult: result.passiveTotalWhoisResult,
-                    passiveTotalSubDomainsResult: result.passiveTotalSubDomainsResult,
-                    passiveTotalPassiveDNSResult: result.passiveTotalPassiveDNSResult,
-                }}/>
+                <Integrations integrations={result.integrations}/>
             </div>
         </LineElement>
     );

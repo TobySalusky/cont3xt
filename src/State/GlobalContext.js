@@ -1,6 +1,6 @@
 import {TypeDataProvider} from "../Pages/Edit";
 import {ConfigProvider, EditConfigProvider} from "./ConfigContext";
-import {NumDaysProvider, QueryProvider} from "./SearchContext";
+import { Base64Provider, NumDaysProvider, QueryProvider } from "./SearchContext";
 import {LineProvider} from "./LineContext";
 import { DisplayStatsProvider } from './DisplayStatsContext';
 
@@ -10,15 +10,17 @@ function GlobalProvider(props) {
         <TypeDataProvider>
             <EditConfigProvider>
                 <ConfigProvider>
-                    <QueryProvider>
-                        <NumDaysProvider>
-                            <LineProvider>
-                                <DisplayStatsProvider>
-                                    {props.children}
-                                </DisplayStatsProvider>
-                            </LineProvider>
-                        </NumDaysProvider>
-                    </QueryProvider>
+                    <Base64Provider>
+                        <QueryProvider>
+                            <NumDaysProvider>
+                                <LineProvider>
+                                    <DisplayStatsProvider>
+                                        {props.children}
+                                    </DisplayStatsProvider>
+                                </LineProvider>
+                            </NumDaysProvider>
+                        </QueryProvider>
+                    </Base64Provider>
                 </ConfigProvider>
             </EditConfigProvider>
         </TypeDataProvider>

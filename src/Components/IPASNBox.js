@@ -1,5 +1,6 @@
 import DarkTooltip from "../Style/DarkTooltip";
 import { LinkBack } from "./LinkBack";
+import { Copy } from "./Copy";
 
 
 export default function IPASNBox({ipData}) {
@@ -19,9 +20,7 @@ export default function IPASNBox({ipData}) {
                         </DarkTooltip>
     
                         <div>
-                            <img className="ExternalLink" src="./images/copy.svg" alt="copy"
-                                 onClick={() => navigator.clipboard.writeText(ipData.name)}
-                            />
+                            <Copy value={ipData.name}/>
     
                             <LinkBack query={ipData.name}/>
                         </div>

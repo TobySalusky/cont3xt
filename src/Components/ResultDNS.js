@@ -8,6 +8,7 @@ import ComponentTooltip from './ComponentTooltip';
 import { colorTable } from '../Util/Colors';
 import { Integrations } from "./Integrations";
 import { LinkBack } from "./LinkBack";
+import { Copy } from "./Copy";
 
 export default function ResultDNS({dns}) {
 
@@ -61,9 +62,8 @@ export default function ResultDNS({dns}) {
                                 {content}
                             </div>
     
-                            <img className="ExternalLink" src="./images/copy.svg" alt="copy"
-                                 onClick={() => navigator.clipboard.writeText(data)}
-                            />
+                            <Copy value={data}/>
+                            
                             <LinkBack query={data}/>
                             
                             <Integrations integrations={dnsAnswer.integrations}/>

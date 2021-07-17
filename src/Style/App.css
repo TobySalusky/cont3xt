@@ -36,7 +36,7 @@ span {
 .HomeLeftSideBar {
   flex: 1;
   background-color: #303030;
-  border-right: 2px solid black;
+  border-right: 3px solid black;
 
   display: flex;
   flex-direction: column;
@@ -67,16 +67,16 @@ span {
 
 .SearchContainer {
   display: flex;
-  width: 80%;
   justify-content: space-between;
   align-items: center;
   flex-direction: row;
-  padding-bottom: 20px;
-  padding-top: 30px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  flex-grow: 1;
 }
 
 .InputAreas {
-  width: 100%;
+  width: 90%;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -84,13 +84,15 @@ span {
 }
 
 .SearchBar {
-  width: 80%;
-  height: 50px;
+  height: 25px;
   padding: 8px;
-  font-size: 30px;
+  font-size: 24px;
+  width: available;
   border-radius: 10px;
   border: none;
   outline: None;
+  flex-grow: 1;
+  margin-right: 10px;
 }
 
 .SearchBar:focus {
@@ -98,16 +100,16 @@ span {
 }
 
 .DayContainer {
-  width:10%;
+  margin-right: 10px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   text-align: center;
 }
 
 .NumDaysInput {
-  width: 25%;
+  width: 40px;
   height: 25px;
   padding: 8px;
   font-size: 24px;
@@ -115,23 +117,33 @@ span {
   border: none;
 }
 
-.SearchSubmit {
-  width: 18%;
-  height: 66px;
+.SearchSubmit, .Base64Copy {
+  padding: 8px;
   background-color: #303030;
   color: white;
   border: 1px lightgray solid;
   border-radius: 10px;
-  font-size: 26px;
+  font-size: 25px;
   font-weight: bold;
   cursor: pointer;
 }
 
-.SearchSubmit:hover {
+.Base64Copy {
+  height: 41px;
+  font-size: 16px;
+  padding: 0;
+  padding-inline: 5px;
+  margin-right: 5px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+.SearchSubmit:hover, .Base64Copy:hover {
   background-color: #393939;
 }
 
-.SearchSubmit:active {
+.SearchSubmit:active, .Base64Copy:active {
   background-color: #4a4a4a;
 }
 
@@ -163,7 +175,7 @@ span {
 }
 
 .Divider {
-  border-top: 4px black solid;
+  border-top: 3px black solid;
   width: 100%;
   margin-bottom: 20px;
 }

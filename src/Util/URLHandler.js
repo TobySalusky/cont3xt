@@ -1,6 +1,7 @@
 import History from "./History";
 import { QueryContext, NumDaysContext, Base64Context } from "../State/SearchContext";
 import {useContext} from "react";
+import { processQuery } from "../Components/SearchBar";
 
 export function argsFromURL() {
     // eslint-disable-next-line no-restricted-globals
@@ -23,10 +24,10 @@ export function useReadArgsURL() {
         const {q, b, d} = argsFromURL();
         if (b !== null) {
             setBase64(b);
-            setQuery(base64decode(b));
+            setQuery(processQuery(base64decode(b)));
         } else {
             setBase64(null);
-            setQuery(q);
+            setQuery(processQuery(q));
         }
         setNumDays(d);
     }

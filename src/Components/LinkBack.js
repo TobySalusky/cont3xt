@@ -1,4 +1,5 @@
 import '../Style/App.css';
+import { whiteFilter } from "../Util/Filters";
 
 export function LinkBack({url, query, style}) {
 
@@ -7,7 +8,7 @@ export function LinkBack({url, query, style}) {
 	}
 	
 	return (
-		<img style={style} className="ExternalLink" src="./images/externalLink.svg" alt="external link"
+		<img style={{...style/*, ...whiteFilter*/}} className="ExternalLink" src="./images/externalLink.svg" alt="external link"
 		     onClick={() => window.open(url, '_blank', 'noreferrer')}
 		/>
 	);

@@ -76,6 +76,7 @@ export default function LineCanvas(props) {
     const getHeight = () => dimen.current.maxY - dimen.current.minY;
 
     useLayoutEffect(() => {
+        
         const canvas = canvasRef.current
         const ctx = canvas.getContext('2d')
 

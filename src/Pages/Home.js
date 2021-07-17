@@ -103,8 +103,8 @@ function Home() {
 
         <div className="HomeWrapper">
             <div className="HomeLeftSideBar">
-                {Object.keys(displayStats).map(key =>
-                    <p className="SideBarStatLabel">{camelToCapWords(key)}: <p className="SideBarStatValue">{displayStats[key]}</p></p>
+                {!displayStats.balances ? null : Object.keys(displayStats.balances).map(key =>
+                    <p className="SideBarStatLabel">{camelToCapWords(key)}: <p className="SideBarStatValue">{displayStats.balances[key]}</p></p>
                 )}
             </div>
             <div className="App">
@@ -113,7 +113,7 @@ function Home() {
                         <NumDayInput startDate={startDate}/>
                         <SearchBar results={results} setResults={setResults}/>
                     </div>
-        
+                    
                     <div className="ResultArea">
                         {genResults()}
                     </div>

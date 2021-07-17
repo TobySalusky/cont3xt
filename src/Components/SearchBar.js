@@ -5,12 +5,22 @@ import { Base64Context, QueryContext } from "../State/SearchContext";
 import {LineContext} from "../State/LineContext";
 import axios from 'axios';
 import { DisplayStatsContext } from '../State/DisplayStatsContext';
+import dr from 'defang-refang'
+import { log, stripTrailingPeriod } from "../Util/Util";
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 // TODO: auto-format phone number results
 
+const copyBase64LinkToClipboard = (query) => {
+    const { base64encode } = require('nodejs-base64');
+    navigator.clipboard.writeText(`http://localhost:3000/?b=${base64encode(query)}`)
+}
+
+export const processQuery = (query) => {
+    return dr.refang(query);
+}
+
 const fetchDataIP = async (ip) => {
-    
     let query_url = 'https://rdap.db.ripe.net/ip/' + ip.toString();
     const res = await axios.get(query_url, {
         validateStatus: false,
@@ -24,7 +34,6 @@ const fetchDataIP = async (ip) => {
 }
 
 const fetchCensysDataIP = async (ip) => {
-    // censys
     const {REACT_APP_CENSYS_API_ID, REACT_APP_CENSYS_API_SECRET} = process.env
     if (REACT_APP_CENSYS_API_ID && REACT_APP_CENSYS_API_SECRET) {
         const { SearchClient } = require("@censys/node");
@@ -54,15 +63,21 @@ const fetchCensysDataIP = async (ip) => {
         let censysObj = {};
         
         for await (let page of query2) {
-            console.log('test censys', page);
+            log('test censys', page);
             censysObj = {...censysObj, ...page};
         }
         
         if (Object.keys(censysObj).length === 0) return null;
         
+        /*{ //TODO: account for balance!
+            c.v1.ipv4.account().then(res => {
+            
+            });
+        }*/
+        
         return {data: censysObj};
     }
-    console.log('no censys api authentication provided.');
+    log('no censys api authentication provided.');
     return undefined;
 }
 
@@ -79,7 +94,7 @@ const fetchPassiveTotalWhois = async (domain) => {
         }
     });
     
-    console.log('passivetotal whois',passiveTotalWhois);
+    log('passivetotal whois',passiveTotalWhois);
     return passiveTotalWhois;
 }
 
@@ -95,7 +110,7 @@ const fetchPassiveTotalSubDomains = async (domain) => {
         }
     });
     
-    console.log('passivetotal subdomains',passiveTotalSubDomainsResult);
+    log('passivetotal subdomains',passiveTotalSubDomainsResult);
     return passiveTotalSubDomainsResult;
 }
 
@@ -111,7 +126,7 @@ const fetchPassiveTotalPassiveDNS = async (ip) => {
         }
     });
     
-    console.log('passivetotal passive dns', passiveTotalPassiveDNS);
+    log('passivetotal passive dns', passiveTotalPassiveDNS);
     return passiveTotalPassiveDNS;
 }
 
@@ -126,7 +141,7 @@ const fetchSpurDataIP = async (ip) => {
         }
     })
     
-    console.log('spur', spurRes)
+    log('spur', spurRes)
     
     return spurRes
 }
@@ -240,38 +255,52 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
             setResults([...arr]);
         }
         
+        const updateBalance = (balanceObj) => {
+            /*let obj = {...displayStats.balances};
+            for (const key in Object.keys(balanceObj)) {
+                if (!obj.hasOwnProperty(key) || balanceObj[key] < obj[key]) {
+                    obj[key] = balanceObj[key];
+                }
+            }
+            log({...displayStats, balances: obj})
+            const key = Object.keys(balanceObj[0]);
+            if (displayStats?.balances?[key] && displayStats.balances[key] === balanceObj[key]) {
+                setDisplayStats({...displayStats, balances: {...displayStats.balances, ...balanceObj}})
+            }*/
+            setDisplayStats({...displayStats, balances: {...displayStats.balances, ...balanceObj}})
+            // TODO: fix, this doesn't compare values!
+        }
+        
         const startIpAdditions = (object, ip) => {
             // AP2ISN
             // TODO: use backend AP2ISN
             fetchDataIP(ip).then(res => {
                 addToResultObject(object, {ipData: res});
             }).catch(err => {
-                console.log(err);
+                log(err);
             });
     
             // Spur
             fetchSpurDataIP(ip).then(res => {
                 addIntegrationToResultObject(object, {spurResult: res});
                 let newSpurCount = res.headers['x-balance-remaining']
-                if (!displayStats.spurBalance || newSpurCount < displayStats.spurBalance) {
-                    setDisplayStats({...displayStats, spurBalance: newSpurCount})
-                }
+                updateBalance({spurBalance: newSpurCount})
             }).catch(err => {
-                console.log(err);
+                log(err);
             });
     
             // censys
             fetchCensysDataIP(ip).then(res => {
                 addIntegrationToResultObject(object, {censysResult: res});
             }).catch(err => {
-                console.log(err);
+                log(err);
             });
     
             // passivetotal
             fetchPassiveTotalPassiveDNS(ip).then(res => { // passive dns
                 addIntegrationToResultObject(object, {passiveTotalPassiveDNSResult: res});
             }).catch(err => {
-                console.log(err);
+                log(err);
             });
         }
         
@@ -287,9 +316,16 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
             const dataCAA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${domain}&type=CAA`)).data
             const dataSOA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${domain}&type=SOA`)).data
     
-            if (dataCAA.Answer !== undefined) {
+            if (dataNS.Answer) {
+                dataNS.Answer = dataNS.Answer.map(entry => {return {...entry, data:stripTrailingPeriod(entry.data)}})
+            }
+            if (dataMX.Answer) {
+                dataMX.Answer = dataMX.Answer.map(entry => {return {...entry, data:stripTrailingPeriod(entry.data)}})
+            }
+            if (dataCAA.Answer) {
                 dataCAA.Answer = dataCAA.Answer.map(entry => {return {...entry, data:CAAToText(entry.data)}})
             }
+            
             addToResultObject(object,
                 {dns: {A: dataA, AAAA: dataAAAA, NS: dataNS, MX: dataMX, TXT: dataTXT, dmarcTXT: dataDmarcTXT, CAA: dataCAA, SOA: dataSOA}});
     
@@ -299,25 +335,39 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
                     domain: domain
                 }
             }).then(whoIsResult => {
-                console.log('who is:', whoIsResult)
+                log('who is:', whoIsResult)
                 if (whoIsResult.status === 200) {
                     addIntegrationToResultObject(object, {whoisResult: whoIsResult})
                 }
             }).catch(err => {
-                console.log(err);
+                log(err);
             });
     
             // passivetotal ======
             fetchPassiveTotalWhois(domain).then(res => { // whois
                 addIntegrationToResultObject(object, {passiveTotalWhoisResult: res})
             }).catch(err => {
-                console.log(err);
+                log(err);
             });
     
-            fetchPassiveTotalPassiveDNS(domain).then(res => { // sub-domains
+            fetchPassiveTotalSubDomains(domain).then(res => { // sub-domains
+                log('subdomains', res)
                 addIntegrationToResultObject(object, {passiveTotalSubDomainsResult: res})
             }).catch(err => {
-                console.log(err);
+                log(err);
+            });
+    
+            /**
+             * base64 copy url
+             * Passive DNS for domains
+             * Global Copy Paste for tooltips with indicator
+             */
+            // TODO: use grid layout on passive dns results
+            fetchPassiveTotalPassiveDNS(domain).then(res => { // passive dns for domain
+                log('passive dns for domain', res)
+                addIntegrationToResultObject(object, {passiveTotalPassiveDNSResult: res})
+            }).catch(err => {
+                log(err);
             });
             
             // resolve more information for ip children
@@ -339,7 +389,7 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
                     email: email
                 }
             }).then(infoResult => {
-                console.log('email info:', infoResult)
+                log('email info:', infoResult)
                 let status;
                 if (infoResult.data === 'err') {
                     status = 'err';
@@ -348,9 +398,9 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
                 }
         
                 addToResultObject(object, {valid: status});
-                console.log(arr)
+                log(arr)
             }).catch(err => {
-                console.log(err);
+                log(err);
             });
         }
     
@@ -361,11 +411,11 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
                     phoneNumber: phoneNumber
                 }
             }).then(validResult => {
-                console.log('phone number validation:', validResult.data)
+                log('phone number validation:', validResult.data)
                 addToResultObject(object, {valid: validResult.data})
-                console.log(arr)
+                log(arr)
             }).catch(err => {
-                console.log(err);
+                log(err);
             });
         }
         
@@ -396,7 +446,7 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
         }
 
         if (diff) {
-            console.log('result:', arr[0])
+            log('result:', arr[0])
             setResults(arr)
         }
     }
@@ -405,7 +455,7 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
         e.preventDefault();
         if (query !== search && search !== '') {
             setBase64(null);
-            setQuery(search);
+            setQuery(processQuery(search));
             
         }
         setSearch('');
@@ -414,8 +464,13 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
     return (
         <form className="SearchContainer" onSubmit={getQuery}>
             <input autoFocus className="SearchBar" type="text" value={search} onChange={e => setSearch(e.target.value)}/>
+            <div className="Base64Copy" onClick={()=>{
+                copyBase64LinkToClipboard(query);
+            }}>
+                B64
+            </div>
             <button className="SearchSubmit" type="submit">
-                Get Cont3xt
+                {'Get\xa0Cont3xt'}
             </button>
         </form>
     );

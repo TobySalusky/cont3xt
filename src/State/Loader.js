@@ -1,6 +1,7 @@
 import {ConfigContext} from "./ConfigContext";
 import { useEffect, useContext } from 'react';
 import axios from 'axios';
+import { log } from "../Util/Util";
 
 function Loader (props) {
 
@@ -21,7 +22,7 @@ function Loader (props) {
             }
         })
         
-        console.log(test)
+        log(test)
     }
     
     useEffect(() => {

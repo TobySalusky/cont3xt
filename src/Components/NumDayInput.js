@@ -24,9 +24,11 @@ function NumDayInput({startDate}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPE
 
     return (
         <div className="DayContainer">
-            <p>Days Back:</p>
+            <div style={{paddingRight: 5}}>
+                <p>Days Back:</p>
+                <p>({startDate})</p>
+            </div>
             <input onKeyPress={enterPressed} onBlur={updateDayURL} className="NumDaysInput" type="text" value={numDays} onChange={e => setNumDays(e.target.value)}/>
-            <p>{startDate}</p>
         </div>
     );
 }

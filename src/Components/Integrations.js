@@ -1,5 +1,6 @@
 import ComponentTooltip from "./ComponentTooltip";
 import { ColorDictBox, PassiveTotalPassiveDNSColorDictBox } from "./ColorDictBox";
+import { whiteFilter } from "../Util/Filters";
 
 const withPipe = (html) => {
 	if (!html) return;
@@ -111,8 +112,6 @@ const createListIntegration = (list, img) => {
 	);
 }
 
-const whiteFilter = {filter: 'brightness(0) invert(1)'};
-
 export function Integrations({integrations}) {
 	
 	if (!integrations) return null;
@@ -153,14 +152,14 @@ export function Integrations({integrations}) {
 		createIntegration(passiveTotalWhoisResult, cleanPassiveTotalWhois,
 			<img className="ExternalLink" style={whiteFilter} src="./images/whoisIcon.svg" alt="passivetotal whois"/>
 		),
-		// passivetotal subdomains
-		(!passiveTotalSubDomainsResult || !passiveTotalSubDomainsResult.data || !passiveTotalSubDomainsResult.data.subdomains) ? null :
-		createListIntegration(passiveTotalSubDomainsResult.data.subdomains,
-			<img className="ExternalLink" src="./images/passivetotalIcon.png" alt="passivetotal sub-domains"/>
-		),
 		// passivetotal passive dns
 		createPassiveTotalPassiveDNSIntegration(passiveTotalPassiveDNSResult, cleanPassiveTotalPassiveDNS,
 			<img className="ExternalLink" src="./images/passivetotalIcon.png" alt="passivetotal passive dns"/>
+		),
+		// passivetotal subdomains
+		(!passiveTotalSubDomainsResult || !passiveTotalSubDomainsResult.data || !passiveTotalSubDomainsResult.data.subdomains) ? null :
+			createListIntegration(passiveTotalSubDomainsResult.data.subdomains,
+				<img className="ExternalLink" src="./images/passivetotalIcon.png" alt="passivetotal sub-domains"/>
 		),
 		
 	];

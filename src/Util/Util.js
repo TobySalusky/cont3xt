@@ -1,3 +1,16 @@
+export const stripTrailingPeriod = (str) => {
+	if (str.lastIndexOf('.') === str.length - 1) return str.substring(0, str.length - 1);
+	return str;
+}
+
+const DEBUG = true; // Enable/Disable logging
+
+export function log(){
+	if(DEBUG){
+		console.log.apply(console, arguments);
+	}
+}
+
 export const typeColors = {
 	plain: 'white',
 	brackets: 'yellow',

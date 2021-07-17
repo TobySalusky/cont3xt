@@ -23,6 +23,8 @@ const StyledTooltip = styled.span`
   drop-shadow(${(p) => p.shadowOff}px -${(p) => p.shadowOff}px ${(p) => p.shadowBlur}px var(--shadow-color))
   drop-shadow(-${(p) => p.shadowOff}px -${(p) => p.shadowOff}px ${(p) => p.shadowBlur}px var(--shadow-color));
 `;
+//  height: 1000px;
+//   overflow-y: auto;
 
 const findPos = (el, dir = 'bottom', space = 10) => {
 	

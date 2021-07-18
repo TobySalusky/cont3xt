@@ -1,6 +1,9 @@
 import ComponentTooltip from "./ComponentTooltip";
 import { ColorDictBox, PassiveTotalPassiveDNSColorDictBox } from "./ColorDictBox";
 import { whiteFilter } from "../Util/Filters";
+import { classificationObj } from "../Util/Classification";
+import { log } from "../Util/Util";
+import { TooltipCopy } from "./TooltipCopy";
 
 const withPipe = (html) => {
 	if (!html) return;
@@ -51,7 +54,7 @@ const cleanWhoIs = (dict) => {
 const cleanPassiveTotalWhois = (dict) => {
 	const clean = {};
 	for (const key of Object.keys(dict)) {
-		if (key !== 'rawText') clean[key] = dict[key];
+		if (key !== 'rawText' && key !== 'domain') clean[key] = dict[key];
 	}
 	
 	return clean;
@@ -66,7 +69,7 @@ const cleanPassiveTotalPassiveDNS = (dict) => {
 	const snipDate = (date) => date.substring(0, date.indexOf(' '));
 
 	clean.results = clean.results.map(result => {
-		return {resolve: result.resolve, firstSeen: snipDate(result.firstSeen), lastSeen: snipDate(result.lastSeen)}
+		return {resolveType: result.resolveType, resolve: result.resolve, firstSeen: snipDate(result.firstSeen), lastSeen: snipDate(result.lastSeen)}
 	}).sort((a, b) => new Date(b.lastSeen) - new Date(a.lastSeen));
 	
 	return clean;
@@ -75,44 +78,9 @@ const cleanPassiveTotalPassiveDNS = (dict) => {
 // eslint-disable-next-line no-unused-vars
 const noCleaner = (dict) => dict;
 
-const createIntegration = (result, cleaner, img) => {
-	return (
-		!result ? null :
-			<ComponentTooltip comp={
-				<ColorDictBox data={cleaner(result.data)}/>
-			}>
-				{img}
-			</ComponentTooltip>
-	);
-}
-
-const createPassiveTotalPassiveDNSIntegration = (result, cleaner, img) => {
-	return (
-		!result ? null :
-			<ComponentTooltip comp={
-				<PassiveTotalPassiveDNSColorDictBox data={cleaner(result.data)}/>
-			}>
-				{img}
-			</ComponentTooltip>
-	);
-}
-
-const createListIntegration = (list, img) => {
-	return (
-		<ComponentTooltip comp={
-			<div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}>
-				<p style={{color: 'orange', fontWeight: 'bold'}}>Subdomains:</p>
-				{list.map(str =>
-					<p>{str}</p>
-				)}
-			</div>
-		}>
-			{img}
-		</ComponentTooltip>
-	);
-}
-
 export function Integrations({integrations}) {
+	
+	
 	
 	if (!integrations) return null;
 	
@@ -123,7 +91,51 @@ export function Integrations({integrations}) {
 		passiveTotalWhoisResult,
 		passiveTotalSubDomainsResult,
 		passiveTotalPassiveDNSResult,
+		
+		indicatorData = classificationObj('WARNING: no indicator found'),
 	} = integrations;
+	
+	// local methods
+	const createIntegration = (result, cleaner, img) => {
+		return (
+			!result ? null :
+				<ComponentTooltip comp={
+					<ColorDictBox data={cleaner(result.data)} indicatorData={indicatorData}/>
+				}>
+					{img}
+				</ComponentTooltip>
+		);
+	}
+	
+	const createListIntegration = (list, img) => {
+		
+		const copyVal = [indicatorData.stringify(), 'Subdomains:'].concat(list).join('\n');
+		
+		return (
+			<ComponentTooltip comp={
+				<div className="ResultBox" style={{maxWidth: 800, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}>
+					<TooltipCopy value={copyVal}/>
+					<p style={{color: 'orange', fontWeight: 'bold'}}>Subdomains:</p>
+					{list.map(str =>
+						<p>{str}</p>
+					)}
+				</div>
+			}>
+				{img}
+			</ComponentTooltip>
+		);
+	}
+	
+	const createPassiveTotalPassiveDNSIntegration = (result, cleaner, img) => {
+		return (
+			!result ? null :
+				<ComponentTooltip comp={
+					<PassiveTotalPassiveDNSColorDictBox data={cleaner(result.data)} indicatorData={indicatorData}/>
+				}>
+					{img}
+				</ComponentTooltip>
+		);
+	}
 	
 	let hasIntegrations = false;
 	for (const val of Object.values(integrations)) {

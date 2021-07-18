@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 
 const StyledTooltip = styled.span`
-  position: fixed;
+  position: absolute;
   left: ${(p) => p.pos.x}px;
   top: ${(p) => p.pos.y}px;
 

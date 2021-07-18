@@ -7,6 +7,8 @@ import axios from 'axios';
 import { DisplayStatsContext } from '../State/DisplayStatsContext';
 import dr from 'defang-refang'
 import { log, stripTrailingPeriod } from "../Util/Util";
+import { whiteFilter } from "../Util/Filters";
+import { classificationObj } from "../Util/Classification";
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 // TODO: auto-format phone number results
@@ -155,16 +157,6 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
     const updateArgsURL = useUpdateArgsURL();
     const [, setLineRefs] = useContext(LineContext)
     const [displayStats, setDisplayStats] = useContext(DisplayStatsContext)
-    
-    const typeValidation = {
-        phone: /^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$/,
-        domain: /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/, //TODO: don't accept hyphen as first or last
-        email: /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-](\.?[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-])+@([a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+)$/,
-        //ip: /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/,
-        MD5: /^[A-Fa-f0-9]{32}$/,
-        SHA1: /^[A-Fa-f0-9]{40}$/,
-        SHA256: /^[A-Fa-f0-9]{64}$/,
-    }
 
     useEffect(() => {
 
@@ -174,34 +166,9 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
         }
 
         updateArgsURL()
+        
 
-        const ipRegex = require('ip-regex');
-
-        let type = 'Text';
-        let subType = 'None';
-        if (typeValidation.phone.test(query)) type = 'PhoneNumber'
-        else if (ipRegex.v4({exact: true}).test(query)) {
-            type = 'IP';
-            subType = 'IPv4';
-        }
-        else if (ipRegex.v6({exact: true}).test(query)) {
-            type = 'IP';
-            subType = 'IPv6';
-        }
-        else if (typeValidation.email.test(query)) type = 'Email'
-        else if (typeValidation.domain.test(query)) type = 'Domain'
-        else if (typeValidation.MD5.test(query)) {
-            type = 'Hash';
-            subType = 'MD5'
-        }
-        else if (typeValidation.SHA1.test(query)) {
-            type = 'Hash';
-            subType = 'SHA1'
-        }
-        else if (typeValidation.SHA256.test(query)) {
-            type = 'Hash';
-            subType = 'SHA256'
-        }
+        const {type, subType} = classificationObj(query);
 
         // TODO: sanitize indicator (phone, etc.)
 
@@ -272,6 +239,8 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
         }
         
         const startIpAdditions = (object, ip) => {
+    
+            addIntegrationToResultObject(object, {indicatorData: classificationObj(ip)});
             // AP2ISN
             // TODO: use backend AP2ISN
             fetchDataIP(ip).then(res => {
@@ -305,7 +274,9 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
         }
         
         const startDomainAdditions = async (object, domain) => {
-            
+    
+            addIntegrationToResultObject(object, {indicatorData: classificationObj(domain)});
+    
             // DNS records
             const dataA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${domain}&type=A`)).data
             const dataAAAA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${domain}&type=AAAA`)).data
@@ -467,7 +438,7 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
             <div className="Base64Copy" onClick={()=>{
                 copyBase64LinkToClipboard(query);
             }}>
-                B64
+                <img style={{...{width: 20, height: 20, marginLeft: 0}, ...whiteFilter}} className="ExternalLink" src="./images/share.svg" alt="share link"/>
             </div>
             <button className="SearchSubmit" type="submit">
                 {'Get\xa0Cont3xt'}

@@ -81,7 +81,7 @@ function Home() {
                                 
                                 <ResultsBox result={result}/>
 
-                                <ValidationBox status={result.valid}/>
+                                <ValidationBox status={result.valid} banner={result.emailVerificationBanner}/>
                                 
                                 <ResultDNS dns={result.dns} ipData={result.ipData}/>
 

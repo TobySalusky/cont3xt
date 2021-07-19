@@ -361,14 +361,13 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
                 }
             }).then(infoResult => {
                 log('email info:', infoResult)
-                let status;
-                if (infoResult.data === 'err') {
-                    status = 'err';
-                } else {
+                let status = 'err', banner = '';
+                if (infoResult.data !== 'err') {
                     status = infoResult.data.success;
+                    banner = infoResult.data.banner;
                 }
         
-                addToResultObject(object, {valid: status});
+                addToResultObject(object, {valid: status, emailVerificationBanner: banner});
                 log(arr)
             }).catch(err => {
                 log(err);

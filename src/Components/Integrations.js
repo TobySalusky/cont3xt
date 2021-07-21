@@ -76,7 +76,7 @@ const cleanPassiveTotalPassiveDNS = (dict) => {
 			firstSeen: snipDate(firstSeen), lastSeen: snipDate(lastSeen),
 			fullFirstSeen: firstSeen, fullLastSeen: lastSeen
 		}
-	}).sort((a, b) => new Date(b.lastSeen) - new Date(a.lastSeen));
+	}).sort((a, b) => new Date(b.fullLastSeen) - new Date(a.fullFirstSeen));
 	
 	return clean;
 }

@@ -1,10 +1,11 @@
 export function CircleCheckBox({onClick, filled}) {
 	return (
 		<div style={{
-			width: 10,
-			aspectRatio: 1,
+			width: 6,
+			height: 6,
 			border: '1px solid white',
-			backgroundColor: filled ? 'none' : 'white'; 
+			borderRadius: '50%',
+			backgroundColor: !filled ? 'none' : 'white'
 		}}/>
 	);
 }

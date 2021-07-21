@@ -1,9 +1,21 @@
 /* tag types */
+
+/*
+  TODO: PERHAPS ADD SASS
+*/
+
+
+
+
+
 span {
   display: flex;
   flex-direction: row;
 }
 
+body {
+  background-color: #696969;
+}
 
 .App {
   text-align: center;
@@ -43,6 +55,11 @@ span {
   align-items: center;
   padding: 5px;
   padding-top: 20px;
+
+  /*position: fixed;*/
+  /*top: 0;*/
+  /*left: 0;*/
+  /*height: 100vh; // TODO: make sidebar sticky and add default background*/
 }
 
 .SideBarStatLabel {
@@ -152,6 +169,7 @@ span {
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
+  flex-direction: column;
 }
 
 .ResultBox {
@@ -460,14 +478,58 @@ span {
   justify-content: center;
   width: 100%;
   margin-bottom: 3px;
-  cursor: pointer;
   border-radius: 10px;
 }
 
-.TooltipCopyBody:hover {
+.TooltipCopyBody, .HoverClickLighten {
+  cursor: pointer;
+}
+
+.TooltipCopyBody:hover, .HoverClickLighten:hover { /*TODO: fix transparency on table headers when scrolled!*/
   background-color: #FFFFFF22;
 }
 
-.TooltipCopyBody:active {
+.TooltipCopyBody:active, .HoverClickLighten:active {
   background-color: #FFFFFF44;
+}
+
+/* TABLE STUFF ========== */
+.TableCollapseBorders {
+  border-collapse: collapse;
+}
+
+.StickyTableHeader {
+  position: sticky;
+  top: 0;
+}
+.StickyTableHeader th {
+  background-color: #3c3c3c;
+}
+
+.StickyTableHeader th::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: gray;
+}
+
+.TableSepLeft {
+  border-left: 1px solid gray;
+  padding-left: 5px;
+}
+
+
+
+/* GENERIC STUFF ============== */
+.Inline {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.InlineRight {
+  display: flex;
+  justify-content: flex-end;
 }

@@ -2,7 +2,7 @@ import ComponentTooltip from "./ComponentTooltip";
 import { ColorDictBox, PassiveTotalPassiveDNSColorDictBox } from "./ColorDictBox";
 import { whiteFilter } from "../Util/Filters";
 import { classificationObj } from "../Util/Classification";
-import { log } from "../Util/Util";
+import { log, stripTrailingPeriod } from "../Util/Util";
 import { TooltipCopy } from "./TooltipCopy";
 
 const withPipe = (html) => {
@@ -66,10 +66,16 @@ const cleanPassiveTotalPassiveDNS = (dict) => {
 		if (dict[key] != null && key !== 'queryValue' && key !== 'queryType') clean[key] = dict[key];
 	}
 	
-	const snipDate = (date) => date.substring(0, date.indexOf(' '));
+	const snipDate = (date) => date.substring(0, date.indexOf(' ')).replaceAll('-', '‑'); // uses non-breaking hyphens
 
 	clean.results = clean.results.map(result => {
-		return {resolveType: result.resolveType, resolve: result.resolve, firstSeen: snipDate(result.firstSeen), lastSeen: snipDate(result.lastSeen)}
+		const {recordType, resolveType, resolve, firstSeen, lastSeen} = result;
+		return {
+			recordType, resolveType,
+			resolve: stripTrailingPeriod(resolve),
+			firstSeen: snipDate(firstSeen), lastSeen: snipDate(lastSeen),
+			fullFirstSeen: firstSeen, fullLastSeen: lastSeen
+		}
 	}).sort((a, b) => new Date(b.lastSeen) - new Date(a.lastSeen));
 	
 	return clean;

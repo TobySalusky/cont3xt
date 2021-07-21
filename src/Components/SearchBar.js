@@ -173,6 +173,13 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
         // TODO: sanitize indicator (phone, etc.)
 
         let newResults = [{type, subType, indicator: query}]
+        
+        if (type === 'Email') {
+            const afterEmailAt = query.substring(query.indexOf('@') + 1);
+            const {type, subType} = classificationObj(afterEmailAt);
+            newResults.push({type, subType, indicator: afterEmailAt})
+        }
+        
         setResults(newResults)
 
         setLineRefs({})
@@ -329,9 +336,9 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
             });
     
             /**
-             * base64 copy url
-             * Passive DNS for domains
-             * Global Copy Paste for tooltips with indicator
+             * CURRENT TODO:
+             * sortable dates
+             * global report
              */
             // TODO: use grid layout on passive dns results
             fetchPassiveTotalPassiveDNS(domain).then(res => { // passive dns for domain

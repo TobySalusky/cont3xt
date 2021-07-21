@@ -1,14 +1,15 @@
 import '../Style/App.css';
-import { toColorElems, toColorText } from "../Util/Util";
+import { toColorElems, toColorText, typeColors } from "../Util/Util";
 import { LinkBack } from "./LinkBack";
 import { Copy } from "./Copy";
 import { TooltipCopy } from "./TooltipCopy";
+import { InlineDiv, InlineRightDiv } from "../Util/StyleUtil";
 
 const infoBox = (title, data) => {
     
     return (
         <div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}>
-            <div style={{display: 'flex', justifyContent:'flex-start', maxWidth: 500, flexWrap: "wrap"}}>
+            <div style={{display: 'flex', justifyContent:'flex-start', maxWidth: 1000, flexWrap: "wrap"}}>
                 <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>{title}:</p>
                 
                 {toColorElems(data)}
@@ -40,15 +41,17 @@ export function ColorDictBox({data, indicatorData}) {
     );
 }
 
+const stringStyle = {color: typeColors.string};
+const padRight = {paddingRight: 5};
+const stringPadRight = {...padRight, ...stringStyle}
+
 export function PassiveTotalPassiveDNSColorDictBox({data, indicatorData}) {
     
     const infoBoxResults = (results) => {
         
-        let copyVal = '';
-        results.forEach((result, i) => {
-            if (i > 0) copyVal += '\n';
-            copyVal += `${toColorText(result.resolve).val}, ${toColorText({firstSeen: result.firstSeen}, false).val}, ${toColorText({lastSeen: result.lastSeen}, false).val}`;
-        });
+        const isDomain = indicatorData.type === 'Domain';
+        
+        // TODO: optimize/remove color text here
         
         return (
             <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
@@ -56,47 +59,36 @@ export function PassiveTotalPassiveDNSColorDictBox({data, indicatorData}) {
             >
                 <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>Results:</p>
                 
-                <div style={{display: 'flex', flexDirection: 'row', maxWidth: 1000}}>
+                <table className="TableCollapseBorders">
+                    <thead className="StickyTableHeader">
+                        <th/>
+                        {!isDomain || <><th>DNS Type</th><th>Type</th></>}
+                        <th>Value</th>
+                        <th className="HoverClickLighten">First Seen</th>
+                        <th className="HoverClickLighten">Last Seen</th>
+                    </thead>
                     
-                    {indicatorData.type !== 'Domain' ? null :
-                        <div style={{display: 'flex', flexDirection: 'column'}}>
-                            {results.map(result =>
-                                <div style={{display: 'flex', justifyContent:'flex-start'}}>
-                                    <LinkBack query={result.resolve} style={{width: 12, height: 12, margin: 0, marginRight: 5}}/>
-                                    {toColorElems(toColorText({[result.resolveType]: ' '}, false, false, false))}
-                                </div>
-                            )}
-                        </div>
-                    }
-                    <div style={{display: 'flex', flexDirection: 'column', marginRight: 5}}>
-                        {results.map(result =>
-                            <div style={{display: 'flex', justifyContent:'flex-start'}}>
-                                {indicatorData.type === 'Domain' ? null :
-                                    <LinkBack query={result.resolve} style={{width: 12, height: 12, margin: 0, marginRight: 5}}/>
-                                }
-                                {toColorElems(toColorText(result.resolve, false, true))}
-                            </div>
-                        )}
-                    </div>
-                    <div style={{display: 'flex', flexDirection: 'column', marginRight: 5}}>
-                        {results.map(result =>
-                            <div style={{display: 'flex', justifyContent:'flex-start'}}>
-                                {
-                                    toColorElems(toColorText({firstSeen: result.firstSeen}, false, true))
-                                }
-                            </div>
-                        )}
-                    </div>
-                    <div style={{display: 'flex', flexDirection: 'column'}}>
-                        {results.map(result =>
-                            <div style={{display: 'flex', justifyContent:'flex-start'}}>
-                                {
-                                    toColorElems(toColorText({lastSeen: result.lastSeen}, false))
-                                }
-                            </div>
-                        )}
-                    </div>
-                </div>
+                    {results.map(result =>
+                        <tr>
+                            <td>
+                                <LinkBack query={result.resolve} style={{width: 12, height: 12, margin: 0, marginRight: 5}}/>
+                            </td>
+                            {!isDomain ||
+                                <>
+                                    <td style={stringStyle}>{result.recordType}</td>
+                                    <td>
+                                        <InlineRightDiv>
+                                            {toColorElems(toColorText({[result.resolveType]: ' '}, false, false, false))}
+                                        </InlineRightDiv>
+                                    </td>
+                                </>
+                            }
+                            <td style={stringPadRight}>{result.resolve}</td>
+                            <td className="TableSepLeft" style={stringPadRight}>{result.firstSeen}</td>
+                            <td className="TableSepLeft" style={stringStyle}>{result.lastSeen}</td>
+                        </tr>
+                    )}
+                </table>
             </div>
         );
     }
@@ -108,10 +100,10 @@ export function PassiveTotalPassiveDNSColorDictBox({data, indicatorData}) {
             toColorText({lastSeen: result.lastSeen}, false).val}`;
     }
     
-    const keysAndColorText = Object.keys(data).map(key => {
+    const keysAndColorText = Object.keys(data).filter(key => key !== 'results').map(key => {
         const colorText = toColorText(data[key])
         return {key, colorText};
-    }).filter(({key, colorText}) => colorText.val != null && key !== 'results');
+    }).filter(({colorText}) => colorText.val != null);
     
     const results = data.results;
     

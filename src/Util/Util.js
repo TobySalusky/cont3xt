@@ -167,9 +167,13 @@ export const jsonLines = (dictionary) => {
 	return str
 }
 
+const withLeadingZero = (num) => (num >= 10) ? num : '0' + num;
 export const currentTimeStamp = () => { // TODO:
 	const dateObj = new Date();
 	
-	return `${dateObj.getFullYear()}-${dateObj.getMonth() + 1}-${dateObj.getDate()}_${dateObj.getHours()}-${dateObj.getMinutes()}-${dateObj.getSeconds()}`;
+	return `${dateObj.getFullYear()}-${withLeadingZero(dateObj.getMonth() + 1)}-${withLeadingZero(dateObj.getDate())}_${
+		withLeadingZero(dateObj.getHours())}-${
+		withLeadingZero(dateObj.getMinutes())}-${
+		withLeadingZero(dateObj.getSeconds())}`;
 	//return dateObj.toString();
 }

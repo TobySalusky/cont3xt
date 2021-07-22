@@ -9,6 +9,9 @@ import dr from 'defang-refang'
 import { log, stripTrailingPeriod } from "../Util/Util";
 import { whiteFilter } from "../Util/Filters";
 import { classificationObj } from "../Util/Classification";
+import { integrationNames } from "../Util/IntegrationDefinitions";
+import { downloadFullReport } from "../Util/ReportGenerator";
+import { getCleaner } from "../Util/IntegrationCleaners";
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 // TODO: auto-format phone number results
@@ -149,7 +152,7 @@ const fetchSpurDataIP = async (ip) => {
 }
 
 
-function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
+function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
 
     const [search, setSearch] = useState('');
     const [query, setQuery] = useContext(QueryContext);
@@ -221,10 +224,14 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
             setResults([...arr]);
         }
         
-        const addIntegrationToResultObject = (object, integrationAdditionObj) => {
+        const addIntegrationToResultObject = (object, integrationAdditionObj, integrationType) => {
             if (!object.integrations) object.integrations = {};
             for (const key of Object.keys(integrationAdditionObj)) {
                 object.integrations[key] = integrationAdditionObj[key];
+                if (integrationType) {
+                    object.integrations[key].integrationType = integrationType;
+                    object.integrations[key].data = getCleaner(integrationType)(object.integrations[key].data);
+                }
             }
             setResults([...arr]);
         }
@@ -247,6 +254,7 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
         
         const startIpAdditions = (object, ip) => {
     
+            // TODO: this shouldn't really be an integration!
             addIntegrationToResultObject(object, {indicatorData: classificationObj(ip)});
             // AP2ISN
             // TODO: use backend AP2ISN
@@ -258,7 +266,7 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
     
             // Spur
             fetchSpurDataIP(ip).then(res => {
-                addIntegrationToResultObject(object, {spurResult: res});
+                addIntegrationToResultObject(object, {spurResult: res}, integrationNames.SPUR);
                 let newSpurCount = res.headers['x-balance-remaining']
                 updateBalance({spurBalance: newSpurCount})
             }).catch(err => {
@@ -267,14 +275,14 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
     
             // censys
             fetchCensysDataIP(ip).then(res => {
-                addIntegrationToResultObject(object, {censysResult: res});
+                addIntegrationToResultObject(object, {censysResult: res}, integrationNames.CENSYS_IP);
             }).catch(err => {
                 log(err);
             });
     
             // passivetotal
             fetchPassiveTotalPassiveDNS(ip).then(res => { // passive dns
-                addIntegrationToResultObject(object, {passiveTotalPassiveDNSResult: res});
+                addIntegrationToResultObject(object, {passiveTotalPassiveDNSResult: res}, integrationNames.PASSIVETOTAL_PASSIVE_DNS_IP);
             }).catch(err => {
                 log(err);
             });
@@ -282,6 +290,7 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
         
         const startDomainAdditions = async (object, domain) => {
     
+            // TODO: this also shouldn't really be an integration!
             addIntegrationToResultObject(object, {indicatorData: classificationObj(domain)});
     
             // DNS records
@@ -315,7 +324,7 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
             }).then(whoIsResult => {
                 log('who is:', whoIsResult)
                 if (whoIsResult.status === 200) {
-                    addIntegrationToResultObject(object, {whoisResult: whoIsResult})
+                    addIntegrationToResultObject(object, {whoisResult: whoIsResult}, integrationNames.WHOIS)
                 }
             }).catch(err => {
                 log(err);
@@ -323,27 +332,26 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
     
             // passivetotal ======
             fetchPassiveTotalWhois(domain).then(res => { // whois
-                addIntegrationToResultObject(object, {passiveTotalWhoisResult: res})
+                addIntegrationToResultObject(object, {passiveTotalWhoisResult: res}, integrationNames.PASSIVETOTAL_WHOIS)
             }).catch(err => {
                 log(err);
             });
     
             fetchPassiveTotalSubDomains(domain).then(res => { // sub-domains
                 log('subdomains', res)
-                addIntegrationToResultObject(object, {passiveTotalSubDomainsResult: res})
+                addIntegrationToResultObject(object, {passiveTotalSubDomainsResult: res}, integrationNames.PASSIVETOTAL_SUBDOMAINS)
             }).catch(err => {
                 log(err);
             });
     
             /**
              * CURRENT TODO:
-             * sortable dates
              * global report
+             * abstract out sorts and cleaning from rendering code (they're getting called like crazy, and I expect that is bottle-necking performance)
              */
-            // TODO: use grid layout on passive dns results
             fetchPassiveTotalPassiveDNS(domain).then(res => { // passive dns for domain
                 log('passive dns for domain', res)
-                addIntegrationToResultObject(object, {passiveTotalPassiveDNSResult: res})
+                addIntegrationToResultObject(object, {passiveTotalPassiveDNSResult: res}, integrationNames.PASSIVETOTAL_PASSIVE_DNS_DOMAIN)
             }).catch(err => {
                 log(err);
             });
@@ -400,26 +408,25 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
         for (let i = 0; i < arr.length; i++) {
             const result = arr[i];
             let thisDiff = true;
-            if (result.type === 'Domain') {
-                
-                await startDomainAdditions(result, result.indicator);
-               
-            } else if (result.type === 'IP') {
-                
-                startIpAdditions(result, result.indicator);
-                
-            } else if (result.type === 'Email') {
-    
-                startEmailAdditions(result, result.indicator);
-                
-            } else if (result.type === 'PhoneNumber') {
-    
-                startPhoneNumberAdditions(result, result.indicator);
-    
-            } else {
-                thisDiff = false;
+            
+            switch (result.type) {
+                case 'Domain':
+                    await startDomainAdditions(result, result.indicator); // why is this one await but the others aren't?
+                    break;
+                case 'IP':
+                    startIpAdditions(result, result.indicator);
+                    break;
+                case 'Email':
+                    startEmailAdditions(result, result.indicator);
+                    break;
+                case 'PhoneNumber':
+                    startPhoneNumberAdditions(result, result.indicator);
+                    break;
+                default:
+                    thisDiff = false;
+                    break;
             }
-            if (thisDiff) diff = true;
+            if (thisDiff) diff = true; // TODO: figure out what this was for
         }
 
         if (diff) {
@@ -445,6 +452,13 @@ function SearchBar({setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPEN
                 copyBase64LinkToClipboard(query);
             }}>
                 <img style={{...{width: 20, height: 20, marginLeft: 0}, ...whiteFilter}} className="ExternalLink" src="./images/share.svg" alt="share link"/>
+            </div>
+            <div className="Base64Copy" onClick={()=>{
+                if (results?.[0]) {
+                    downloadFullReport(results[0]);
+                }
+            }}>
+                <img style={{...{width: 20, height: 20, marginLeft: 0}, ...whiteFilter}} className="ExternalLink" src="./images/report.svg" alt="generate report"/>
             </div>
             <button className="SearchSubmit" type="submit">
                 {'Get\xa0Cont3xt'}

@@ -14,3 +14,9 @@ export const camelToCapWords = (str) => {
 	}
 	return newStr;
 }
+
+export const tabLines = (multilineStr, spaces = -1) => {
+	const lines = multilineStr.split(/\r?\n/);
+	
+	return lines.map(line => `${spaces === -1 ? '\t' : ' '.repeat(spaces)}${line}`).join('\n');
+}

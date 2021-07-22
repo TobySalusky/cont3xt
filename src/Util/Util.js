@@ -35,117 +35,123 @@ export const toColorElems = (data) => {
 
 export const toColorText = (variable, brackets = true, appendComma = false, spaces = true) => {
 	
-	let returnVar = undefined;
-	let colorData = [];
-	
-	const isDict = variable => {
-		return typeof variable === "object" && !Array.isArray(variable);
-	};
-	
-	if (isDict(variable)) {
-		let str = '';
-		if (brackets) {
-			str += '{';
-			colorData.push([typeColors.brackets, 1]);
-		}
+	try {
+		let returnVar = undefined;
+		let colorData = [];
 		
-		let init = true
-		for (const key of Object.keys(variable)) {
+		const isDict = variable => {
+			return typeof variable === "object" && !Array.isArray(variable);
+		};
+		
+		if (isDict(variable)) {
+			let str = '';
+			if (brackets) {
+				str += '{';
+				colorData.push([typeColors.brackets, 1]);
+			}
 			
-			if (key === 'exists') continue
-			
-			let entry = toColorText(variable[key])
-			const val = entry.val
-			
-			if (val) {
-				if (!init) {
-					str += spaces ? ', ' : ',';
-					colorData.push([typeColors.comma, spaces ? 2 : 1]);
+			let init = true
+			for (const key of Object.keys(variable)) {
+				
+				if (key === 'exists') continue
+				
+				let entry = toColorText(variable[key])
+				const val = entry.val
+				
+				if (val) {
+					if (!init) {
+						str += spaces ? ', ' : ',';
+						colorData.push([typeColors.comma, spaces ? 2 : 1]);
+					}
+					const sep = spaces ? ': ' : ':';
+					str += `${key}${sep}${val}`
+					colorData = [...colorData, [typeColors.key, key.length], [typeColors.plain, sep.length], ...entry.colorData]
+					init = false
 				}
-				const sep = spaces ? ': ' : ':';
-				str += `${key}${sep}${val}`
-				colorData = [...colorData, [typeColors.key, key.length], [typeColors.plain, sep.length], ...entry.colorData]
-				init = false
 			}
-		}
-		
-		if (brackets) {
-			str += '}'
-			colorData.push([typeColors.brackets, 1])
-		}
-		
-		if (str !== '{}') returnVar = str
-		
-	} else if (Array.isArray(variable)) {
-		
-		let str = '';
-		if (brackets) {
-			str += '[';
-			colorData.push([typeColors.brackets, 1]);
-		}
-		
-		let init = true
-		for (const element of variable) {
-			let entry = toColorText(element)
-			const val = entry.val
 			
-			if (val) {
-				if (!init) {
-					str += spaces ? ', ' : ',';
-					colorData.push([typeColors.comma, spaces ? 2 : 1]);
+			if (brackets) {
+				str += '}'
+				colorData.push([typeColors.brackets, 1])
+			}
+			
+			if (str !== '{}') returnVar = str
+			
+		} else if (Array.isArray(variable)) {
+			
+			let str = '';
+			if (brackets) {
+				str += '[';
+				colorData.push([typeColors.brackets, 1]);
+			}
+			
+			let init = true
+			for (const element of variable) {
+				let entry = toColorText(element)
+				const val = entry.val
+				
+				if (val) {
+					if (!init) {
+						str += spaces ? ', ' : ',';
+						colorData.push([typeColors.comma, spaces ? 2 : 1]);
+					}
+					str += val
+					colorData = [...colorData, ...entry.colorData]
+					init = false
 				}
-				str += val
-				colorData = [...colorData, ...entry.colorData]
-				init = false
 			}
-		}
-		if (brackets) {
-			str += ']';
-			colorData.push([typeColors.brackets, 1]);
-		}
-		
-		if (str !== '[]') returnVar = str
-	} else {
-		
-		returnVar = '' + variable
-		
-		let col = typeColors.plain
-		if (typeof variable === "boolean"){
-			col = typeColors.boolean
-		} else if (typeof variable === "number") {
-			col = typeColors.number
-		} else if (typeof variable === "string") {
-			col = typeColors.string
-		}
-		colorData.push([col, (''+returnVar).length])
-	}
-	
-	// TODO: figure out what to do when input fits no types (returnVar is undefined)
-	// add null case?
-	/*
-	if (!brackets) {
-		let newReturnVar = '';
-		const newColorData = [];
-		let i = 0;
-		for (const colorDataEntry of colorData) {
-			const len = colorDataEntry[1];
-			const sub = returnVar.substring(i, i+len);
-			if (sub !== '{' && sub !== '}' && sub !== '[' && sub !== ']') {
-				newReturnVar += sub;
-				newColorData.push(colorDataEntry)
+			if (brackets) {
+				str += ']';
+				colorData.push([typeColors.brackets, 1]);
 			}
-			i++;
+			
+			if (str !== '[]') returnVar = str
+		} else {
+			
+			returnVar = '' + variable
+			
+			let col = typeColors.plain
+			if (typeof variable === "boolean"){
+				col = typeColors.boolean
+			} else if (typeof variable === "number") {
+				col = typeColors.number
+			} else if (typeof variable === "string") {
+				col = typeColors.string
+			}
+			colorData.push([col, (''+returnVar).length])
 		}
-		returnVar = newReturnVar;
-		colorData = newColorData;
-	}*/
-	
-	if (appendComma) {
-		returnVar += ',';
-		colorData.push([typeColors.comma, 1]);
+		
+		// TODO: figure out what to do when input fits no types (returnVar is undefined)
+		// add null case?
+		/*
+		if (!brackets) {
+			let newReturnVar = '';
+			const newColorData = [];
+			let i = 0;
+			for (const colorDataEntry of colorData) {
+				const len = colorDataEntry[1];
+				const sub = returnVar.substring(i, i+len);
+				if (sub !== '{' && sub !== '}' && sub !== '[' && sub !== ']') {
+					newReturnVar += sub;
+					newColorData.push(colorDataEntry)
+				}
+				i++;
+			}
+			returnVar = newReturnVar;
+			colorData = newColorData;
+		}*/
+		
+		if (appendComma) {
+			returnVar += ',';
+			colorData.push([typeColors.comma, 1]);
+		}
+		
+		return {val: returnVar, colorData}
+		
+	} catch (e) {
+		const failureMessage = 'FAILED_TO_PARSE';
+		return {val: failureMessage, colorData: [['red', failureMessage.length]]};
 	}
-	
-	return {val: returnVar, colorData}
 }
 
 export const jsonLines = (dictionary) => {
@@ -159,4 +165,11 @@ export const jsonLines = (dictionary) => {
 	}
 	
 	return str
+}
+
+export const currentTimeStamp = () => { // TODO:
+	const dateObj = new Date();
+	
+	return `${dateObj.getFullYear()}-${dateObj.getMonth() + 1}-${dateObj.getDate()}_${dateObj.getHours()}-${dateObj.getMinutes()}-${dateObj.getSeconds()}`;
+	//return dateObj.toString();
 }

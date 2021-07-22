@@ -4,6 +4,8 @@ import { whiteFilter } from "../Util/Filters";
 import { classificationObj } from "../Util/Classification";
 import { log, stripTrailingPeriod } from "../Util/Util";
 import { TooltipCopy } from "./TooltipCopy";
+import { generateIntegrationReportTooltipCopy } from "../Util/IntegrationReports";
+import { getCleaner } from "../Util/IntegrationCleaners";
 
 const withPipe = (html) => {
 	if (!html) return;
@@ -16,73 +18,6 @@ const withPipe = (html) => {
 }
 
 // TODO: extract the 'exists' removing out of the toColorText!
-
-const cleanSpur = (dict) => {
-	const clean = {};
-	for (const key of Object.keys(dict)) {
-		if (key !== 'ip' && (key !== 'anonymous' || dict.anonymous === true)) clean[key] = dict[key];
-	}
-	
-	return clean;
-}
-
-const cleanCensys = (dict) => {
-	const clean = {};
-	for (const key of Object.keys(dict)) {
-		if (key !== 'ip') clean[key] = dict[key];
-	}
-	
-	return clean;
-}
-
-const cleanWhoIs = (dict) => {
-	const keepFields = [
-		'adminCountry',
-		'registrar', 'registrantOrganization',
-		'creationDate', 'created',
-		'updatedDate'
-	];
-	
-	const clean = {};
-	for (const key of Object.keys(dict)) {
-		if (keepFields.indexOf(key) !== -1) clean[key] = dict[key];
-	}
-	
-	return clean;
-}
-
-const cleanPassiveTotalWhois = (dict) => {
-	const clean = {};
-	for (const key of Object.keys(dict)) {
-		if (key !== 'rawText' && key !== 'domain') clean[key] = dict[key];
-	}
-	
-	return clean;
-}
-
-const cleanPassiveTotalPassiveDNS = (dict) => {
-	const clean = {};
-	for (const key of Object.keys(dict)) {
-		if (dict[key] != null && key !== 'queryValue' && key !== 'queryType') clean[key] = dict[key];
-	}
-	
-	const snipDate = (date) => date.substring(0, date.indexOf(' ')).replaceAll('-', '‑'); // uses non-breaking hyphens
-
-	clean.results = clean.results.map(result => {
-		const {recordType, resolveType, resolve, firstSeen, lastSeen} = result;
-		return {
-			recordType, resolveType,
-			resolve: stripTrailingPeriod(resolve),
-			firstSeen: snipDate(firstSeen), lastSeen: snipDate(lastSeen),
-			fullFirstSeen: firstSeen, fullLastSeen: lastSeen
-		}
-	}).sort((a, b) => new Date(b.fullLastSeen) - new Date(a.fullFirstSeen));
-	
-	return clean;
-}
-
-// eslint-disable-next-line no-unused-vars
-const noCleaner = (dict) => dict;
 
 export function Integrations({integrations}) {
 	
@@ -102,25 +37,23 @@ export function Integrations({integrations}) {
 	} = integrations;
 	
 	// local methods
-	const createIntegration = (result, cleaner, img) => {
+	const createIntegration = (result, img) => {
 		return (
 			!result ? null :
 				<ComponentTooltip comp={
-					<ColorDictBox data={cleaner(result.data)} indicatorData={indicatorData}/>
+					<ColorDictBox type={result.integrationType} data={result.data} indicatorData={indicatorData}/>
 				}>
 					{img}
 				</ComponentTooltip>
 		);
 	}
 	
-	const createListIntegration = (list, img) => {
-		
-		const copyVal = [indicatorData.stringify(), 'Subdomains:'].concat(list).join('\n');
+	const createListIntegration = (result, list, img) => {
 		
 		return (
 			<ComponentTooltip comp={
 				<div className="ResultBox" style={{maxWidth: 800, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}>
-					<TooltipCopy value={copyVal}/>
+					<TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(indicatorData, result.integrationType, result.data)}/>
 					<p style={{color: 'orange', fontWeight: 'bold'}}>Subdomains:</p>
 					{list.map(str =>
 						<p>{str}</p>
@@ -132,11 +65,11 @@ export function Integrations({integrations}) {
 		);
 	}
 	
-	const createPassiveTotalPassiveDNSIntegration = (result, cleaner, img) => {
+	const createPassiveTotalPassiveDNSIntegration = (result, img) => {
 		return (
 			!result ? null :
 				<ComponentTooltip comp={
-					<PassiveTotalPassiveDNSColorDictBox data={cleaner(result.data)} indicatorData={indicatorData}/>
+					<PassiveTotalPassiveDNSColorDictBox type={result.integrationType} data={result.data} indicatorData={indicatorData}/>
 				}>
 					{img}
 				</ComponentTooltip>
@@ -155,28 +88,28 @@ export function Integrations({integrations}) {
 	
 	const elems = [
 		// spur
-		createIntegration(spurResult, cleanSpur,
+		createIntegration(spurResult,
 			<img className="ExternalLink" style={{width: 60}} src="./images/spur.png" alt="spur"/>
 			),
 		// censys
-		createIntegration(censysResult, cleanCensys,
+		createIntegration(censysResult,
 			<img className="ExternalLink" src="./images/censysIcon.png" alt="censys"/>
 			),
 		// whois
-		createIntegration(whoisResult, cleanWhoIs,
+		createIntegration(whoisResult,
 			<img className="ExternalLink" src="./images/whoisIcon.svg" alt="whois"/>
 		),
 		// passivetotal whois
-		createIntegration(passiveTotalWhoisResult, cleanPassiveTotalWhois,
+		createIntegration(passiveTotalWhoisResult,
 			<img className="ExternalLink" style={whiteFilter} src="./images/whoisIcon.svg" alt="passivetotal whois"/>
 		),
 		// passivetotal passive dns
-		createPassiveTotalPassiveDNSIntegration(passiveTotalPassiveDNSResult, cleanPassiveTotalPassiveDNS,
+		createPassiveTotalPassiveDNSIntegration(passiveTotalPassiveDNSResult,
 			<img className="ExternalLink" src="./images/passivetotalIcon.png" alt="passivetotal passive dns"/>
 		),
 		// passivetotal subdomains
 		(!passiveTotalSubDomainsResult || !passiveTotalSubDomainsResult.data || !passiveTotalSubDomainsResult.data.subdomains) ? null :
-			createListIntegration(passiveTotalSubDomainsResult.data.subdomains,
+			createListIntegration(passiveTotalSubDomainsResult, passiveTotalSubDomainsResult.data.subdomains,
 				<img className="ExternalLink" src="./images/passivetotalIcon.png" alt="passivetotal sub-domains"/>
 		),
 		

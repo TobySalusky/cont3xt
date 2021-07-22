@@ -5,3 +5,4 @@ Credit:
 WhoIs Icon: https://thenounproject.com/term/whois/1581154/
 Censys Icon: https://censys.io/
 Share Icon: https://iconify.design/icon-sets/fe/share.html
+Report Icon: https://www.flaticon.com/free-icon/file_1508964

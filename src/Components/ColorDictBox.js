@@ -1,11 +1,13 @@
 import '../Style/App.css';
 import { toColorElems, toColorText, typeColors } from "../Util/Util";
 import { LinkBack } from "./LinkBack";
-import { Copy } from "./Copy";
 import { TooltipCopy } from "./TooltipCopy";
 import { InlineDiv, InlineRightDiv } from "../Util/StyleUtil";
-import {CircleCheckBox} from "./CircleCheckBox";
-import {useEffect, useState} from "react";
+import { CircleCheckBox } from "./CircleCheckBox";
+import { useState } from "react";
+import { generateIntegrationReportTooltipCopy } from "../Util/IntegrationReports";
+import { FIRST_SEEN, LAST_SEEN, sortPassiveDNSResults } from "../Util/SortUtil";
+import { orderedKeys } from "../Util/IntegrationCleaners";
 
 const infoBox = (title, data) => {
     
@@ -21,19 +23,16 @@ const infoBox = (title, data) => {
     );
 }
 
-export function ColorDictBox({data, indicatorData}) {
+export function ColorDictBox({type, data, indicatorData}) {
 
-    const keysAndColorText = Object.keys(data).map(key => {
+    const keysAndColorText = orderedKeys(type, Object.keys(data)).map(key => {
         const colorText = toColorText(data[key])
         return {key, colorText};
     }).filter(({colorText}) => colorText.val != null);
     
-    const copyVal = [indicatorData.stringify()].concat(keysAndColorText.map(({key, colorText}) =>
-        `${key}: ${colorText.val}`)).join('\n');
-    
     return (
         <div className="WhoIsBox">
-            <TooltipCopy value={copyVal}/>
+            <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(indicatorData, type, data)}/>
             {
                 keysAndColorText.map(({key, colorText}) => {
                     return infoBox(key, colorText)
@@ -47,18 +46,9 @@ const stringStyle = {color: typeColors.string};
 const padRight = {paddingRight: 5};
 const stringPadRight = {...padRight, ...stringStyle}
 
-export function PassiveTotalPassiveDNSColorDictBox({data, indicatorData}) {
-
-    const LAST_SEEN = 'lastSeen', FIRST_SEEN = 'firstSeen';
-    const FULL_CONV = {lastSeen: 'fullLastSeen', firstSeen: 'fullFirstSeen'}
+export function PassiveTotalPassiveDNSColorDictBox({type, data, indicatorData}) {
+    
     const [sortType, setSortType] = useState(LAST_SEEN);
-
-    const sortResults = (resultList, thisSortType) => {
-        const sortBy = FULL_CONV[thisSortType];
-        const sorted = resultList.sort((a, b) => new Date(b[sortBy]) - new Date(a[sortBy]));
-        console.log(sortBy, sorted)
-        return sorted;
-    }
 
     function InfoBoxResults({resultList, sortType}) {
 
@@ -92,7 +82,7 @@ export function PassiveTotalPassiveDNSColorDictBox({data, indicatorData}) {
                     </thead>
                     
                     <tbody>
-                    {sortResults(resultList, sortType).map((result, i) =>
+                    {sortPassiveDNSResults(resultList, sortType).map((result, i) =>
                         <tr key={i}>
                             <td>
                                 <LinkBack query={result.resolve} style={{width: 12, height: 12, margin: 0, marginRight: 5}}/>
@@ -118,26 +108,16 @@ export function PassiveTotalPassiveDNSColorDictBox({data, indicatorData}) {
         );
     }
     
-    const stringifyResult = (result) => {
-        return `${
-            (indicatorData.type === 'Domain') ? toColorText({[result.resolveType]: result.resolve}, false).val : toColorText(result.resolve).val}, ${
-            toColorText({firstSeen: result.firstSeen}, false).val}, ${
-            toColorText({lastSeen: result.lastSeen}, false).val}`;
-    }
-    
-    const keysAndColorText = Object.keys(data).filter(key => key !== 'results').map(key => {
+    const keysAndColorText = orderedKeys(type, Object.keys(data)).filter(key => key !== 'results').map(key => {
         const colorText = toColorText(data[key])
         return {key, colorText};
     }).filter(({colorText}) => colorText.val != null);
     
     const resultList = data.results;
     
-    const copyVal = [indicatorData.stringify()].concat(keysAndColorText.map(({key, colorText}) =>
-        `${key}: ${colorText.val}`)).concat(['Results:']).concat(sortResults(resultList, sortType).map(result => stringifyResult(result))).join('\n');
-    
     return (
         <div className="WhoIsBox">
-            <TooltipCopy value={copyVal}/>
+            <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(indicatorData, type, data, {sortType: sortType})}/>
             {keysAndColorText.map(({key, colorText}) =>
                 infoBox(key, colorText)
             )}

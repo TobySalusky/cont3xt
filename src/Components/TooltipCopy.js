@@ -1,11 +1,11 @@
 import { Copy } from "./Copy";
 import { whiteFilter } from "../Util/Filters";
 
-export const TooltipCopy = ({value}) => {
+export const TooltipCopy = ({value, valueFunc}) => {
 	
 	return (
 		<span className="TooltipCopyBody"
-		      onClick={() => navigator.clipboard.writeText(value)}
+		      onClick={valueFunc != null ? () => navigator.clipboard.writeText(valueFunc()) : () => navigator.clipboard.writeText(value)}
 		>
             <Copy value={value} style={{...whiteFilter, userSelect: 'none'}}/>
         </span>

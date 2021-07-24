@@ -1,5 +1,13 @@
 import '../Style/App.css';
-import { toColorElems, toColorText, typeColors } from "../Util/Util";
+import {
+    toColorElemsWIP,
+    toColorElems,
+    toColorElemsBreakCommas,
+    toColorText,
+    toColorTextWIP,
+    typeColors,
+    toColorElemsMultilineWIP
+} from "../Util/Util";
 import { LinkBack } from "./LinkBack";
 import { TooltipCopy } from "./TooltipCopy";
 import { InlineDiv, InlineRightDiv } from "../Util/StyleUtil";
@@ -10,14 +18,15 @@ import { FIRST_SEEN, LAST_SEEN, sortPassiveDNSResults } from "../Util/SortUtil";
 import { orderedKeys } from "../Util/IntegrationCleaners";
 
 const infoBox = (title, data) => {
-    
+
     return (
         <div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}>
-            <div style={{display: 'flex', justifyContent:'flex-start', maxWidth: 1000, flexWrap: "wrap"}}>
+            <div style={{display: 'flex', justifyContent:'flex-start',
+                maxWidth: 1000, flexWrap: "wrap", flexDirection: 'row'}}>
                 <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>{title}:</p>
-                
-                {toColorElems(data)}
-            
+
+                {toColorElemsMultilineWIP(data)}
+
             </div>
         </div>
     );
@@ -25,17 +34,18 @@ const infoBox = (title, data) => {
 
 export function ColorDictBox({type, data, indicatorData}) {
 
+
     const keysAndColorText = orderedKeys(type, Object.keys(data)).map(key => {
-        const colorText = toColorText(data[key])
-        return {key, colorText};
-    }).filter(({colorText}) => colorText.val != null);
+        const colorData = toColorTextWIP(data[key])
+        return {key, colorData};
+    }).filter(({colorData}) => colorData != null);
     
     return (
         <div className="WhoIsBox">
             <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(indicatorData, type, data)}/>
             {
-                keysAndColorText.map(({key, colorText}) => {
-                    return infoBox(key, colorText)
+                keysAndColorText.map(({key, colorData}) => {
+                    return infoBox(key, colorData)
                 })
             }
         </div>
@@ -111,17 +121,17 @@ export function PassiveTotalPassiveDNSColorDictBox({type, data, indicatorData}) 
     }
     
     const keysAndColorText = orderedKeys(type, Object.keys(data)).filter(key => key !== 'results').map(key => {
-        const colorText = toColorText(data[key])
-        return {key, colorText};
-    }).filter(({colorText}) => colorText.val != null);
+        const colorData = toColorTextWIP(data[key])
+        return {key, colorData};
+    }).filter(({colorData}) => colorData != null);
     
     const resultList = data.results;
     
     return (
         <div className="WhoIsBox">
             <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(indicatorData, type, data, {sortType: sortType})}/>
-            {keysAndColorText.map(({key, colorText}) =>
-                infoBox(key, colorText)
+            {keysAndColorText.map(({key, colorData}) =>
+                infoBox(key, colorData)
             )}
             <InfoBoxResults resultList={resultList} sortType={sortType}/>
         </div>

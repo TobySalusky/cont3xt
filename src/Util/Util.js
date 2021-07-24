@@ -1,3 +1,5 @@
+import ComponentTooltip from "../Components/ComponentTooltip";
+
 export const stripTrailingPeriod = (str) => {
 	if (str.lastIndexOf('.') === str.length - 1) return str.substring(0, str.length - 1);
 	return str;
@@ -18,7 +20,41 @@ export const typeColors = {
 	number: '#77e8ec',
 	boolean: '#ff699e',
 	string: '#adffc6',
-	key:'#cb91ff'
+	key: '#cb91ff',
+	link: '#60dfff',
+}
+
+export const toColorElemsBreakCommas = (data) => {
+	let text = data.val
+	let colors = data.colorData
+
+	const textList = [''];
+	const colorDataList = [[]];
+	let i = 0;
+	colors.forEach(entry => {
+		const snip = text.substr(i, entry[1]);
+		// if (snip.startsWith('}') || snip.startsWith(']')) {
+		// 	colorDataList.push([]);
+		// 	textList.push('');
+		// }
+		colorDataList[colorDataList.length - 1].push(entry);
+		textList[textList.length - 1] += snip;
+		if (snip.startsWith(',') /*|| snip.startsWith('{') || snip.startsWith('[')*/) {
+			colorDataList.push([]);
+			textList.push('');
+		}
+		i += entry[1];
+	})
+
+	return (
+		<div style={{display: 'flex', flexDirection: 'column'}}>
+			{colorDataList.map((colorDataListEntry, i) =>
+				<span style={{display: 'flex', flexDirection: 'row'}}>
+					{toColorElems({val: textList[i], colorData: colorDataListEntry})}
+				</span>
+			)}
+		</div>
+	);
 }
 
 export const toColorElems = (data) => {
@@ -29,6 +65,31 @@ export const toColorElems = (data) => {
 	return colors.map(colorEntry => {
 		const snip = text.substring(0, colorEntry[1]).replace(' ', '\xa0')
 		text = text.substring(colorEntry[1])
+		// links
+		if (snip.startsWith('http://') || snip.startsWith('https://')) {
+			const aNode = (
+				<a href={snip} target="_blank" rel="noreferrer" style={{color: typeColors.link, textDecoration: 'none'}}>
+					{snip}
+				</a>
+			);
+
+			if (snip.endsWith('.png')) {
+				return (
+					<ComponentTooltip zIndex={2} comp={
+						<div style={{maxWidth: 500, height: 'auto'}}>
+							<img style={{height:'100%', width:'100%', objectFit:'contain'}}
+								 src={snip} alt="urlscan screenshot"/>
+						</div>
+					}>
+						{aNode}
+					</ComponentTooltip>
+				);
+			}
+
+			return aNode;
+		}
+
+		// general elements
 		return <p style={{color: colorEntry[0]}}>{snip}</p>
 	})
 }
@@ -53,7 +114,7 @@ export const toColorText = (variable, brackets = true, appendComma = false, spac
 			let init = true
 			for (const key of Object.keys(variable)) {
 				
-				if (key === 'exists') continue
+				if (key === 'exists') continue; // TODO: remove this? make part of cleaner?
 				
 				let entry = toColorText(variable[key])
 				const val = entry.val
@@ -152,6 +213,190 @@ export const toColorText = (variable, brackets = true, appendComma = false, spac
 		const failureMessage = 'FAILED_TO_PARSE';
 		return {val: failureMessage, colorData: [['red', failureMessage.length]]};
 	}
+}
+
+const fullText = colorData => {
+	return colorData.map(entry => entry[1]).join();
+}
+
+export const toColorTextWIP = (variable, settings = {}) => {
+
+	const {brackets = true, appendComma = false, spaces = true, multiline = true} = settings;
+
+	const emptyDict = colorData => colorData.length === 2 && fullText(colorData) === '{}';
+	const emptyArr = colorData => colorData.length === 2 && fullText(colorData) === '[]';
+
+	const isDict = variable => {
+		return typeof variable === "object" && !Array.isArray(variable);
+	};
+
+	const tabIn = colorData => {
+		const thisColorData = [];
+		const tab = () => thisColorData.push(['white', '  ']);
+		tab();
+		for (let i = 0; i < colorData.length; i++) {
+			const entry = colorData[i];
+			thisColorData.push(entry);
+			if (entry[1] === '\n') tab();
+		}
+		return thisColorData;
+	}
+
+	try {
+		let colorData = [];
+
+		const commaStr = spaces ? ', ' : ',';
+		const sep = spaces ? ': ' : ':';
+
+		const breakLine = (data) => {
+			if (multiline) data.push(['red', '\n']);
+		}
+
+		if (isDict(variable)) {
+			if (brackets) {
+				colorData.push([typeColors.brackets, '{']);
+				breakLine(colorData);
+			}
+
+			let innerColorData = [];
+
+			let init = true
+			for (const key of Object.keys(variable)) {
+
+				if (key === 'exists') continue; // TODO: remove this? make part of cleaner?
+
+				let entry = toColorTextWIP(variable[key], settings)
+
+				if (entry) {
+					if (!init) {
+						innerColorData.push([typeColors.comma, commaStr]);
+						breakLine(innerColorData);
+					}
+					innerColorData = [...innerColorData, [typeColors.key, key], [typeColors.plain, sep], ...entry.data];
+					init = false;
+				}
+			}
+
+			if (multiline) innerColorData = tabIn(innerColorData);
+			colorData = [...colorData, ...innerColorData];
+
+			if (brackets) {
+				breakLine(colorData);
+				colorData.push([typeColors.brackets, '}'])
+			}
+
+			if (emptyDict(colorData)) return null;
+
+		} else if (Array.isArray(variable)) {
+
+			if (brackets) {
+				colorData.push([typeColors.brackets, '[']);
+			}
+
+			let init = true
+			for (const element of variable) {
+				const entry = toColorTextWIP(element, settings)
+
+				if (entry) {
+					if (!init) {
+						colorData.push([typeColors.comma, commaStr]);
+					}
+					colorData = [...colorData, ...entry.data]
+					init = false
+				}
+			}
+			if (brackets) {
+				colorData.push([typeColors.brackets, ']']);
+			}
+
+			if (emptyArr(colorData)) return null;
+		} else {
+
+			let col = typeColors.plain
+			if (typeof variable === "boolean"){
+				col = typeColors.boolean
+			} else if (typeof variable === "number") {
+				col = typeColors.number
+			} else if (typeof variable === "string") {
+				col = typeColors.string
+			}
+			colorData.push([col, '' + variable])
+		}
+
+		if (appendComma) {
+			colorData.push([typeColors.comma, ',']);
+		}
+
+		return createColorDataObj(colorData);
+
+	} catch (e) {
+		console.log(e)
+		const failureMessage = 'FAILED_TO_PARSE';
+		createColorDataObj([['red', failureMessage]]);
+	}
+}
+
+const createColorDataObj = (data) => {
+	return {
+		data: data,
+		genText: () => fullText(this.data),
+	};
+}
+
+export const toColorElemsMultilineWIP = (colorData) => {
+	const list = [[]];
+
+	for (const colorDataEntry of colorData.data) {
+		if (colorDataEntry[1] === '\n') {
+			list.push([])
+		} else {
+			list[list.length - 1].push(colorDataEntry);
+		}
+	}
+
+	return (
+		<div style={{display: 'flex', flexDirection: 'column'}}>
+			{list.map(data => createColorDataObj(data)).map(dataObj =>
+				<span style={{display: 'flex', flexDirection: 'row'}}>
+					{toColorElemsWIP(dataObj)}
+				</span>
+			)}
+		</div>
+	);
+}
+
+export const toColorElemsWIP = (colorData) => {
+
+	return colorData.data.map(([color, text]) => {
+		text = text.replaceAll(' ', '\xa0')
+
+		// links
+		if (text.startsWith('http://') || text.startsWith('https://')) {
+			const aNode = (
+				<a href={text} target="_blank" rel="noreferrer" style={{color: typeColors.link, textDecoration: 'none'}}>
+					{text}
+				</a>
+			);
+
+			if (text.endsWith('.png')) {
+				return (
+					<ComponentTooltip zIndex={2} comp={
+						<div style={{maxWidth: 500, height: 'auto'}}>
+							<img style={{height:'100%', width:'100%', objectFit:'contain'}}
+								 src={text} alt="urlscan screenshot"/>
+						</div>
+					}>
+						{aNode}
+					</ComponentTooltip>
+				);
+			}
+
+			return aNode;
+		}
+
+		// general elements
+		return <p style={{color: color}}>{text}</p>
+	})
 }
 
 export const jsonLines = (dictionary) => {

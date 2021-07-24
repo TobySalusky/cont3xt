@@ -305,7 +305,12 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                 log(err);
             });
 
-            // url scan TODO:
+            // url scan
+            fetchURLScan(ip).then(res => {
+                addIntegrationToResultObject(object, {urlScanResult: res}, integrationNames.URL_SCAN)
+            }).catch(err => {
+                log(err);
+            });
         }
         
         const startDomainAdditions = async (object, domain) => {
@@ -376,7 +381,7 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
             });
 
             // url scan
-            fetchURLScan(domain).then(res => { // sub-domains
+            fetchURLScan(domain).then(res => {
                 addIntegrationToResultObject(object, {urlScanResult: res}, integrationNames.URL_SCAN)
             }).catch(err => {
                 log(err);

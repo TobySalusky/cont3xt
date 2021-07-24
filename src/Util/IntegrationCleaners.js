@@ -9,6 +9,10 @@ export function orderedKeys(integrationType, keyList) {
 				'Domain', 'registrar', 'organization', 'registered', 'expiresAt', 'lastLoadedAt', 'registryUpdateAt', 'nameServers',
 				'admin', 'billing', 'registrant', 'tech', 'whoisServer', 'name', 'telephone', 'domainStatus'
 			]);
+		case integrationNames.URL_SCAN:
+			return mapOrder(keyList, [
+				'total', 'took', 'has_more'
+			]);
 		default:
 			return keyList;
 	}

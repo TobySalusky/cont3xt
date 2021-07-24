@@ -22,6 +22,8 @@ const StyledTooltip = styled.span`
   drop-shadow(-${(p) => p.shadowOff}px ${(p) => p.shadowOff}px ${(p) => p.shadowBlur}px var(--shadow-color))
   drop-shadow(${(p) => p.shadowOff}px -${(p) => p.shadowOff}px ${(p) => p.shadowBlur}px var(--shadow-color))
   drop-shadow(-${(p) => p.shadowOff}px -${(p) => p.shadowOff}px ${(p) => p.shadowBlur}px var(--shadow-color));
+
+	z-index: ${(p) => p.zIndex};
 `;
 //  height: 1000px;
 //   overflow-y: auto;
@@ -40,7 +42,7 @@ const findPos = (el, dir = 'bottom', space = 10) => {
 	return pos
 }
 
-export default function ComponentTooltip({comp, noInteract, noShadow, children, style, ...props}) {
+export default function ComponentTooltip({comp, noInteract, zIndex = 1, noShadow, children, style, ...props}) {
 	
 	const [show, setShow] = useState(false)
 	const posRef = useRef({x: 0, y: 0})
@@ -62,7 +64,7 @@ export default function ComponentTooltip({comp, noInteract, noShadow, children, 
 			})}
 			
 			<Portal>
-				<StyledTooltip pos={posRef.current} show={show} interactive={!noInteract} onMouseOver={() => {
+				<StyledTooltip zIndex={zIndex} pos={posRef.current} show={show} interactive={!noInteract} onMouseOver={() => {
 					if (!noInteract) setShow(true)
 				}} onMouseOut={handleOut} shadowColor={noShadow ? 'transparent' : 'rgba(0, 0, 0, 0.5)'} shadowOff={5} shadowBlur={5}>
 					{comp}

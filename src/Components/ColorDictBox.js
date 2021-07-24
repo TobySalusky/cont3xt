@@ -74,11 +74,13 @@ export function PassiveTotalPassiveDNSColorDictBox({type, data, indicatorData}) 
                 <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>Results:</p>
                 <table className="TableCollapseBorders">
                     <thead className="StickyTableHeader">
-                        <th/>
-                        {!isDomain || <><th>DNS Type</th><th>Type</th></>}
-                        <th>Value</th>
-                        <DateHeader name='First Seen' thisSortType={FIRST_SEEN} sortType={sortType}/>
-                        <DateHeader name='Last Seen' thisSortType={LAST_SEEN} sortType={sortType}/>
+                        <tr>
+                            <th/>
+                            {!isDomain || <><th>DNS Type</th><th>Type</th></>}
+                            <th>Value</th>
+                            <DateHeader name='First Seen' thisSortType={FIRST_SEEN} sortType={sortType}/>
+                            <DateHeader name='Last Seen' thisSortType={LAST_SEEN} sortType={sortType}/>
+                        </tr>
                     </thead>
                     
                     <tbody>

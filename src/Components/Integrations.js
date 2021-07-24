@@ -32,6 +32,7 @@ export function Integrations({integrations}) {
 		passiveTotalWhoisResult,
 		passiveTotalSubDomainsResult,
 		passiveTotalPassiveDNSResult,
+		urlScanResult,
 		
 		indicatorData = classificationObj('WARNING: no indicator found'),
 	} = integrations;
@@ -95,6 +96,10 @@ export function Integrations({integrations}) {
 		createIntegration(censysResult,
 			<img className="ExternalLink" src="./images/censysIcon.png" alt="censys"/>
 			),
+		// url scan
+		createIntegration(urlScanResult,
+			<img className="ExternalLink" src="./images/urlscanIcon.png" alt="url scan"/>
+		),
 		// whois
 		createIntegration(whoisResult,
 			<img className="ExternalLink" src="./images/whoisIcon.svg" alt="whois"/>

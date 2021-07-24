@@ -151,6 +151,24 @@ const fetchSpurDataIP = async (ip) => {
     return spurRes
 }
 
+const fetchURLScan = async (ipOrDomain) => {
+
+    const {REACT_APP_URLSCAN_KEY} = process.env
+
+    if (!REACT_APP_URLSCAN_KEY) return null;
+
+    const res = await axios.get('/url-scan', {
+        params: {
+            q: ipOrDomain,
+            key: REACT_APP_URLSCAN_KEY,
+        },
+    })
+
+    log('URL Scan', res)
+
+    return res
+}
+
 
 function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
 
@@ -286,6 +304,8 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
             }).catch(err => {
                 log(err);
             });
+
+            // url scan TODO:
         }
         
         const startDomainAdditions = async (object, domain) => {
@@ -346,7 +366,6 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
     
             /**
              * CURRENT TODO:
-             * global report
              * abstract out sorts and cleaning from rendering code (they're getting called like crazy, and I expect that is bottle-necking performance)
              */
             fetchPassiveTotalPassiveDNS(domain).then(res => { // passive dns for domain
@@ -355,6 +374,14 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
             }).catch(err => {
                 log(err);
             });
+
+            // url scan
+            fetchURLScan(domain).then(res => { // sub-domains
+                addIntegrationToResultObject(object, {urlScanResult: res}, integrationNames.URL_SCAN)
+            }).catch(err => {
+                log(err);
+            });
+
             
             // resolve more information for ip children
             for (const data of [dataA, dataAAAA]) {

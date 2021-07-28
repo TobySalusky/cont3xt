@@ -17,8 +17,6 @@ const withPipe = (html) => {
 	);
 }
 
-// TODO: extract the 'exists' removing out of the toColorText!
-
 export function Integrations({integrations}) {
 	
 	
@@ -33,6 +31,7 @@ export function Integrations({integrations}) {
 		passiveTotalSubDomainsResult,
 		passiveTotalPassiveDNSResult,
 		urlScanResult,
+		virusTotalDomainResult,
 		
 		indicatorData = classificationObj('WARNING: no indicator found'),
 	} = integrations;
@@ -117,7 +116,10 @@ export function Integrations({integrations}) {
 			createListIntegration(passiveTotalSubDomainsResult, passiveTotalSubDomainsResult.data.subdomains,
 				<img className="ExternalLink" src="./images/passivetotalIcon.png" alt="passivetotal sub-domains"/>
 		),
-		
+		// virus total domain
+		createIntegration(virusTotalDomainResult,
+			<img className="ExternalLink" style={whiteFilter} src="./images/report.svg" alt="virus total domain"/>
+		),
 	];
 	
 	return (

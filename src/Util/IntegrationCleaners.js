@@ -1,6 +1,7 @@
 import { stripTrailingPeriod } from "./Util";
 import { integrationNames } from "./IntegrationDefinitions";
 import { mapOrder } from "./SortUtil";
+import dr from 'defang-refang'
 
 export function orderedKeys(integrationType, keyList) {
 	switch (integrationType) {
@@ -18,27 +19,42 @@ export function orderedKeys(integrationType, keyList) {
 	}
 }
 
-export const getCleaner = (integrationType) => {
+const getIntermediateCleaners = (integrationType) => {
 	switch (integrationType) {
 		case integrationNames.SPUR:
-			return cleanSpur;
+			return [cleanSpurExists, removeEmptyDicts, cleanSpur];
 		case integrationNames.CENSYS_IP:
-			return cleanCensys;
+			return [cleanCensys];
 		case integrationNames.WHOIS:
-			return cleanWhoIs;
+			return [cleanWhoIs];
 		case integrationNames.PASSIVETOTAL_WHOIS:
-			return cleanPassiveTotalWhois;
+			return [cleanPassiveTotalWhois];
 		case integrationNames.PASSIVETOTAL_PASSIVE_DNS_IP:
 		case integrationNames.PASSIVETOTAL_PASSIVE_DNS_DOMAIN:
-			return cleanPassiveTotalPassiveDNS;
+			return [cleanPassiveTotalPassiveDNS];
+		case integrationNames.URL_SCAN:
+			return [defangUrlScanUrls];
 		default:
-			return noCleaner;
+			return [noCleaner];
 	}
 }
 
-export const noCleaner = (dict) => dict;
+export const getCleaner = (integrationType) => {
+	
+	const cleaners = getIntermediateCleaners(integrationType);
+	
+	return (dict) => {
+		let newDict = dict;
+		for (const cleaner of cleaners) {
+			newDict = cleaner(newDict);
+		}
+		return newDict;
+	};
+}
 
-export const cleanSpur = (dict) => {
+const noCleaner = (dict) => dict;
+
+const cleanSpur = (dict) => {
 	const clean = {};
 	for (const key of Object.keys(dict)) {
 		if (key !== 'ip' && (key !== 'anonymous' || dict.anonymous === true)) clean[key] = dict[key];
@@ -47,7 +63,7 @@ export const cleanSpur = (dict) => {
 	return clean;
 }
 
-export const cleanCensys = (dict) => {
+const cleanCensys = (dict) => {
 	const clean = {};
 	for (const key of Object.keys(dict)) {
 		if (key !== 'ip') clean[key] = dict[key];
@@ -56,7 +72,7 @@ export const cleanCensys = (dict) => {
 	return clean;
 }
 
-export const cleanWhoIs = (dict) => {
+const cleanWhoIs = (dict) => {
 	const keepFields = [
 		'adminCountry',
 		'registrar', 'registrantOrganization',
@@ -72,7 +88,7 @@ export const cleanWhoIs = (dict) => {
 	return clean;
 }
 
-export const cleanPassiveTotalWhois = (dict) => {
+const cleanPassiveTotalWhois = (dict) => {
 	const clean = {};
 	for (const key of Object.keys(dict)) {
 		if (key !== 'rawText' && key !== 'domain') clean[key] = dict[key];
@@ -81,7 +97,7 @@ export const cleanPassiveTotalWhois = (dict) => {
 	return clean;
 }
 
-export const cleanPassiveTotalPassiveDNS = (dict) => {
+const cleanPassiveTotalPassiveDNS = (dict) => {
 	const clean = {};
 	for (const key of Object.keys(dict)) {
 		if (dict[key] != null && key !== 'queryValue' && key !== 'queryType') clean[key] = dict[key];
@@ -101,3 +117,68 @@ export const cleanPassiveTotalPassiveDNS = (dict) => {
 	
 	return clean;
 }
+
+
+
+// default stuff
+
+const isDict = variable => {
+	return typeof variable === "object" && !Array.isArray(variable);
+};
+
+const isArray = variable => Array.isArray(variable);
+
+
+const recurseAll = (
+	variable,
+    objFunc = (val)=>val,
+    arrFunc = (val)=>val,
+    valFunc = (val)=>val
+) => {
+	if (isDict(variable)) {
+		const newDict = {};
+		for (const key of Object.keys(variable)) {
+			newDict[key] = recurseAll(variable[key], objFunc, arrFunc, valFunc);
+		}
+		
+		return objFunc(newDict);
+	}
+	if (isArray(variable)) {
+		return arrFunc(variable.map(elem => recurseAll(elem, objFunc, arrFunc, valFunc)))
+	}
+	return valFunc(variable);
+}
+
+const removeEmptyDicts = (dict) => {
+	return recurseAll(dict, (obj) => {
+		
+		const entries = Object.entries(obj);
+		if (entries.length === 0) return null;
+		const newObj = {};
+		for (const [key, val] of entries) {
+			if (val !== null) newObj[key] = val;
+		}
+		
+		return newObj;
+		
+	}, (arr) => arr.filter(elem => elem !== null));
+}
+
+// SPECIFIC recursive cleaners
+const cleanSpurExists = (dict) => recurseAll(dict, (obj) => {
+	const newObj = {};
+	for (const [key, val] of Object.entries(obj)) {
+		if (key !== 'exists') newObj[key] = val;
+	}
+	
+	return newObj;
+});
+
+const defangUrlScanUrls = (dict) => recurseAll(dict, (obj) => {
+	const newObj = {};
+	for (const [key, val] of Object.entries(obj)) {
+		newObj[key] = (key === 'url') ? dr.defang(val) : val;
+	}
+	
+	return newObj;
+});

@@ -114,8 +114,6 @@ export const toColorText = (variable, brackets = true, appendComma = false, spac
 			let init = true
 			for (const key of Object.keys(variable)) {
 				
-				if (key === 'exists') continue; // TODO: remove this? make part of cleaner?
-				
 				let entry = toColorText(variable[key])
 				const val = entry.val
 				
@@ -262,9 +260,7 @@ export const toColorTextWIP = (variable, settings = {}) => {
 
 			let init = true
 			for (const key of Object.keys(variable)) {
-
-				if (key === 'exists') continue; // TODO: remove this? make part of cleaner?
-
+				
 				let entry = toColorTextWIP(variable[key], settings)
 
 				if (entry) {

@@ -7,4 +7,5 @@ export const integrationNames = {
 	PASSIVETOTAL_WHOIS: 'Passivetotal Whois',
 	SPUR: 'Spur',
 	URL_SCAN: 'Url Scan',
+	VIRUS_TOTAL: 'VirusTotal'
 };

@@ -169,6 +169,20 @@ const fetchURLScan = async (ipOrDomain) => {
     return res
 }
 
+const fetchVirusTotalDomain = async (domain) => {
+    const {REACT_APP_VIRUSTOTAL_API_KEY} = process.env;
+    if (!REACT_APP_VIRUSTOTAL_API_KEY) return null;
+    const res = await axios.get('/virus-total', {
+        params: {
+            q: domain,
+            key: REACT_APP_VIRUSTOTAL_API_KEY,
+        },
+    })
+    
+    log('virus total res', res);
+    return res;
+}
+
 
 function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPENED!!
 
@@ -311,6 +325,7 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
             }).catch(err => {
                 log(err);
             });
+            
         }
         
         const startDomainAdditions = async (object, domain) => {
@@ -344,7 +359,7 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
             // get whois data
             axios.get('/who-is-domain', {
                 params: {
-                    domain: domain
+                    q: domain
                 }
             }).then(whoIsResult => {
                 log('who is:', whoIsResult)
@@ -383,6 +398,13 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
             // url scan
             fetchURLScan(domain).then(res => {
                 addIntegrationToResultObject(object, {urlScanResult: res}, integrationNames.URL_SCAN)
+            }).catch(err => {
+                log(err);
+            });
+    
+            // url scan
+            fetchVirusTotalDomain(domain).then(res => {
+                addIntegrationToResultObject(object, {virusTotalDomainResult: res}, integrationNames.VIRUS_TOTAL)
             }).catch(err => {
                 log(err);
             });

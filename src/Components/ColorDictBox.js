@@ -104,7 +104,7 @@ export function PassiveTotalPassiveDNSColorDictBox({type, data, indicatorData}) 
                                 <td style={stringStyle}>{result.recordType}</td>
                                 <td>
                                     <InlineRightDiv>
-                                        {toColorElems(toColorText({[result.resolveType]: ' '}, false, false, false))}
+                                        {toColorElemsWIP(toColorTextWIP({[result.resolveType]: ' '}, {brackets: false, appendComma: false, spaces: false, multiline: false}))}
                                     </InlineRightDiv>
                                 </td>
                             </>

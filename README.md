@@ -11,3 +11,6 @@ Share Icon: https://iconify.design/icon-sets/fe/share.html
 Report Icon: https://www.flaticon.com/free-icon/file_1508964
 
 UrlScan Icon: https://urlscan.io/about/
+
+VirusTotal Icon: https://vecta.io/symbols/100/brands-va-vz/45/virustotal-icon
+

@@ -32,6 +32,8 @@ export function Integrations({integrations}) {
 		passiveTotalPassiveDNSResult,
 		urlScanResult,
 		virusTotalDomainResult,
+		virusTotalIPResult,
+		virusTotalHashResult,
 		
 		indicatorData = classificationObj('WARNING: no indicator found'),
 	} = integrations;
@@ -95,10 +97,6 @@ export function Integrations({integrations}) {
 		createIntegration(censysResult,
 			<img className="ExternalLink" src="./images/censysIcon.png" alt="censys"/>
 			),
-		// url scan
-		createIntegration(urlScanResult,
-			<img className="ExternalLink" src="./images/urlscanIcon.png" alt="url scan"/>
-		),
 		// whois
 		createIntegration(whoisResult,
 			<img className="ExternalLink" src="./images/whoisIcon.svg" alt="whois"/>
@@ -106,6 +104,10 @@ export function Integrations({integrations}) {
 		// passivetotal whois
 		createIntegration(passiveTotalWhoisResult,
 			<img className="ExternalLink" style={whiteFilter} src="./images/whoisIcon.svg" alt="passivetotal whois"/>
+		),
+		// url scan
+		createIntegration(urlScanResult,
+			<img className="ExternalLink" src="./images/urlscanIcon.png" alt="url scan"/>
 		),
 		// passivetotal passive dns
 		createPassiveTotalPassiveDNSIntegration(passiveTotalPassiveDNSResult,
@@ -118,7 +120,15 @@ export function Integrations({integrations}) {
 		),
 		// virus total domain
 		createIntegration(virusTotalDomainResult,
-			<img className="ExternalLink" style={whiteFilter} src="./images/report.svg" alt="virus total domain"/>
+			<img className="ExternalLink" style={whiteFilter} src="./images/virustotal.svg" alt="virus total domain"/>
+		),
+		// virus total ip
+		createIntegration(virusTotalIPResult,
+			<img className="ExternalLink" style={whiteFilter} src="./images/virustotal.svg" alt="virus total ip"/>
+		),
+		// virus total hash
+		createIntegration(virusTotalHashResult,
+			<img className="ExternalLink" style={whiteFilter} src="./images/virustotal.svg" alt="virus total hash"/>
 		),
 	];
 	

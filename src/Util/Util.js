@@ -221,8 +221,8 @@ export const toColorTextWIP = (variable, settings = {}) => {
 
 	const {brackets = true, appendComma = false, spaces = true, multiline = true} = settings;
 
-	const emptyDict = colorData => colorData.length === 2 && fullText(colorData) === '{}';
-	const emptyArr = colorData => colorData.length === 2 && fullText(colorData) === '[]';
+	//const emptyDict = colorData => colorData.length === 2 && fullText(colorData) === '{}';
+	//const emptyArr = colorData => colorData.length === 2 && fullText(colorData) === '[]';
 
 	const isDict = variable => {
 		return typeof variable === "object" && !Array.isArray(variable);
@@ -234,6 +234,7 @@ export const toColorTextWIP = (variable, settings = {}) => {
 		tab();
 		for (let i = 0; i < colorData.length; i++) {
 			const entry = colorData[i];
+			
 			thisColorData.push(entry);
 			if (entry[1] === '\n') tab();
 		}
@@ -281,7 +282,7 @@ export const toColorTextWIP = (variable, settings = {}) => {
 				colorData.push([typeColors.brackets, '}'])
 			}
 
-			if (emptyDict(colorData)) return null;
+			//if (emptyDict(colorData)) return null;
 
 		} else if (Array.isArray(variable)) {
 
@@ -305,7 +306,7 @@ export const toColorTextWIP = (variable, settings = {}) => {
 				colorData.push([typeColors.brackets, ']']);
 			}
 
-			if (emptyArr(colorData)) return null;
+			//if (emptyArr(colorData)) return null;
 		} else {
 
 			let col = typeColors.plain
@@ -353,7 +354,7 @@ export const toColorElemsMultilineWIP = (colorData) => {
 	return (
 		<div style={{display: 'flex', flexDirection: 'column'}}>
 			{list.map(data => createColorDataObj(data)).map(dataObj =>
-				<span style={{display: 'flex', flexDirection: 'row'}}>
+				<span style={{display: 'flex', flexDirection: 'row', flexWrap: "wrap",}}>
 					{toColorElemsWIP(dataObj)}
 				</span>
 			)}

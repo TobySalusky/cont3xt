@@ -22,7 +22,7 @@ const copyBase64LinkToClipboard = (query) => {
 }
 
 export const processQuery = (query) => {
-    return dr.refang(query);
+    return dr.refang(query.trim());
 }
 
 const fetchDataIP = async (ip) => {
@@ -172,14 +172,42 @@ const fetchURLScan = async (ipOrDomain) => {
 const fetchVirusTotalDomain = async (domain) => {
     const {REACT_APP_VIRUSTOTAL_API_KEY} = process.env;
     if (!REACT_APP_VIRUSTOTAL_API_KEY) return null;
-    const res = await axios.get('/virus-total', {
+    const res = await axios.get('/virus-total-domain', {
         params: {
             q: domain,
             key: REACT_APP_VIRUSTOTAL_API_KEY,
         },
     })
     
-    log('virus total res', res);
+    log('virus total res domain', res);
+    return res;
+}
+
+const fetchVirusTotalIP = async (ip) => {
+    const {REACT_APP_VIRUSTOTAL_API_KEY} = process.env;
+    if (!REACT_APP_VIRUSTOTAL_API_KEY) return null;
+    const res = await axios.get('/virus-total-ip', {
+        params: {
+            q: ip,
+            key: REACT_APP_VIRUSTOTAL_API_KEY,
+        },
+    })
+    
+    log('virus total res ip', res);
+    return res;
+}
+
+const fetchVirusTotalHash = async (hash) => {
+    const {REACT_APP_VIRUSTOTAL_API_KEY} = process.env;
+    if (!REACT_APP_VIRUSTOTAL_API_KEY) return null;
+    const res = await axios.get('/virus-total-hash', {
+        params: {
+            q: hash,
+            key: REACT_APP_VIRUSTOTAL_API_KEY,
+        },
+    })
+    
+    log('virus total res hash', res);
     return res;
 }
 
@@ -325,6 +353,13 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
             }).catch(err => {
                 log(err);
             });
+    
+            // virus total
+            fetchVirusTotalIP(ip).then(res => {
+                addIntegrationToResultObject(object, {virusTotalIPResult: res}, integrationNames.VIRUS_TOTAL_IP)
+            }).catch(err => {
+                log(err);
+            });
             
         }
         
@@ -402,9 +437,9 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                 log(err);
             });
     
-            // url scan
+            // virus total
             fetchVirusTotalDomain(domain).then(res => {
-                addIntegrationToResultObject(object, {virusTotalDomainResult: res}, integrationNames.VIRUS_TOTAL)
+                addIntegrationToResultObject(object, {virusTotalDomainResult: res}, integrationNames.VIRUS_TOTAL_DOMAIN)
             }).catch(err => {
                 log(err);
             });
@@ -457,6 +492,15 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                 log(err);
             });
         }
+    
+        const startHashAdditions = (object, hash) => {
+            // virus total
+            fetchVirusTotalHash(hash).then(res => {
+                addIntegrationToResultObject(object, {virusTotalHashResult: res}, integrationNames.VIRUS_TOTAL_HASH)
+            }).catch(err => {
+                log(err);
+            });
+        }
         
         
         for (let i = 0; i < arr.length; i++) {
@@ -476,6 +520,9 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                 case 'PhoneNumber':
                     startPhoneNumberAdditions(result, result.indicator);
                     break;
+                case 'Hash':
+                    startHashAdditions(result, result.indicator);
+                    break;
                 default:
                     thisDiff = false;
                     break;
@@ -494,7 +541,6 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         if (query !== search && search !== '') {
             setBase64(null);
             setQuery(processQuery(search));
-            
         }
         setSearch('');
     }

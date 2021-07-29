@@ -1,5 +1,5 @@
 import { integrationNames } from "./IntegrationDefinitions";
-import { toColorText } from "./Util";
+import { toColorText, toColorTextWIP } from "./Util";
 import { LAST_SEEN, sortPassiveDNSResults } from "./SortUtil";
 import { tabLines } from "./StringUtil";
 import { orderedKeys } from "./IntegrationCleaners";
@@ -28,7 +28,7 @@ export const generateIntegrationReport = (integrationType, integrationData, sett
 	switch (integrationType) {
 		
 		case integrationNames.PASSIVETOTAL_SUBDOMAINS: {
-			const list = integrationData.subdomains;
+			const list = data.subdomains;
 			return ['Subdomains:'].concat(tabLines(list.join('\n'), spaceCount)).join('\n');
 		}
 		

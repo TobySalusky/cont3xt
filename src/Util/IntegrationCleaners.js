@@ -28,12 +28,16 @@ const getIntermediateCleaners = (integrationType) => {
 		case integrationNames.WHOIS:
 			return [cleanWhoIs];
 		case integrationNames.PASSIVETOTAL_WHOIS:
-			return [cleanPassiveTotalWhois];
+			return [removeEmptyDicts, cleanPassiveTotalWhois];
 		case integrationNames.PASSIVETOTAL_PASSIVE_DNS_IP:
 		case integrationNames.PASSIVETOTAL_PASSIVE_DNS_DOMAIN:
 			return [cleanPassiveTotalPassiveDNS];
 		case integrationNames.URL_SCAN:
 			return [defangUrlScanUrls];
+		case integrationNames.VIRUS_TOTAL_DOMAIN:
+		case integrationNames.VIRUS_TOTAL_IP:
+		case integrationNames.VIRUS_TOTAL_HASH:
+			return [defangAll]
 		default:
 			return [noCleaner];
 	}
@@ -181,4 +185,15 @@ const defangUrlScanUrls = (dict) => recurseAll(dict, (obj) => {
 	}
 	
 	return newObj;
+});
+
+const defangAll = (dict) => recurseAll(dict,
+	(val)=>val,
+	(val)=>val,
+	(val) => {
+		const str = `${val}`;
+		if (str.match(/^https?:/)) {
+			return dr.defang(str);
+		}
+		return val;
 });

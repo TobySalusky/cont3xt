@@ -285,8 +285,10 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         }
         
         const addIntegrationToResultObject = (object, integrationAdditionObj, integrationType) => {
+
             if (!object.integrations) object.integrations = {};
             for (const key of Object.keys(integrationAdditionObj)) {
+                if (integrationAdditionObj[key] == null) continue;
                 object.integrations[key] = integrationAdditionObj[key];
                 if (integrationType) {
                     object.integrations[key].integrationType = integrationType;

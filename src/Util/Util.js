@@ -24,40 +24,7 @@ export const typeColors = {
 	link: '#60dfff',
 }
 
-export const toColorElemsBreakCommas = (data) => {
-	let text = data.val
-	let colors = data.colorData
-
-	const textList = [''];
-	const colorDataList = [[]];
-	let i = 0;
-	colors.forEach(entry => {
-		const snip = text.substr(i, entry[1]);
-		// if (snip.startsWith('}') || snip.startsWith(']')) {
-		// 	colorDataList.push([]);
-		// 	textList.push('');
-		// }
-		colorDataList[colorDataList.length - 1].push(entry);
-		textList[textList.length - 1] += snip;
-		if (snip.startsWith(',') /*|| snip.startsWith('{') || snip.startsWith('[')*/) {
-			colorDataList.push([]);
-			textList.push('');
-		}
-		i += entry[1];
-	})
-
-	return (
-		<div style={{display: 'flex', flexDirection: 'column'}}>
-			{colorDataList.map((colorDataListEntry, i) =>
-				<span style={{display: 'flex', flexDirection: 'row'}}>
-					{toColorElems({val: textList[i], colorData: colorDataListEntry})}
-				</span>
-			)}
-		</div>
-	);
-}
-
-export const toColorElems = (data) => {
+export const toColorElemsOld = (data) => {
 	
 	let text = data.val
 	let colors = data.colorData
@@ -94,7 +61,7 @@ export const toColorElems = (data) => {
 	})
 }
 
-export const toColorText = (variable, brackets = true, appendComma = false, spaces = true) => {
+export const toColorTextOld = (variable, brackets = true, appendComma = false, spaces = true) => {
 	
 	try {
 		let returnVar = undefined;
@@ -114,7 +81,7 @@ export const toColorText = (variable, brackets = true, appendComma = false, spac
 			let init = true
 			for (const key of Object.keys(variable)) {
 				
-				let entry = toColorText(variable[key])
+				let entry = toColorTextOld(variable[key])
 				const val = entry.val
 				
 				if (val) {
@@ -146,7 +113,7 @@ export const toColorText = (variable, brackets = true, appendComma = false, spac
 			
 			let init = true
 			for (const element of variable) {
-				let entry = toColorText(element)
+				let entry = toColorTextOld(element)
 				const val = entry.val
 				
 				if (val) {
@@ -217,7 +184,7 @@ const fullText = colorData => {
 	return colorData.map(entry => entry[1]).join();
 }
 
-export const toColorTextWIP = (variable, settings = {}) => {
+export const toColorText = (variable, settings = {}) => {
 
 	const {brackets = true, appendComma = false, spaces = true, multiline = true} = settings;
 
@@ -262,7 +229,7 @@ export const toColorTextWIP = (variable, settings = {}) => {
 			let init = true
 			for (const key of Object.keys(variable)) {
 				
-				let entry = toColorTextWIP(variable[key], settings)
+				let entry = toColorText(variable[key], settings)
 
 				if (entry) {
 					if (!init) {
@@ -292,7 +259,7 @@ export const toColorTextWIP = (variable, settings = {}) => {
 
 			let init = true
 			for (const element of variable) {
-				const entry = toColorTextWIP(element, settings)
+				const entry = toColorText(element, settings)
 
 				if (entry) {
 					if (!init) {
@@ -340,7 +307,7 @@ const createColorDataObj = (data) => {
 	};
 }
 
-export const toColorElemsMultilineWIP = (colorData) => {
+export const toColorElemsMultiline = (colorData) => {
 	const list = [[]];
 
 	for (const colorDataEntry of colorData.data) {
@@ -355,40 +322,52 @@ export const toColorElemsMultilineWIP = (colorData) => {
 		<div style={{display: 'flex', flexDirection: 'column'}}>
 			{list.map(data => createColorDataObj(data)).map(dataObj =>
 				<span style={{display: 'flex', flexDirection: 'row', flexWrap: "wrap",}}>
-					{toColorElemsWIP(dataObj)}
+					{toColorElems(dataObj)}
 				</span>
 			)}
 		</div>
 	);
 }
 
-export const toColorElemsWIP = (colorData) => {
+export const makeUnbreakable = (str) => {
+	return str.replaceAll('-', '‑').replaceAll(' ', '\xa0');
+}
+
+export const makeColorElems = (variable) => {
+	return toColorElems(toColorText(variable));
+}
+
+export const makeClickableLink = (linkStr, displayText = null) => {
+	const aNode = (
+		<a href={linkStr} target="_blank" rel="noreferrer" style={{color: typeColors.link, textDecoration: 'none'}}>
+			{displayText ?? linkStr}
+		</a>
+	);
+
+	if (linkStr.endsWith('.png')) {
+		return (
+			<ComponentTooltip zIndex={2} comp={
+				<div style={{maxWidth: 500, height: 'auto'}}>
+					<img style={{height:'100%', width:'100%', objectFit:'contain'}}
+						 src={linkStr} alt="urlscan screenshot"/>
+				</div>
+			}>
+				{aNode}
+			</ComponentTooltip>
+		);
+	}
+
+	return aNode;
+}
+
+export const toColorElems = (colorData) => {
 
 	return colorData.data.map(([color, text]) => {
 		text = text.replaceAll(' ', '\xa0')
 
 		// links
 		if (text.startsWith('http://') || text.startsWith('https://')) {
-			const aNode = (
-				<a href={text} target="_blank" rel="noreferrer" style={{color: typeColors.link, textDecoration: 'none'}}>
-					{text}
-				</a>
-			);
-
-			if (text.endsWith('.png')) {
-				return (
-					<ComponentTooltip zIndex={2} comp={
-						<div style={{maxWidth: 500, height: 'auto'}}>
-							<img style={{height:'100%', width:'100%', objectFit:'contain'}}
-								 src={text} alt="urlscan screenshot"/>
-						</div>
-					}>
-						{aNode}
-					</ComponentTooltip>
-				);
-			}
-
-			return aNode;
+			return makeClickableLink(text);
 		}
 
 		// general elements
@@ -401,12 +380,12 @@ export const jsonLines = (dictionary) => {
 	let str = ''
 	
 	for (const key of Object.keys(dictionary)) {
-		const text = toColorText(dictionary[key]).val
+		const text = toColorTextOld(dictionary[key]).val
 		
 		if (text) str += `${key}: ${text}\n`
 	}
 	
-	return str
+	return str;
 }
 
 const withLeadingZero = (num) => (num >= 10) ? num : '0' + num;

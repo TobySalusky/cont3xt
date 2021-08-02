@@ -1,5 +1,5 @@
 import ComponentTooltip from "./ComponentTooltip";
-import { ColorDictBox, PassiveTotalPassiveDNSColorDictBox } from "./ColorDictBox";
+import {ColorDictBox, PassiveTotalPassiveDNSColorDictBox, UrlScanColorDictBox} from "./ColorDictBox";
 import { whiteFilter } from "../Util/Filters";
 import { classificationObj } from "../Util/Classification";
 import { log, stripTrailingPeriod } from "../Util/Util";
@@ -77,6 +77,17 @@ export function Integrations({integrations}) {
 				</ComponentTooltip>
 		);
 	}
+
+	const createUrlScanIntegration = (result, img) => {
+		return (
+			!result ? null :
+				<ComponentTooltip comp={
+					<UrlScanColorDictBox type={result.integrationType} data={result.data} indicatorData={indicatorData}/>
+				}>
+					{img}
+				</ComponentTooltip>
+		);
+	}
 	
 	let hasIntegrations = false;
 	for (const val of Object.values(integrations)) {
@@ -106,7 +117,7 @@ export function Integrations({integrations}) {
 			<img className="ExternalLink" style={whiteFilter} src="./images/whoisIcon.svg" alt="passivetotal whois"/>
 		),
 		// url scan
-		createIntegration(urlScanResult,
+		createUrlScanIntegration(urlScanResult,
 			<img className="ExternalLink" src="./images/urlscanIcon.png" alt="url scan"/>
 		),
 		// passivetotal passive dns

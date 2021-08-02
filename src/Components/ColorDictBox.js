@@ -1,21 +1,27 @@
 import '../Style/App.css';
 import {
-    toColorElemsWIP,
     toColorElems,
-    toColorElemsBreakCommas,
     toColorText,
-    toColorTextWIP,
     typeColors,
-    toColorElemsMultilineWIP
+    toColorElemsMultiline, makeColorElems, makeUnbreakable, makeClickableLink
 } from "../Util/Util";
-import { LinkBack } from "./LinkBack";
+import {LinkBack, LinkOut} from "./LinkBack";
 import { TooltipCopy } from "./TooltipCopy";
 import { InlineDiv, InlineRightDiv } from "../Util/StyleUtil";
 import { CircleCheckBox } from "./CircleCheckBox";
 import { useState } from "react";
 import { generateIntegrationReportTooltipCopy } from "../Util/IntegrationReports";
-import { FIRST_SEEN, LAST_SEEN, sortPassiveDNSResults } from "../Util/SortUtil";
+import {
+    ASCENDING,
+    DESCENDING,
+    FIRST_SEEN,
+    LAST_SEEN,
+    sortPassiveDNSResults,
+    sortUrlScanResults
+} from "../Util/SortUtil";
 import { orderedKeys } from "../Util/IntegrationCleaners";
+import { countryCodeEmoji } from 'country-code-emoji';
+
 
 const infoBox = (title, data) => {
 
@@ -25,28 +31,34 @@ const infoBox = (title, data) => {
                 maxWidth: 1000, flexWrap: "wrap", flexDirection: 'row'}}>
                 <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>{title}:</p>
 
-                {toColorElemsMultilineWIP(data)}
+                {toColorElemsMultiline(data)}
 
             </div>
         </div>
     );
 }
 
+export function infoBoxes(orderedKeys, data) {
+    return orderedKeys.map(key => {
+        const colorData = toColorText(data[key])
+        return {key, colorData};
+    }).filter(({colorData}) => colorData != null).map(({key, colorData}) => {
+        return infoBox(key, colorData)
+    });
+}
+
+export function autoOrderedInfoBoxes(type, data) {
+    return infoBoxes(orderedKeys(type, Object.keys(data)), data);
+}
+
 export function ColorDictBox({type, data, indicatorData}) {
 
-
-    const keysAndColorText = orderedKeys(type, Object.keys(data)).map(key => {
-        const colorData = toColorTextWIP(data[key])
-        return {key, colorData};
-    }).filter(({colorData}) => colorData != null);
     
     return (
         <div className="WhoIsBox">
             <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(indicatorData, type, data)}/>
             {
-                keysAndColorText.map(({key, colorData}) => {
-                    return infoBox(key, colorData)
-                })
+                autoOrderedInfoBoxes(type, data)
             }
         </div>
     );
@@ -58,7 +70,7 @@ const stringPadRight = {...padRight, ...stringStyle}
 
 export function PassiveTotalPassiveDNSColorDictBox({type, data, indicatorData}) {
     
-    const [sortType, setSortType] = useState(LAST_SEEN);
+    const [sortType, setSortType] = useState(FIRST_SEEN);
 
     function InfoBoxResults({resultList, sortType}) {
 
@@ -104,7 +116,7 @@ export function PassiveTotalPassiveDNSColorDictBox({type, data, indicatorData}) 
                                 <td style={stringStyle}>{result.recordType}</td>
                                 <td>
                                     <InlineRightDiv>
-                                        {toColorElemsWIP(toColorTextWIP({[result.resolveType]: ' '}, {brackets: false, appendComma: false, spaces: false, multiline: false}))}
+                                        {toColorElems(toColorText({[result.resolveType]: ' '}, {brackets: false, appendComma: false, spaces: false, multiline: false}))}
                                     </InlineRightDiv>
                                 </td>
                             </>
@@ -119,20 +131,85 @@ export function PassiveTotalPassiveDNSColorDictBox({type, data, indicatorData}) 
             </div>
         );
     }
-    
-    const keysAndColorText = orderedKeys(type, Object.keys(data)).filter(key => key !== 'results').map(key => {
-        const colorData = toColorTextWIP(data[key])
-        return {key, colorData};
-    }).filter(({colorData}) => colorData != null);
-    
-    const resultList = data.results;
-    
+
+    const {results:resultList, ...otherData} = data;
+
     return (
         <div className="WhoIsBox">
             <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(indicatorData, type, data, {sortType: sortType})}/>
-            {keysAndColorText.map(({key, colorData}) =>
-                infoBox(key, colorData)
-            )}
+            {autoOrderedInfoBoxes(type, otherData)}
+            <InfoBoxResults resultList={resultList} sortType={sortType}/>
+        </div>
+    );
+}
+
+export function UrlScanColorDictBox({type, data, indicatorData}) {
+
+    const [sortType, setSortType] = useState(DESCENDING);
+
+    function InfoBoxResults({resultList, sortType}) {
+
+        // TODO: optimize/remove color text here
+
+        const snipDate = (dateStr) => makeUnbreakable(dateStr.substr(0, dateStr.indexOf('T')));
+
+        return (
+            <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+                marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}
+            >
+                <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>Results:</p>
+                <table className="TableCollapseBorders">
+                    <thead className="StickyTableHeader">
+                    <tr>
+                        <th>visibility</th>
+                        <th>method</th>
+                        <th>url</th>
+                        <th/>
+                        <th>country</th>
+                        <th>server</th>
+                        <th>status</th>
+                        <th>screenshot</th>
+                        <th className="HoverClickLighten"
+                            onClick={() => setSortType(sortType === DESCENDING ? ASCENDING : DESCENDING)}>
+                            time {sortType === DESCENDING ? '∨' : '∧'}
+                        </th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {sortUrlScanResults(resultList, sortType).map((result, i) => {
+                        const {visibility, method, url, uuid, time} = result.task ?? {};
+                        const {country, server, status} = result.page ?? {};
+                        const {screenshot} = result;
+
+                        return (
+                            <tr key={`urlscan-result-row-${i}`}>
+                                <td style={stringPadRight}>{visibility}</td>
+                                <td className="TableSepLeft" style={stringPadRight}>{method}</td>
+                                <td className="TableSepLeft" style={stringPadRight}>{url}</td>
+                                <td>
+                                    <LinkOut url={`https://urlscan.io/result/${uuid}`} style={{width: 12, height: 12, margin: 0, marginRight: 5}}/>
+                                </td>
+                                <td className="TableSepLeft" style={stringPadRight}>{country} {countryCodeEmoji(country)}</td>
+                                <td className="TableSepLeft" style={stringPadRight}>{server}</td>
+                                <td className="TableSepLeft" style={{...stringPadRight, color:typeColors.number}}>{status}</td>
+                                <td className="TableSepLeft" style={stringPadRight}>{makeClickableLink(screenshot, screenshot.substr(0, 15))}</td>
+                                <td className="TableSepLeft" style={stringStyle}>{snipDate(time)}</td>
+                            </tr>
+                        );
+                    })}
+                    </tbody>
+                </table>
+            </div>
+        );
+    }
+
+    const {results:resultList, ...otherData} = data;
+
+    return (
+        <div className="WhoIsBox">
+            <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(indicatorData, type, data, {sortType: sortType})}/>
+            {autoOrderedInfoBoxes(type, otherData)}
             <InfoBoxResults resultList={resultList} sortType={sortType}/>
         </div>
     );

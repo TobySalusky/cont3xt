@@ -1,4 +1,4 @@
-import { stripTrailingPeriod } from "./Util";
+import {makeUnbreakable, stripTrailingPeriod} from "./Util";
 import { integrationNames } from "./IntegrationDefinitions";
 import { mapOrder } from "./SortUtil";
 import dr from 'defang-refang'
@@ -107,7 +107,7 @@ const cleanPassiveTotalPassiveDNS = (dict) => {
 		if (dict[key] != null && key !== 'queryValue' && key !== 'queryType') clean[key] = dict[key];
 	}
 	
-	const snipDate = (date) => date.substring(0, date.indexOf(' ')).replaceAll('-', '‑'); // uses non-breaking hyphens
+	const snipDate = (date) => makeUnbreakable(date.substring(0, date.indexOf(' '))); // uses non-breaking hyphens
 	
 	clean.results = clean.results.map(result => {
 		const {recordType, resolveType, resolve, firstSeen, lastSeen} = result;

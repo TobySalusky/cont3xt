@@ -17,4 +17,13 @@ export const sortPassiveDNSResults = (resultList, thisSortType) => {
 	const sortBy = FULL_CONV[thisSortType];
 	return resultList.sort((a, b) => new Date(b[sortBy]) - new Date(a[sortBy]));
 }
+
+export const sortUrlScanResults = (resultList, thisSortType) => {
+	const dateFromResult = (result) => new Date(result.task.time);
+	const sorted = resultList.sort((a,b) => dateFromResult(a) - dateFromResult(b));
+	if (thisSortType === DESCENDING) return sorted;
+	return sorted.reverse();
+}
+
 export const LAST_SEEN = 'lastSeen', FIRST_SEEN = 'firstSeen';
+export const ASCENDING = 'ascend', DESCENDING = 'descend';

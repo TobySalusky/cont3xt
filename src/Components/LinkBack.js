@@ -13,3 +13,12 @@ export function LinkBack({url, query, style}) {
 		/>
 	);
 }
+
+export function LinkOut({url, style}) {
+
+	return (
+		<img style={{...style/*, ...whiteFilter*/}} className="ExternalLink" src="./images/outsideExternalLink.svg" alt="external link"
+			 onClick={() => window.open(url, '_blank', 'noreferrer')}
+		/>
+	);
+}

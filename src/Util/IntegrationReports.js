@@ -1,6 +1,7 @@
 import { integrationNames } from "./IntegrationDefinitions";
-import { toColorText, toColorTextWIP } from "./Util";
-import { LAST_SEEN, sortPassiveDNSResults } from "./SortUtil";
+
+import { toColorTextOld } from "./Util";
+import {FIRST_SEEN, sortPassiveDNSResults} from "./SortUtil";
 import { tabLines } from "./StringUtil";
 import { orderedKeys } from "./IntegrationCleaners";
 
@@ -35,13 +36,13 @@ export const generateIntegrationReport = (integrationType, integrationData, sett
 		case integrationNames.PASSIVETOTAL_PASSIVE_DNS_DOMAIN:
 		case integrationNames.PASSIVETOTAL_PASSIVE_DNS_IP: {
 			const keysAndColorText = keys.filter(key => key !== 'results').map(key => {
-				const colorText = toColorText(data[key])
+				const colorText = toColorTextOld(data[key])
 				return {key, colorText};
 			}).filter(({colorText}) => colorText.val != null);
 			
 			const resultList = data.results;
 			
-			const {sortType = LAST_SEEN} = settingsObj;
+			const {sortType = FIRST_SEEN} = settingsObj;
 			
 			const stringifyResult = (result) => {
 				const {recordType, resolveType, resolve, firstSeen, lastSeen} = result;
@@ -54,7 +55,7 @@ export const generateIntegrationReport = (integrationType, integrationData, sett
 		
 		default: {// TODO: remove colorText usage (it's very slow)
 			const keysAndColorText = keys.map(key => {
-				const colorText = toColorText(data[key])
+				const colorText = toColorTextOld(data[key])
 				return {key, colorText};
 			}).filter(({colorText}) => colorText.val != null);
 			

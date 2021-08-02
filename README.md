@@ -14,3 +14,5 @@ UrlScan Icon: https://urlscan.io/about/
 
 VirusTotal Icon: https://vecta.io/symbols/100/brands-va-vz/45/virustotal-icon
 
+Outside-external-link Icon: https://commons.wikimedia.org/wiki/File:Icon_External_Link.svgs
+

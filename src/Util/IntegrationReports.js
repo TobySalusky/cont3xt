@@ -3,7 +3,7 @@ import { integrationNames } from "./IntegrationDefinitions";
 import { toColorTextOld } from "./Util";
 import {FIRST_SEEN, sortPassiveDNSResults} from "./SortUtil";
 import { tabLines } from "./StringUtil";
-import { orderedKeys } from "./IntegrationCleaners";
+import { toOrderedKeys } from "./IntegrationCleaners";
 
 export const dnsString = (dns, settingsObj) => {
 	let {tabs = false, spaceCount = -1} = settingsObj
@@ -23,7 +23,7 @@ export const generateIntegrationReport = (integrationType, integrationData, sett
 	let {tabs = false, spaceCount = -1} = settingsObj
 	if (!tabs) spaceCount = 0;
 	
-	const keys = orderedKeys(integrationType, Object.keys(data));
+	const keys = toOrderedKeys(integrationType, Object.keys(data));
 	//const orderedKeys = Object.keys(data);
 	
 	switch (integrationType) {

@@ -171,13 +171,16 @@ const fetchURLScan = async (ipOrDomain) => {
 
 const fetchVirusTotalDomain = async (domain) => {
     const {REACT_APP_VIRUSTOTAL_API_KEY} = process.env;
+    console.log('!!')
     if (!REACT_APP_VIRUSTOTAL_API_KEY) return null;
+    console.log('???')
     const res = await axios.get('/virus-total-domain', {
         params: {
             q: domain,
             key: REACT_APP_VIRUSTOTAL_API_KEY,
         },
     })
+    console.log('FEJIFEJOIFEJOW')
     
     log('virus total res domain', res);
     return res;

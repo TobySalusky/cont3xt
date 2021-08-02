@@ -25,5 +25,12 @@ export const sortUrlScanResults = (resultList, thisSortType) => {
 	return sorted.reverse();
 }
 
+export const sortVirusTotalResults = (resultList, thisSortType) => {
+	const dateFromResult = (result) => new Date(result.date ?? result.scan_date);
+	const sorted = resultList.sort((a,b) => dateFromResult(a) - dateFromResult(b));
+	if (thisSortType === DESCENDING) return sorted;
+	return sorted.reverse();
+}
+
 export const LAST_SEEN = 'lastSeen', FIRST_SEEN = 'firstSeen';
 export const ASCENDING = 'ascend', DESCENDING = 'descend';

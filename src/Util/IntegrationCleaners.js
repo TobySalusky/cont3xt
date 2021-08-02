@@ -3,7 +3,7 @@ import { integrationNames } from "./IntegrationDefinitions";
 import { mapOrder } from "./SortUtil";
 import dr from 'defang-refang'
 
-export function orderedKeys(integrationType, keyList) {
+export function toOrderedKeys(integrationType, keyList) {
 	switch (integrationType) {
 		case integrationNames.PASSIVETOTAL_WHOIS:
 			return mapOrder(keyList, [
@@ -13,6 +13,28 @@ export function orderedKeys(integrationType, keyList) {
 		case integrationNames.URL_SCAN:
 			return mapOrder(keyList, [
 				'total', 'took', 'has_more'
+			]);
+		case integrationNames.VIRUS_TOTAL_IP:
+		case integrationNames.VIRUS_TOTAL_DOMAIN:
+			return mapOrder(keyList, [
+				'asn',
+				'as_owner',
+				'country',
+				'verbose_msg',
+				'Alexa category',
+				'Alexa domain info',
+				'Webutation domain info',
+				'BitDefender category',
+				'Forcepoint ThreatSeeker category',
+				'BitDefender domain info',
+				'detected_urls',
+				'undetected_urls',
+				'detected_downloaded_samples',
+				'undetected_downloaded_samples',
+				'detected_referrer_samples',
+				'undetected_referrer_samples',
+				'resolutions',
+				'response_code'
 			]);
 		default:
 			return keyList;
@@ -37,7 +59,7 @@ const getIntermediateCleaners = (integrationType) => {
 		case integrationNames.VIRUS_TOTAL_DOMAIN:
 		case integrationNames.VIRUS_TOTAL_IP:
 		case integrationNames.VIRUS_TOTAL_HASH:
-			return [defangAll]
+			return [removeEmptyArraysAndDicts, defangAll]
 		default:
 			return [noCleaner];
 	}
@@ -167,6 +189,22 @@ const removeEmptyDicts = (dict) => {
 		
 	}, (arr) => arr.filter(elem => elem !== null));
 }
+
+const removeEmptyArraysAndDicts = (dict) => {
+	return recurseAll(dict, (obj) => {
+
+		const entries = Object.entries(obj);
+		if (entries.length === 0) return null;
+		const newObj = {};
+		for (const [key, val] of entries) {
+			if (val !== null) newObj[key] = val;
+		}
+
+		return newObj;
+
+	}, (arr) => arr.length === 0 ? null : arr);
+}
+
 
 // SPECIFIC recursive cleaners
 const cleanSpurExists = (dict) => recurseAll(dict, (obj) => {

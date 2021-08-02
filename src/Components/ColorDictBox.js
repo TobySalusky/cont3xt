@@ -3,7 +3,7 @@ import {
     toColorElems,
     toColorText,
     typeColors,
-    toColorElemsMultiline, makeColorElems, makeUnbreakable, makeClickableLink
+    toColorElemsMultiline, makeUnbreakable, makeClickableLink
 } from "../Util/Util";
 import {LinkBack, LinkOut} from "./LinkBack";
 import { TooltipCopy } from "./TooltipCopy";
@@ -19,8 +19,9 @@ import {
     sortPassiveDNSResults,
     sortUrlScanResults
 } from "../Util/SortUtil";
-import { orderedKeys } from "../Util/IntegrationCleaners";
+import { toOrderedKeys } from "../Util/IntegrationCleaners";
 import { countryCodeEmoji } from 'country-code-emoji';
+import {DetectedUrlTable, ResolutionsTable, SampleTable, UndetectedUrlTable} from "./VirusTotalTables";
 
 
 const infoBox = (title, data) => {
@@ -48,7 +49,7 @@ export function infoBoxes(orderedKeys, data) {
 }
 
 export function autoOrderedInfoBoxes(type, data) {
-    return infoBoxes(orderedKeys(type, Object.keys(data)), data);
+    return infoBoxes(toOrderedKeys(type, Object.keys(data)), data);
 }
 
 export function ColorDictBox({type, data, indicatorData}) {
@@ -64,9 +65,9 @@ export function ColorDictBox({type, data, indicatorData}) {
     );
 }
 
-const stringStyle = {color: typeColors.string};
-const padRight = {paddingRight: 5};
-const stringPadRight = {...padRight, ...stringStyle}
+export const stringStyle = {color: typeColors.string};
+export const padRight = {paddingRight: 5};
+export const stringPadRight = {...padRight, ...stringStyle}
 
 export function PassiveTotalPassiveDNSColorDictBox({type, data, indicatorData}) {
     
@@ -80,7 +81,7 @@ export function PassiveTotalPassiveDNSColorDictBox({type, data, indicatorData}) 
             return (
                 <th className="HoverClickLighten" onClick={() => setSortType(thisSortType)}>
                     <InlineDiv style={{alignItems:'center', justifyContent: 'spaceAround'}}>
-                        {name}
+                        {makeUnbreakable(`${name} `)}
                         <CircleCheckBox filled={sortType === thisSortType}/>
                     </InlineDiv>
                 </th>
@@ -211,6 +212,50 @@ export function UrlScanColorDictBox({type, data, indicatorData}) {
             <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(indicatorData, type, data, {sortType: sortType})}/>
             {autoOrderedInfoBoxes(type, otherData)}
             <InfoBoxResults resultList={resultList} sortType={sortType}/>
+        </div>
+    );
+}
+
+
+export function VirusTotalBox({type, data, indicatorData}) {
+
+    const [sortType, setSortType] = useState(DESCENDING);
+
+    const orderedKeys = toOrderedKeys(type, Object.keys(data));
+
+    return (
+        <div className="WhoIsBox">
+            <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(indicatorData, type, data, {sortType: sortType})}/>
+            {orderedKeys.map(key => {
+
+                if (key === 'detected_urls') {
+                    return {res: <DetectedUrlTable title={key} resultList={data[key]} sortType={sortType} setSortType={setSortType}/>};
+                }
+
+                if (key === 'undetected_urls') {
+                    return {res: <UndetectedUrlTable title={key} resultList={data[key]} sortType={sortType} setSortType={setSortType}/>};
+                }
+
+                // eslint-disable-next-line default-case
+                switch (key) {
+                    case 'detected_urls':
+                        return {res: <DetectedUrlTable title={key} resultList={data[key]} sortType={sortType} setSortType={setSortType}/>};
+                    case 'undetected_urls':
+                        return {res: <UndetectedUrlTable title={key} resultList={data[key]} sortType={sortType} setSortType={setSortType}/>};
+                    case 'resolutions':
+                        return {res: <ResolutionsTable title={key} resultList={data[key]} sortType={sortType} setSortType={setSortType}/>};
+                }
+
+                if (key.endsWith('samples')) {
+                    return {res: <SampleTable title={key} resultList={data[key]} sortType={sortType} setSortType={setSortType}/>};
+                }
+
+                const colorData = toColorText(data[key])
+                return {key, colorData};
+            }).filter(({res, colorData}) => res != null || colorData != null).map(({res, key, colorData}) => {
+                if (res) return res;
+                return infoBox(key, colorData)
+            })}
         </div>
     );
 }

@@ -1,5 +1,5 @@
 import ComponentTooltip from "./ComponentTooltip";
-import {ColorDictBox, PassiveTotalPassiveDNSColorDictBox, UrlScanColorDictBox} from "./ColorDictBox";
+import {ColorDictBox, PassiveTotalPassiveDNSColorDictBox, UrlScanColorDictBox, VirusTotalBox} from "./ColorDictBox";
 import { whiteFilter } from "../Util/Filters";
 import { classificationObj } from "../Util/Classification";
 import { log, stripTrailingPeriod } from "../Util/Util";
@@ -88,6 +88,17 @@ export function Integrations({integrations}) {
 				</ComponentTooltip>
 		);
 	}
+
+	const createVirusTotalIntegration = (result, img) => {
+		return (
+			!result ? null :
+				<ComponentTooltip comp={
+					<VirusTotalBox type={result.integrationType} data={result.data} indicatorData={indicatorData}/>
+				}>
+					{img}
+				</ComponentTooltip>
+		);
+	}
 	
 	let hasIntegrations = false;
 	for (const val of Object.values(integrations)) {
@@ -130,11 +141,11 @@ export function Integrations({integrations}) {
 				<img className="ExternalLink" src="./images/passivetotalIcon.png" alt="passivetotal sub-domains"/>
 		),
 		// virus total domain
-		createIntegration(virusTotalDomainResult,
+		createVirusTotalIntegration(virusTotalDomainResult,
 			<img className="ExternalLink" style={whiteFilter} src="./images/virustotal.svg" alt="virus total domain"/>
 		),
 		// virus total ip
-		createIntegration(virusTotalIPResult,
+		createVirusTotalIntegration(virusTotalIPResult,
 			<img className="ExternalLink" style={whiteFilter} src="./images/virustotal.svg" alt="virus total ip"/>
 		),
 		// virus total hash

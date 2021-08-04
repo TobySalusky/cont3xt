@@ -1,5 +1,5 @@
-import {makeClickableLink, makeUnbreakable, typeColors} from "../Util/Util";
-import {ASCENDING, DESCENDING, sortUrlScanResults, sortVirusTotalResults} from "../Util/SortUtil";
+import {makeUnbreakable} from "../Util/Util";
+import {ASCENDING, DESCENDING, sortVirusTotalResults} from "../Util/SortUtil";
 import {LinkOut} from "./LinkBack";
 import {stringPadRight, stringStyle} from "./ColorDictBox";
 import {InlineDiv} from "../Util/StyleUtil";

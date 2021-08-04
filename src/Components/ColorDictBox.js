@@ -180,7 +180,7 @@ export function UrlScanColorDictBox({type, data, indicatorData}) {
                     <tbody>
                     {sortUrlScanResults(resultList, sortType).map((result, i) => {
                         const {visibility, method, url, uuid, time} = result.task ?? {};
-                        const {country, server, status} = result.page ?? {};
+                        const {country = 'N/A', server, status} = result.page ?? {};
                         const {screenshot} = result;
 
                         return (
@@ -191,7 +191,7 @@ export function UrlScanColorDictBox({type, data, indicatorData}) {
                                 <td>
                                     <LinkOut url={`https://urlscan.io/result/${uuid}`} style={{width: 12, height: 12, margin: 0, marginRight: 5}}/>
                                 </td>
-                                <td className="TableSepLeft" style={stringPadRight}>{country} {countryCodeEmoji(country)}</td>
+                                <td className="TableSepLeft" style={stringPadRight}>{country}{country !== 'N/A' ? ` ${countryCodeEmoji(country)}` : ''}</td>
                                 <td className="TableSepLeft" style={stringPadRight}>{server}</td>
                                 <td className="TableSepLeft" style={{...stringPadRight, color:typeColors.number}}>{status}</td>
                                 <td className="TableSepLeft" style={stringPadRight}>{makeClickableLink(screenshot, screenshot.substr(0, 15))}</td>

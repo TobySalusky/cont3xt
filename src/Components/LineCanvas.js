@@ -11,7 +11,7 @@ export default function LineCanvas(props) {
 
     const windowDimen = useWindowDimen()
 
-    const [lineRefs] = useContext(LineContext)
+    const [lineRefs, setLineRefs] = useState({})
 
     const drawLineUnder = (ctx, from, to) => {
 
@@ -126,9 +126,9 @@ export default function LineCanvas(props) {
     }
 
     return (
-        <div>
+        <LineContext.Provider value={[lineRefs, setLineRefs]}>
             <canvas width={getWidth()} height={getHeight()} className="LineCanvas" style={{top: dimen.current.minY, left: dimen.current.minX}} ref={canvasRef} {...props}/>
             {props.children}
-        </div>
+        </LineContext.Provider>
     );
 }

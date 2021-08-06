@@ -9,6 +9,9 @@ import { colorTable } from '../Util/Colors';
 import { Integrations } from "./Integrations";
 import { LinkBack } from "./LinkBack";
 import { Copy } from "./Copy";
+import {OptionalMaxLengthTooltip} from "../Util/ElemUtil";
+
+const charLimit = 30;
 
 export default function ResultDNS({dns}) {
 
@@ -37,18 +40,6 @@ export default function ResultDNS({dns}) {
 
     const genBoxDNS = (dnsAnswer, dnsType, i) => {
         const data = dnsAnswer.data
-        const charLimit = 30;
-
-        let content = (data.length > charLimit) ? (
-            <DarkTooltip title={data} interactive>
-                <div style={{display: 'flex', justifyContent:'flex-start'}}>
-                    <p>{data.substring(0, charLimit)}</p>
-                    <p style={{color: 'orange'}}>...</p>
-                </div>
-            </DarkTooltip>
-        ) : <p>{data}</p>
-
-        let hasChild = dnsAnswer.ipData !== undefined
 
         const boxLineID = `dns-${dnsType}-${i}`
 
@@ -59,7 +50,7 @@ export default function ResultDNS({dns}) {
                         <div className="ResultBox" style={{justifyContent: 'space-between', alignItems:'center', padding: 5, fontSize: 12}}>
                             <div className="SpaceBetweenRow">
                                 <p style={{color: 'lightgreen', paddingRight: 8, fontWeight: 'bolder'}}>{dnsType}</p>
-                                {content}
+                                <OptionalMaxLengthTooltip value={data} maxLen={charLimit}/>
                             </div>
     
                             <Copy value={data}/>

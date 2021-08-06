@@ -20,9 +20,9 @@ import {
     sortUrlScanResults
 } from "../Util/SortUtil";
 import { toOrderedKeys } from "../Util/IntegrationCleaners";
-import { countryCodeEmoji } from 'country-code-emoji';
 import {DetectedUrlTable, HashScansTable, ResolutionsTable, SampleTable, UndetectedUrlTable} from "./VirusTotalTables";
-import DarkTooltip from "../Style/DarkTooltip";
+import {OptionalMaxLengthTooltip} from "../Util/ElemUtil";
+import {emojiFlagOrEmptyString} from "../Util/StringUtil";
 
 
 const infoBox = (title, data) => {
@@ -191,17 +191,12 @@ export function UrlScanColorDictBox({type, data, indicatorData}) {
                                 <td style={stringPadRight}>{visibility}</td>
                                 <td className="TableSepLeft" style={stringPadRight}>{method}</td>
                                 <td className="TableSepLeft" style={stringPadRight}>
-                                    <DarkTooltip title={url} interactive>
-                                        <InlineDiv>
-                                            <p>{url.substr(0, 40)}</p>
-                                            {url.length <= 40 ? null : <p style={{color:'white'}}>...</p>}
-                                        </InlineDiv>
-                                    </DarkTooltip>
+                                    <OptionalMaxLengthTooltip value={url} maxLen={40}/>
                                 </td>
                                 <td>
                                     <LinkOut url={`https://urlscan.io/result/${uuid}`} style={{width: 12, height: 12, margin: 0, marginRight: 5}}/>
                                 </td>
-                                <td className="TableSepLeft" style={stringPadRight}>{country}{country !== 'N/A' ? ` ${countryCodeEmoji(country)}` : ''}</td>
+                                <td className="TableSepLeft" style={stringPadRight}>{country} {emojiFlagOrEmptyString(country)}</td>
                                 <td className="TableSepLeft" style={stringPadRight}>{server}</td>
                                 <td className="TableSepLeft" style={{...stringPadRight, color:typeColors.number}}>{status}</td>
                                 <td className="TableSepLeft" style={stringPadRight}>{makeClickableLink(screenshot, screenshot.substr(0, 15))}</td>

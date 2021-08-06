@@ -2,8 +2,7 @@ import {makeUnbreakable, typeColors} from "../Util/Util";
 import {ASCENDING, DESCENDING, sortVirusTotalResults} from "../Util/SortUtil";
 import {LinkOut} from "./LinkBack";
 import {boolPadRight, padRight, stringPadRight, stringStyle} from "./ColorDictBox";
-import {InlineDiv} from "../Util/StyleUtil";
-import DarkTooltip from "../Style/DarkTooltip";
+import {OptionalMaxLengthTooltip} from "../Util/ElemUtil";
 
 const snipDateBySpace = (dateStr) => makeUnbreakable(dateStr.substr(0, dateStr.indexOf(' ')));
 
@@ -41,11 +40,7 @@ export function SampleTable({title, resultList, sortType, setSortType}) {
                             <td style={stringPadRight}>{positives}</td>
                             <td className="TableSepLeft" style={stringPadRight}>{total}</td>
                             <td className="TableSepLeft" style={stringPadRight}>
-                                <DarkTooltip title={sha256} interactive>
-                                    <InlineDiv>
-                                        <p>{sha256.substr(0, 15)}</p><p style={{color:'white'}}>...</p>
-                                    </InlineDiv>
-                                </DarkTooltip>
+                                <OptionalMaxLengthTooltip value={sha256} maxLen={15}/>
                             </td>
                             <td>
                                 <LinkOut url={`https://www.virustotal.com/gui/search/${sha256}`} style={{width: 12, height: 12, margin: 0, marginRight: 5}}/>
@@ -91,12 +86,7 @@ export function DetectedUrlTable({title, resultList, sortType, setSortType}) {
                             <td style={stringPadRight}>{positives}</td>
                             <td className="TableSepLeft" style={stringPadRight}>{total}</td>
                             <td className="TableSepLeft" style={stringPadRight}>
-                                <DarkTooltip title={url} interactive>
-                                    <InlineDiv>
-                                        <p>{url.substr(0, 25)}</p>
-                                        {url.length <= 25 ? null : <p style={{color:'white'}}>...</p>}
-                                    </InlineDiv>
-                                </DarkTooltip>
+                                <OptionalMaxLengthTooltip value={url} maxLen={30}/>
                             </td>
                             <td className="TableSepLeft" style={stringStyle}>{snipDateBySpace(date)}</td>
                         </tr>
@@ -141,19 +131,10 @@ export function UndetectedUrlTable({title, resultList, sortType, setSortType}) {
                             <td style={stringPadRight}>{positives}</td>
                             <td className="TableSepLeft" style={stringPadRight}>{total}</td>
                             <td className="TableSepLeft" style={stringPadRight}>
-                                <DarkTooltip title={url} interactive>
-                                    <InlineDiv>
-                                        <p>{url.substr(0, 25)}</p>
-                                        {url.length <= 25 ? null : <p style={{color:'white'}}>...</p>}
-                                    </InlineDiv>
-                                </DarkTooltip>
+                                <OptionalMaxLengthTooltip value={url} maxLen={30}/>
                             </td>
                             <td className="TableSepLeft" style={stringPadRight}>
-                                <DarkTooltip title={sha256} interactive>
-                                    <InlineDiv>
-                                        <p>{sha256.substr(0, 15)}</p><p style={{color:'white'}}>...</p>
-                                    </InlineDiv>
-                                </DarkTooltip>
+                                <OptionalMaxLengthTooltip value={sha256} maxLen={15}/>
                             </td>
                             <td>
                                 <LinkOut url={`https://www.virustotal.com/gui/search/${sha256}`} style={{width: 12, height: 12, margin: 0, marginRight: 5}}/>

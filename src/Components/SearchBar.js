@@ -12,6 +12,7 @@ import { classificationObj } from "../Util/Classification";
 import { integrationNames } from "../Util/IntegrationDefinitions";
 import { downloadFullReport } from "../Util/ReportGenerator";
 import { getCleaner } from "../Util/IntegrationCleaners";
+import {tryUseASN} from "../Util/IpASN";
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 // TODO: auto-format phone number results
@@ -171,17 +172,14 @@ const fetchURLScan = async (ipOrDomain) => {
 
 const fetchVirusTotalDomain = async (domain) => {
     const {REACT_APP_VIRUSTOTAL_API_KEY} = process.env;
-    console.log('!!')
     if (!REACT_APP_VIRUSTOTAL_API_KEY) return null;
-    console.log('???')
     const res = await axios.get('/virus-total-domain', {
         params: {
             q: domain,
             key: REACT_APP_VIRUSTOTAL_API_KEY,
         },
     })
-    console.log('FEJIFEJOIFEJOW')
-    
+
     log('virus total res domain', res);
     return res;
 }
@@ -221,7 +219,6 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
     const [query, setQuery] = useContext(QueryContext);
     const [, setBase64] = useContext(Base64Context);
     const updateArgsURL = useUpdateArgsURL();
-    const [, setLineRefs] = useContext(LineContext)
     const [displayStats, setDisplayStats] = useContext(DisplayStatsContext)
 
     useEffect(() => {
@@ -247,8 +244,6 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         }
         
         setResults(newResults)
-
-        setLineRefs({})
 
         dnsQueries(newResults);
     }, [query]);
@@ -296,6 +291,7 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
                 if (integrationType) {
                     object.integrations[key].integrationType = integrationType;
                     object.integrations[key].data = getCleaner(integrationType)(object.integrations[key].data);
+                    tryUseASN(object, integrationType, object.integrations[key].data, addIntegrationToResultObject);
                 }
             }
             setResults([...arr]);

@@ -2,10 +2,13 @@ import ComponentTooltip from "./ComponentTooltip";
 import {ColorDictBox, PassiveTotalPassiveDNSColorDictBox, UrlScanColorDictBox, VirusTotalBox} from "./ColorDictBox";
 import { whiteFilter } from "../Util/Filters";
 import { classificationObj } from "../Util/Classification";
-import { log, stripTrailingPeriod } from "../Util/Util";
+import {log, makeUnbreakable, stripTrailingPeriod} from "../Util/Util";
 import { TooltipCopy } from "./TooltipCopy";
 import { generateIntegrationReportTooltipCopy } from "../Util/IntegrationReports";
 import { getCleaner } from "../Util/IntegrationCleaners";
+import {InlineDiv} from "../Util/StyleUtil";
+import {OptionalMaxLengthTooltip} from "../Util/ElemUtil";
+import {emojiFlagOrEmptyString} from "../Util/StringUtil";
 
 const withPipe = (html) => {
 	if (!html) return;
@@ -34,6 +37,8 @@ export function Integrations({integrations}) {
 		virusTotalDomainResult,
 		virusTotalIPResult,
 		virusTotalHashResult,
+
+		ipAsnData,
 		
 		indicatorData = classificationObj('WARNING: no indicator found'),
 	} = integrations;
@@ -107,10 +112,22 @@ export function Integrations({integrations}) {
 			break;
 		}
 	}
-	
+
 	if (!hasIntegrations) return null;
-	
+
 	const elems = [
+		// ip asn data
+		!ipAsnData ? null :
+		<InlineDiv style={{fontSize: '70%', alignItems: 'center', padding: 0, margin: 0, justifyContent: 'center'}}>
+			<div>
+				<p>{ipAsnData.asn}</p>
+				<OptionalMaxLengthTooltip value={makeUnbreakable(ipAsnData.org)} maxLen={15}/>
+			</div>
+			<div>
+				<p>{ipAsnData.country}</p>
+				<p>{emojiFlagOrEmptyString(ipAsnData.country)}</p>
+			</div>
+		</InlineDiv>,
 		// spur
 		createIntegration(spurResult,
 			<img className="ExternalLink" style={{width: 60}} src="./images/spur.png" alt="spur"/>

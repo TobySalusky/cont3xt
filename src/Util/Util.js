@@ -1,4 +1,5 @@
 import ComponentTooltip from "../Components/ComponentTooltip";
+import {isArray, isDict} from "./VariableClassifier";
 
 export const stripTrailingPeriod = (str) => {
 	if (str.lastIndexOf('.') === str.length - 1) return str.substring(0, str.length - 1);
@@ -22,43 +23,8 @@ export const typeColors = {
 	string: '#adffc6',
 	key: '#cb91ff',
 	link: '#60dfff',
-}
-
-export const toColorElemsOld = (data) => {
-	
-	let text = data.val
-	let colors = data.colorData
-	
-	return colors.map(colorEntry => {
-		const snip = text.substring(0, colorEntry[1]).replace(' ', '\xa0')
-		text = text.substring(colorEntry[1])
-		// links
-		if (snip.startsWith('http://') || snip.startsWith('https://')) {
-			const aNode = (
-				<a href={snip} target="_blank" rel="noreferrer" style={{color: typeColors.link, textDecoration: 'none'}}>
-					{snip}
-				</a>
-			);
-
-			if (snip.endsWith('.png')) {
-				return (
-					<ComponentTooltip zIndex={2} comp={
-						<div style={{maxWidth: 500, height: 'auto'}}>
-							<img style={{height:'100%', width:'100%', objectFit:'contain'}}
-								 src={snip} alt="urlscan screenshot"/>
-						</div>
-					}>
-						{aNode}
-					</ComponentTooltip>
-				);
-			}
-
-			return aNode;
-		}
-
-		// general elements
-		return <p style={{color: colorEntry[0]}}>{snip}</p>
-	})
+	null: '#b1b1b1',
+	malicious: '#ff5050'
 }
 
 export const toColorTextOld = (variable, brackets = true, appendComma = false, spaces = true) => {
@@ -66,10 +32,6 @@ export const toColorTextOld = (variable, brackets = true, appendComma = false, s
 	try {
 		let returnVar = undefined;
 		let colorData = [];
-		
-		const isDict = variable => {
-			return typeof variable === "object" && !Array.isArray(variable);
-		};
 		
 		if (isDict(variable)) {
 			let str = '';
@@ -103,7 +65,7 @@ export const toColorTextOld = (variable, brackets = true, appendComma = false, s
 			
 			if (str !== '{}') returnVar = str
 			
-		} else if (Array.isArray(variable)) {
+		} else if (isArray(variable)) {
 			
 			let str = '';
 			if (brackets) {
@@ -191,10 +153,6 @@ export const toColorText = (variable, settings = {}) => {
 	//const emptyDict = colorData => colorData.length === 2 && fullText(colorData) === '{}';
 	//const emptyArr = colorData => colorData.length === 2 && fullText(colorData) === '[]';
 
-	const isDict = variable => {
-		return typeof variable === "object" && !Array.isArray(variable);
-	};
-
 	const tabIn = colorData => {
 		const thisColorData = [];
 		const tab = () => thisColorData.push(['white', '  ']);
@@ -251,7 +209,7 @@ export const toColorText = (variable, settings = {}) => {
 
 			//if (emptyDict(colorData)) return null;
 
-		} else if (Array.isArray(variable)) {
+		} else if (isArray(variable)) {
 
 			if (brackets) {
 				colorData.push([typeColors.brackets, '[']);
@@ -275,14 +233,15 @@ export const toColorText = (variable, settings = {}) => {
 
 			//if (emptyArr(colorData)) return null;
 		} else {
-
-			let col = typeColors.plain
+			let col = typeColors.plain;
 			if (typeof variable === "boolean"){
-				col = typeColors.boolean
+				col = typeColors.boolean;
 			} else if (typeof variable === "number") {
-				col = typeColors.number
+				col = typeColors.number;
 			} else if (typeof variable === "string") {
-				col = typeColors.string
+				col = typeColors.string;
+			} else if (variable === null) {
+				col = typeColors.null;
 			}
 			colorData.push([col, '' + variable])
 		}
@@ -371,7 +330,7 @@ export const toColorElems = (colorData) => {
 		}
 
 		// general elements
-		return <p style={{color: color}}>{text}</p>
+		return <p style={{color: color, whiteSpace: 'pre-wrap'}}>{text}</p>
 	})
 }
 

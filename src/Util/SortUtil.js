@@ -11,6 +11,12 @@ export function mapOrder(list, orderList) {
 	}).concat(list.filter(val => orderList.indexOf(val) === -1));
 }
 
+export function onEnd(list, endList) {
+	const start = list.filter(val => endList.indexOf(val) === -1);
+	const end = list.filter(val => endList.indexOf(val) !== -1);
+	return start.concat(end);
+}
+
 
 const FULL_CONV = {lastSeen: 'fullLastSeen', firstSeen: 'fullFirstSeen'}
 export const sortPassiveDNSResults = (resultList, thisSortType) => {

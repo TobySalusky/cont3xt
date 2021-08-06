@@ -149,7 +149,7 @@ export function Integrations({integrations}) {
 			<img className="ExternalLink" style={whiteFilter} src="./images/virustotal.svg" alt="virus total ip"/>
 		),
 		// virus total hash
-		createIntegration(virusTotalHashResult,
+		createVirusTotalIntegration(virusTotalHashResult,
 			<img className="ExternalLink" style={whiteFilter} src="./images/virustotal.svg" alt="virus total hash"/>
 		),
 	];

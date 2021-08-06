@@ -7,7 +7,7 @@ const DarkTooltip = withStyles(() => ({
         color: 'white',
         border: '1px solid #888888',
         fontSize: 12,
-        zIndex: 999,
+        zIndex: 9,
     },
 }))(Tooltip);
 export default DarkTooltip;

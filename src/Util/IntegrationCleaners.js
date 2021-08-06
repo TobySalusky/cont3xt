@@ -1,7 +1,8 @@
 import {makeUnbreakable, stripTrailingPeriod} from "./Util";
 import { integrationNames } from "./IntegrationDefinitions";
-import { mapOrder } from "./SortUtil";
+import {mapOrder, onEnd} from "./SortUtil";
 import dr from 'defang-refang'
+import {isArray, isDict} from "./VariableClassifier";
 
 export function toOrderedKeys(integrationType, keyList) {
 	switch (integrationType) {
@@ -36,6 +37,8 @@ export function toOrderedKeys(integrationType, keyList) {
 				'resolutions',
 				'response_code'
 			]);
+		case integrationNames.VIRUS_TOTAL_HASH:
+			return onEnd(keyList, ['scans']);
 		default:
 			return keyList;
 	}
@@ -148,12 +151,6 @@ const cleanPassiveTotalPassiveDNS = (dict) => {
 
 // default stuff
 
-const isDict = variable => {
-	return typeof variable === "object" && !Array.isArray(variable);
-};
-
-const isArray = variable => Array.isArray(variable);
-
 
 const recurseAll = (
 	variable,
@@ -179,32 +176,38 @@ const removeEmptyDicts = (dict) => {
 	return recurseAll(dict, (obj) => {
 		
 		const entries = Object.entries(obj);
-		if (entries.length === 0) return null;
+		if (entries.length === 0) return intermediates.EMPTY_OBJECT;
 		const newObj = {};
 		for (const [key, val] of entries) {
-			if (val !== null) newObj[key] = val;
+			if (val !== intermediates.EMPTY_OBJECT) newObj[key] = val;
 		}
-		
+		if (Object.keys(newObj).length === 0) return intermediates.EMPTY_OBJECT
+
 		return newObj;
 		
-	}, (arr) => arr.filter(elem => elem !== null));
+	}, (arr) => arr.filter(elem => elem !== intermediates.EMPTY_OBJECT));
 }
 
 const removeEmptyArraysAndDicts = (dict) => {
 	return recurseAll(dict, (obj) => {
 
 		const entries = Object.entries(obj);
-		if (entries.length === 0) return null;
+		if (entries.length === 0) return intermediates.EMPTY_OBJECT;
 		const newObj = {};
 		for (const [key, val] of entries) {
-			if (val !== null) newObj[key] = val;
+			if (val !== intermediates.EMPTY_OBJECT && val !== intermediates.EMPTY_ARRAY) newObj[key] = val;
 		}
+		if (Object.keys(newObj).length === 0) return intermediates.EMPTY_OBJECT
 
 		return newObj;
 
-	}, (arr) => arr.length === 0 ? null : arr);
+	}, (arr) => arr.length === 0 ? intermediates.EMPTY_ARRAY : arr);
 }
 
+const intermediates = {
+	EMPTY_OBJECT: '_____cont3xt_empty_object',
+	EMPTY_ARRAY: '_____cont3xt_empty_array',
+};
 
 // SPECIFIC recursive cleaners
 const cleanSpurExists = (dict) => recurseAll(dict, (obj) => {

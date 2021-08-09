@@ -102,6 +102,11 @@ export function UndetectedUrlTable({title, resultList, sortType, setSortType}) {
 
     // TODO: optimize/remove color text here
 
+    const processedResultList = resultList.map(entry => {
+        const [url, sha256, positives, total, date = DEF_DATE] = entry;
+        return {url, sha256, positives, total, date};
+    });
+    
     return (
         <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
             marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}
@@ -123,8 +128,8 @@ export function UndetectedUrlTable({title, resultList, sortType, setSortType}) {
                 </thead>
 
                 <tbody>
-                {sortVirusTotalResults(resultList, sortType).map((result, i) => {
-                    const [url, sha256, positives, total, date = DEF_DATE] = result;
+                {sortVirusTotalResults(processedResultList, sortType).map((result, i) => {
+                    const {url, sha256, positives, total, date} = result;
 
                     return (
                         <tr key={`urlscan-result-row-${i}`}>

@@ -16,3 +16,4 @@ VirusTotal Icon: https://vecta.io/symbols/100/brands-va-vz/45/virustotal-icon
 
 Outside-external-link Icon: https://commons.wikimedia.org/wiki/File:Icon_External_Link.svgs
 
+Anomali Icon: https://www.programmableweb.com/api/anomali-threatstream-rest-api-v10

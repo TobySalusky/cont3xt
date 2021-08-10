@@ -2,7 +2,7 @@ import ComponentTooltip from "./ComponentTooltip";
 import {ColorDictBox, PassiveTotalPassiveDNSColorDictBox, UrlScanColorDictBox, VirusTotalBox} from "./ColorDictBox";
 import { whiteFilter } from "../Util/Filters";
 import { classificationObj } from "../Util/Classification";
-import {log, makeUnbreakable, stripTrailingPeriod} from "../Util/Util";
+import { log, makeUnbreakable, stripTrailingPeriod, tryGetThreatStreamCountIfAny, typeColors } from '../Util/Util';
 import { TooltipCopy } from "./TooltipCopy";
 import { generateIntegrationReportTooltipCopy } from "../Util/IntegrationReports";
 import { getCleaner } from "../Util/IntegrationCleaners";
@@ -37,7 +37,8 @@ export function Integrations({integrations}) {
 		virusTotalDomainResult,
 		virusTotalIPResult,
 		virusTotalHashResult,
-
+		threatStreamResult,
+		
 		ipAsnData,
 		
 		indicatorData = classificationObj('WARNING: no indicator found'),
@@ -169,11 +170,26 @@ export function Integrations({integrations}) {
 		createVirusTotalIntegration(virusTotalHashResult,
 			<img className="ExternalLink" style={whiteFilter} src="./images/virustotal.svg" alt="virus total hash"/>
 		),
+		// threatstream
+		createIntegration(threatStreamResult,
+			<span>
+				<img className="ExternalLink" src="./images/anomali.webp" alt="threatstream"/>
+				<ThreatStreamCount res={threatStreamResult}/>
+			</span>
+		),
 	];
 	
 	return (
 		<span style={{alignItems: 'center'}}>
 			{elems.map(el => withPipe(el))}
 		</span>
+	);
+}
+
+export const ThreatStreamCount = ({res}) => {
+	const count = tryGetThreatStreamCountIfAny(res);
+	if (count === null) return null;
+	return (
+		<p style={{fontSize: 14, ...(count > 0 ? {color: typeColors.malicious, fontWeight: 'bold'} : {})}}>({count})</p>
 	);
 }

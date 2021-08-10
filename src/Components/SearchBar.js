@@ -88,15 +88,16 @@ const fetchCensysDataIP = async (ip) => {
 }
 
 const fetchPassiveTotalWhois = async (domain) => {
-    const {REACT_APP_PASSIVETOTAL_API_USER, REACT_APP_PASSIVETOTAL_API_KEY} = process.env;
+    const {REACT_APP_PASSIVETOTAL_API_USER:user, REACT_APP_PASSIVETOTAL_API_KEY:apikey} = process.env;
+    if (!user || !apikey) return null;
     const passiveTotalWhois = await axios.get('https://api.passivetotal.org/v2/whois', {
         params: {
             query: domain,
             history: false
         },
         auth: {
-            username: REACT_APP_PASSIVETOTAL_API_USER,
-            password: REACT_APP_PASSIVETOTAL_API_KEY
+            username: user,
+            password: apikey
         }
     });
     
@@ -105,14 +106,15 @@ const fetchPassiveTotalWhois = async (domain) => {
 }
 
 const fetchPassiveTotalSubDomains = async (domain) => {
-    const {REACT_APP_PASSIVETOTAL_API_USER, REACT_APP_PASSIVETOTAL_API_KEY} = process.env;
+    const {REACT_APP_PASSIVETOTAL_API_USER:user, REACT_APP_PASSIVETOTAL_API_KEY:apikey} = process.env;
+    if (!user || !apikey) return null;
     const passiveTotalSubDomainsResult = await axios.get('https://api.passivetotal.org/v2/enrichment/subdomains', {
         params: {
             query: domain
         },
         auth: {
-            username: REACT_APP_PASSIVETOTAL_API_USER,
-            password: REACT_APP_PASSIVETOTAL_API_KEY
+            username: user,
+            password: apikey
         }
     });
     
@@ -121,19 +123,34 @@ const fetchPassiveTotalSubDomains = async (domain) => {
 }
 
 const fetchPassiveTotalPassiveDNS = async (ip) => {
-    const {REACT_APP_PASSIVETOTAL_API_USER, REACT_APP_PASSIVETOTAL_API_KEY} = process.env;
+    const {REACT_APP_PASSIVETOTAL_API_USER:user, REACT_APP_PASSIVETOTAL_API_KEY:apikey} = process.env;
+    if (!user || !apikey) return null;
     const passiveTotalPassiveDNS = await axios.get('https://api.passivetotal.org/v2/dns/passive', {
         params: {
             query: ip
         },
         auth: {
-            username: REACT_APP_PASSIVETOTAL_API_USER,
-            password: REACT_APP_PASSIVETOTAL_API_KEY
+            username: user,
+            password: apikey
         }
     });
     
     log('passivetotal passive dns', passiveTotalPassiveDNS);
     return passiveTotalPassiveDNS;
+}
+
+const fetchThreatStream = async (indicator) => {
+    const {REACT_APP_THREATSTREAM_URL:url, REACT_APP_THREATSTREAM_API_USER:user, REACT_APP_THREATSTREAM_API_KEY:apikey} = process.env;
+    if (!url || !user || !apikey) return null;
+    const res = await axios.get('/threat-stream', {
+        params: {
+            q: indicator,
+            url, user, apikey
+        },
+    })
+    
+    log(`threatstream result for ${indicator}`, res);
+    return res;
 }
 
 const fetchSpurDataIP = async (ip) => {
@@ -361,7 +378,13 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
             }).catch(err => {
                 log(err);
             });
-            
+    
+            // threatstream
+            fetchThreatStream(ip).then(res => {
+                addIntegrationToResultObject(object, {threatStreamResult: res}, integrationNames.THREAT_STREAM)
+            }).catch(err => {
+                log(err);
+            });
         }
         
         const startDomainAdditions = async (object, domain) => {
@@ -444,6 +467,13 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
             }).catch(err => {
                 log(err);
             });
+    
+            // threatstream
+            fetchThreatStream(domain).then(res => {
+                addIntegrationToResultObject(object, {threatStreamResult: res}, integrationNames.THREAT_STREAM)
+            }).catch(err => {
+                log(err);
+            });
 
             
             // resolve more information for ip children
@@ -477,6 +507,13 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
             }).catch(err => {
                 log(err);
             });
+    
+            // threatstream
+            fetchThreatStream(email).then(res => {
+                addIntegrationToResultObject(object, {threatStreamResult: res}, integrationNames.THREAT_STREAM)
+            }).catch(err => {
+                log(err);
+            });
         }
     
         const startPhoneNumberAdditions = (object, phoneNumber) => {
@@ -498,6 +535,13 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
             // virus total
             fetchVirusTotalHash(hash).then(res => {
                 addIntegrationToResultObject(object, {virusTotalHashResult: res}, integrationNames.VIRUS_TOTAL_HASH)
+            }).catch(err => {
+                log(err);
+            });
+    
+            // threatstream
+            fetchThreatStream(hash).then(res => {
+                addIntegrationToResultObject(object, {threatStreamResult: res}, integrationNames.THREAT_STREAM)
             }).catch(err => {
                 log(err);
             });

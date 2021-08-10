@@ -10,4 +10,5 @@ export const integrationNames = {
 	VIRUS_TOTAL_DOMAIN: 'VirusTotal Domain Report',
 	VIRUS_TOTAL_IP: 'VirusTotal IP Report',
 	VIRUS_TOTAL_HASH: 'VirusTotal Hash',
+	THREAT_STREAM: 'ThreatStream'
 };

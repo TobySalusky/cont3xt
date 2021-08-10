@@ -14,6 +14,13 @@ export function log(){
 	}
 }
 
+export const tryGetThreatStreamCountIfAny = (threatStreamResult) => {
+	try {
+		return threatStreamResult.data.meta.total_count;
+	} catch {}
+	return null;
+}
+
 export const typeColors = {
 	plain: 'white',
 	brackets: 'yellow',

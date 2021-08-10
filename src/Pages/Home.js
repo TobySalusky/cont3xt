@@ -112,6 +112,9 @@ function Home() {
                     <div className="InputAreas">
                         <NumDayInput startDate={startDate}/>
                         <SearchBar results={results} setResults={setResults}/>
+                        <Link to="/configurations">
+                            <img className="IconButton" src="./images/settingsBars.png" alt="settings button"/>
+                        </Link>
                     </div>
                     
                     <div className="ResultArea">
@@ -128,11 +131,7 @@ function Home() {
                         {desktopTabs}
                     </div>
         
-                    <div className="DesktopSide">
-                        <Link to="/configurations">
-                            <img className="IconButton" src="./images/settingsBars.png" alt="settings button"/>
-                        </Link>
-                    </div>
+                    <div className="DesktopSide"/>
                 </div>
             </div>
         </div>

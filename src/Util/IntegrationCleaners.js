@@ -63,6 +63,8 @@ const getIntermediateCleaners = (integrationType) => {
 		case integrationNames.VIRUS_TOTAL_IP:
 		case integrationNames.VIRUS_TOTAL_HASH:
 			return [removeEmptyArraysAndDicts, defangAll]
+		case integrationNames.THREAT_STREAM:
+			return [cleanThreatStreamObjects];
 		default:
 			return [noCleaner];
 	}
@@ -238,3 +240,34 @@ const defangAll = (dict) => recurseAll(dict,
 		}
 		return val;
 });
+
+const cleanThreatStreamObjects = (res) => {
+	const {meta, objects} = res;
+	return {meta, objects: objects.map(obj => cleanThreatStreamObject(obj))};
+}
+
+const cleanThreatStreamObject = (obj) => {
+	
+	const newObj = {};
+	
+	const sortedKeys = mapOrder(Object.keys(obj), [
+		'status',
+		'threatscore',
+		'source_reported_confidence',
+		'tags',
+		'source',
+		'source_created',
+		'expiration_ts'
+	]);
+	
+	for (const key of sortedKeys) {
+		const val = obj[key];
+		if (key === 'tags') {
+			newObj['tagNames'] = val.map(entry => entry.name);
+		} else {
+			newObj[key] = val;
+		}
+	}
+	
+	return newObj;
+}

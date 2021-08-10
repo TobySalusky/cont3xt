@@ -3,6 +3,8 @@ import {integrationNames} from "./IntegrationDefinitions";
 export const tryUseASN = (obj, integrationType, integrationResult, addFunc) => {
     const data = integrationResult;
     const integrations = obj.integrations;
+    
+    if (integrations?.indicatorData?.type !== 'IP') return;
 
     const {precedence:lastPrecedence = -1} = integrations.ipAsnData || {};
     const precedence = precedenceLevel(integrationType);

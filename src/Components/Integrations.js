@@ -7,7 +7,7 @@ import { TooltipCopy } from "./TooltipCopy";
 import { generateIntegrationReportTooltipCopy } from "../Util/IntegrationReports";
 import { getCleaner } from "../Util/IntegrationCleaners";
 import {InlineDiv} from "../Util/StyleUtil";
-import {OptionalMaxLengthTooltip} from "../Util/ElemUtil";
+import {MaxLen} from "../Util/ElemUtil";
 import {emojiFlagOrEmptyString} from "../Util/StringUtil";
 
 const withPipe = (html) => {
@@ -122,7 +122,7 @@ export function Integrations({integrations}) {
 		<InlineDiv style={{fontSize: '70%', alignItems: 'center', padding: 0, margin: 0, justifyContent: 'center'}}>
 			<div>
 				<p>{ipAsnData.asn}</p>
-				<OptionalMaxLengthTooltip value={makeUnbreakable(ipAsnData.org)} maxLen={15}/>
+				<MaxLen max={15}>{makeUnbreakable(ipAsnData.org)}</MaxLen>
 			</div>
 			<div>
 				<p>{ipAsnData.country}</p>

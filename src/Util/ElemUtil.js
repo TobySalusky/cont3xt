@@ -1,13 +1,17 @@
 import DarkTooltip from "../Style/DarkTooltip";
 
-export const OptionalMaxLengthTooltip = ({value, maxLen}) => {
-    const len = value.length;
+export const MaxLen = ({max, children}) => {
+    
+    if (typeof children !== 'string') console.log('Error-MaxLen child should be of type string')
+    const text = children;
+    const len = text.length;
 
-    if (len <= maxLen) return <p>{value}</p>;
+    if (len <= max) return <p>{text}</p>;
+    
     return (
-        <DarkTooltip title={value} interactive>
+        <DarkTooltip title={text} interactive>
             <span>
-                <p>{value.substr(0, maxLen)}</p>
+                <p>{text.substr(0, max)}</p>
                 <p style={{color: 'orange'}}>...</p>
             </span>
         </DarkTooltip>

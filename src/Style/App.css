@@ -54,6 +54,8 @@ body {
   padding: 5px;
   padding-top: 20px;
 
+  position: sticky;
+
   /*position: fixed;*/
   /*top: 0;*/
   /*left: 0;*/

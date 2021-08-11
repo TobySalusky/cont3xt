@@ -332,8 +332,6 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         
         const startIpAdditions = (object, ip) => {
     
-            // TODO: this shouldn't really be an integration!
-            addIntegrationToResultObject(object, {indicatorData: classificationObj(ip)});
             // AP2ISN
             // TODO: use backend AP2ISN
             fetchDataIP(ip).then(res => {
@@ -388,10 +386,7 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         }
         
         const startDomainAdditions = async (object, domain) => {
-    
-            // TODO: this also shouldn't really be an integration!
-            addIntegrationToResultObject(object, {indicatorData: classificationObj(domain)});
-    
+            
             // DNS records
             const dataA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${domain}&type=A`)).data
             const dataAAAA = await (await instance.get(`https://cloudflare-dns.com/dns-query?name=${domain}&type=AAAA`)).data
@@ -551,6 +546,8 @@ function SearchBar({results, setResults}) { // TODO: HAVE AUTO-SELECTED WHEN PAG
         for (let i = 0; i < arr.length; i++) {
             const result = arr[i];
             let thisDiff = true;
+    
+            addIntegrationToResultObject(result, {indicatorData: classificationObj(result.indicator)});
             
             switch (result.type) {
                 case 'Domain':

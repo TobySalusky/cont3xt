@@ -21,7 +21,7 @@ import {
 } from "../Util/SortUtil";
 import { toOrderedKeys } from "../Util/IntegrationCleaners";
 import {DetectedUrlTable, HashScansTable, ResolutionsTable, SampleTable, UndetectedUrlTable} from "./VirusTotalTables";
-import {OptionalMaxLengthTooltip} from "../Util/ElemUtil";
+import {MaxLen} from "../Util/ElemUtil";
 import {emojiFlagOrEmptyString} from "../Util/StringUtil";
 
 
@@ -68,9 +68,11 @@ export function ColorDictBox({type, data, indicatorData}) {
 
 export const stringStyle = {color: typeColors.string};
 export const boolStyle = {color: typeColors.boolean};
+export const numStyle = {color: typeColors.number};
 export const padRight = {paddingRight: 5};
 export const stringPadRight = {...padRight, ...stringStyle}
 export const boolPadRight = {...padRight, ...boolStyle}
+export const numPadRight = {...padRight, ...numStyle}
 
 export function PassiveTotalPassiveDNSColorDictBox({type, data, indicatorData}) {
     
@@ -191,7 +193,7 @@ export function UrlScanColorDictBox({type, data, indicatorData}) {
                                 <td style={stringPadRight}>{visibility}</td>
                                 <td className="TableSepLeft" style={stringPadRight}>{method}</td>
                                 <td className="TableSepLeft" style={stringPadRight}>
-                                    <OptionalMaxLengthTooltip value={url} maxLen={40}/>
+                                    <MaxLen max={40}>{url}</MaxLen>
                                 </td>
                                 <td>
                                     <LinkOut url={`https://urlscan.io/result/${uuid}`} style={{width: 12, height: 12, margin: 0, marginRight: 5}}/>

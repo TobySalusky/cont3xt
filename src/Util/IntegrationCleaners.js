@@ -38,7 +38,18 @@ export function toOrderedKeys(integrationType, keyList) {
 				'response_code'
 			]);
 		case integrationNames.VIRUS_TOTAL_HASH:
-			return onEnd(keyList, ['scans']);
+			return mapOrder(keyList, [
+				'scan_date',
+				'total',
+				'positives',
+				'md5', 'sha1', 'sha256',
+				'permalink',
+				'scan_id',
+				'resource',
+				'verbose_msg',
+				'scans',
+				'response_code',
+			]);
 		default:
 			return keyList;
 	}

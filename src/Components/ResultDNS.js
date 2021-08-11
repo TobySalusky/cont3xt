@@ -9,7 +9,7 @@ import { colorTable } from '../Util/Colors';
 import { Integrations } from "./Integrations";
 import { LinkBack } from "./LinkBack";
 import { Copy } from "./Copy";
-import {OptionalMaxLengthTooltip} from "../Util/ElemUtil";
+import {MaxLen} from "../Util/ElemUtil";
 
 const charLimit = 30;
 
@@ -50,7 +50,7 @@ export default function ResultDNS({dns}) {
                         <div className="ResultBox" style={{justifyContent: 'space-between', alignItems:'center', padding: 5, fontSize: 12}}>
                             <div className="SpaceBetweenRow">
                                 <p style={{color: 'lightgreen', paddingRight: 8, fontWeight: 'bolder'}}>{dnsType}</p>
-                                <OptionalMaxLengthTooltip value={data} maxLen={charLimit}/>
+                                <MaxLen max={charLimit}>{data}</MaxLen>
                             </div>
     
                             <Copy value={data}/>

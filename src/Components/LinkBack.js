@@ -1,7 +1,7 @@
 import '../Style/App.css';
 import { whiteFilter } from "../Util/Filters";
 
-export function LinkBack({url, query, style}) {
+export function LinkBack({url = undefined, query = undefined, style = undefined}) {
 
 	if (!url && query) {
 		url = `/?q=${query}`;

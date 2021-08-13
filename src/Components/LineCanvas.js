@@ -1,12 +1,15 @@
 import '../Style/App.css';
-import React, {useRef, useState, useEffect, useLayoutEffect, useContext} from 'react';
+import React, { useRef, useState, useLayoutEffect, useContext } from 'react';
 import {useWindowDimen} from '../Util/ResizeUtil'
 import {LineContext} from "../State/LineContext";
+import { MutationContext } from '../State/MutationContext';
+import { MutationUtil } from './ChildMutationObserver';
 
 
 export default function LineCanvas(props) {
 
-    const canvasRef = useRef(null)
+    const canvasRef = useRef(null);
+    const [mutationCount,] = useContext(MutationContext);
     const dimen = useRef({minX: Number.MAX_VALUE, minY: Number.MAX_VALUE, maxX: Number.MIN_VALUE, maxY: Number.MIN_VALUE})
 
     const windowDimen = useWindowDimen()
@@ -89,9 +92,8 @@ export default function LineCanvas(props) {
             dimen.current = newDimen
         }
 
-        drawLines(ctx)
-
-    }, [lineRefs, windowDimen])
+        drawLines(ctx);
+    }, [lineRefs, windowDimen, mutationCount, MutationUtil.mutationCount])
 
     const drawLines = (ctx) => {
         for (const lineID of Object.keys(lineRefs)) {
@@ -127,7 +129,7 @@ export default function LineCanvas(props) {
 
     return (
         <LineContext.Provider value={[lineRefs, setLineRefs]}>
-            <canvas width={getWidth()} height={getHeight()} className="LineCanvas" style={{top: dimen.current.minY, left: dimen.current.minX}} ref={canvasRef} {...props}/>
+            <canvas width={getWidth()} height={getHeight()} className="LineCanvas" style={{top: dimen.current.minY, left: dimen.current.minX/*, backgroundColor: '#FF000033'*/, position: 'absolute'}} ref={canvasRef} {...props}/>
             {props.children}
         </LineContext.Provider>
     );

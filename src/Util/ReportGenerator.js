@@ -22,5 +22,5 @@ export const generateFullReport = (result) => {
 }
 
 export const downloadFullReport = (result) => {
-	downloadNamedTextFile(`${result.integrations.indicatorData.value}_${currentTimeStamp()}`, generateFullReport(result))
+	downloadNamedTextFile(`${result.value}_${currentTimeStamp()}`, result.genFullReport())
 }

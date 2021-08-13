@@ -51,7 +51,7 @@ function Edit() {
                 let hasEntry = false
                 typeData[thisType].map(dict => {
                     if (dict.label !== undefined && dict.label !== '' && dict.formatLink !== undefined && dict.formatLink !== '') {
-                        sectionStr += '\"'+dict.label+'\" '+dict.formatLink
+                        sectionStr += '"'+dict.label+'" '+dict.formatLink
                         if (!matchColor('orange', dict.color)) sectionStr += ' color: '+dict.color;
                         sectionStr += '\n';
                         hasEntry = true
@@ -72,7 +72,7 @@ function Edit() {
     }
 
     useEffect(() => { // init
-        let pages = {}
+        let pages = {};
         let data = {}
         tabTypes.map(thisType => {
             pages[thisType] = <LinkRowPage key={thisType} type={thisType}/>;

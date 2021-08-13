@@ -79,7 +79,6 @@ export function PassiveTotalPassiveDNSColorDictBox({type, data, indicatorData}) 
     const [sortType, setSortType] = useState(FIRST_SEEN);
 
     function InfoBoxResults({resultList, sortType}) {
-
         const isDomain = indicatorData.type === 'Domain';
 
         function DateHeader({name, thisSortType, sortType})  {

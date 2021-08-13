@@ -1,24 +1,26 @@
 import {integrationNames} from "./IntegrationDefinitions";
+import {IndicatorNode} from "../Types/IndicatorNode";
 
-export const tryUseASN = (obj, integrationType, integrationResult, addFunc) => {
-    const data = integrationResult;
-    const integrations = obj.integrations;
-    
-    if (integrations?.indicatorData?.type !== 'IP') return;
+export const tryUseASN = (indicatorNode: IndicatorNode, integrationType : string, integrationData : any) => {
+    const data : any = integrationData;
 
-    const {precedence:lastPrecedence = -1} = integrations.ipAsnData || {};
+    if (indicatorNode.type !== 'IP') return;
+
+    const {precedence:lastPrecedence = -1} = indicatorNode.ipAsnData || {};
     const precedence = precedenceLevel(integrationType);
 
     if (precedence < lastPrecedence) return;
 
-    const add = (asn, org, country) => {
-        if (asn && org && country) addFunc(obj, {ipAsnData: {asn, org, country, precedence}});
+    const setAs = (asn : string | number, org : string, country : string) => {
+        indicatorNode.ipAsnData = {
+            asn, org, country, precedence
+        };
     }
 
     switch (integrationType) {
         case integrationNames.SPUR:
             try {
-                add(data.as.number, data.as.organization, data.geoLite.country);
+                setAs(data.as.number, data.as.organization, data.geoLite.country);
             } catch (e) {
                 console.log(e)
                 console.log('failed to use spur asn data')
@@ -27,7 +29,7 @@ export const tryUseASN = (obj, integrationType, integrationResult, addFunc) => {
         case integrationNames.URL_SCAN:
             try {
                 const {asn, asnnumber, country} = data.results[0].page;
-                add(asn, asnnumber, country);
+                setAs(asn, asnnumber, country);
             } catch (e) {
                 console.log(e)
                 console.log('failed to use urlscan asn data')
@@ -35,7 +37,7 @@ export const tryUseASN = (obj, integrationType, integrationResult, addFunc) => {
             break;
         case integrationNames.VIRUS_TOTAL_IP:
             try {
-                add(data.as, data.as_owner, data.country);
+                setAs(data.as, data.as_owner, data.country);
             } catch (e) {
                 console.log(e)
                 console.log('failed to use VT asn data')
@@ -44,7 +46,7 @@ export const tryUseASN = (obj, integrationType, integrationResult, addFunc) => {
     }
 }
 
-const precedenceLevel = (integrationType) => {
+const precedenceLevel = (integrationType : string) => {
     switch (integrationType) {
         case integrationNames.SPUR:
             return 3;

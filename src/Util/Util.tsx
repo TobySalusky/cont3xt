@@ -1,24 +1,18 @@
 import ComponentTooltip from "../Components/ComponentTooltip";
 import {isArray, isDict} from "./VariableClassifier";
+import React from "react";
 
-export const stripTrailingPeriod = (str) => {
+export const stripTrailingPeriod = (str : string) => {
 	if (str.lastIndexOf('.') === str.length - 1) return str.substring(0, str.length - 1);
 	return str;
 }
 
 const DEBUG = true; // Enable/Disable logging
 
-export function log(){
+export function log(...params : any){
 	if(DEBUG){
-		console.log.apply(console, arguments);
+		console.log.apply(console, params);
 	}
-}
-
-export const tryGetThreatStreamCountIfAny = (threatStreamResult) => {
-	try {
-		return threatStreamResult.data.meta.total_count;
-	} catch {}
-	return null;
 }
 
 export const typeColors = {
@@ -31,10 +25,11 @@ export const typeColors = {
 	key: '#cb91ff',
 	link: '#60dfff',
 	null: '#b1b1b1',
-	malicious: '#ff5050'
+	malicious: '#ff5050',
+	dnsType: 'lightgreen',
 }
 
-export const toColorTextOld = (variable, brackets = true, appendComma = false, spaces = true) => {
+export const toColorTextOld = (variable : any, brackets = true, appendComma = false, spaces = true) : any => {
 	
 	try {
 		let returnVar = undefined;
@@ -149,18 +144,26 @@ export const toColorTextOld = (variable, brackets = true, appendComma = false, s
 	}
 }
 
-const fullText = colorData => {
+
+const fullText =  (colorData : Array<[string, string]>) => {
 	return colorData.map(entry => entry[1]).join();
 }
 
-export const toColorText = (variable, settings = {}) => {
+interface ColorTextSettings {
+	brackets? : boolean;
+	appendComma? : boolean;
+	spaces? : boolean;
+	multiline? : boolean;
+}
+
+export const toColorText = (variable : any, settings : ColorTextSettings = {}) : ColorDataObj => {
 
 	const {brackets = true, appendComma = false, spaces = true, multiline = true} = settings;
 
 	//const emptyDict = colorData => colorData.length === 2 && fullText(colorData) === '{}';
 	//const emptyArr = colorData => colorData.length === 2 && fullText(colorData) === '[]';
 
-	const tabIn = colorData => {
+	const tabIn = (colorData : Array<[string, string]>) => {
 		const thisColorData = [];
 		const tab = () => thisColorData.push(['white', '  ']);
 		tab();
@@ -174,12 +177,12 @@ export const toColorText = (variable, settings = {}) => {
 	}
 
 	try {
-		let colorData = [];
+		let colorData : Array<[string, string]> = [];
 
 		const commaStr = spaces ? ', ' : ',';
 		const sep = spaces ? ': ' : ':';
 
-		const breakLine = (data) => {
+		const breakLine = (data : Array<[string, string]>) => {
 			if (multiline) data.push(['red', '\n']);
 		}
 
@@ -189,7 +192,7 @@ export const toColorText = (variable, settings = {}) => {
 				breakLine(colorData);
 			}
 
-			let innerColorData = [];
+			let innerColorData : Array<[string, string]> = [];
 
 			let init = true
 			for (const key of Object.keys(variable)) {
@@ -224,7 +227,7 @@ export const toColorText = (variable, settings = {}) => {
 
 			let init = true
 			for (const element of variable) {
-				const entry = toColorText(element, settings)
+				const entry : ColorDataObj = toColorText(element, settings)
 
 				if (entry) {
 					if (!init) {
@@ -257,24 +260,27 @@ export const toColorText = (variable, settings = {}) => {
 			colorData.push([typeColors.comma, ',']);
 		}
 
-		return createColorDataObj(colorData);
+		return new ColorDataObj(colorData);
 
 	} catch (e) {
 		console.log(e)
 		const failureMessage = 'FAILED_TO_PARSE';
-		createColorDataObj([['red', failureMessage]]);
+		return new ColorDataObj([['red', failureMessage]]);
 	}
 }
 
-const createColorDataObj = (data) => {
-	return {
-		data: data,
-		genText: () => fullText(this.data),
-	};
+class ColorDataObj {
+	data : Array<[string, string]>;
+
+	constructor(data : Array<[string, string]>) {
+		this.data = data;
+	}
+
+	genText = () : string => fullText(this.data);
 }
 
-export const toColorElemsMultiline = (colorData) => {
-	const list = [[]];
+export const toColorElemsMultiline = (colorData : ColorDataObj) => {
+	const list : any = [[]];
 
 	for (const colorDataEntry of colorData.data) {
 		if (colorDataEntry[1] === '\n') {
@@ -286,7 +292,7 @@ export const toColorElemsMultiline = (colorData) => {
 
 	return (
 		<div style={{display: 'flex', flexDirection: 'column'}}>
-			{list.map(data => createColorDataObj(data)).map(dataObj =>
+			{list.map((data : any) => new ColorDataObj(data)).map((dataObj : ColorDataObj) =>
 				<span style={{display: 'flex', flexDirection: 'row', flexWrap: "wrap",}}>
 					{toColorElems(dataObj)}
 				</span>
@@ -295,15 +301,15 @@ export const toColorElemsMultiline = (colorData) => {
 	);
 }
 
-export const makeUnbreakable = (str) => {
+export const makeUnbreakable = (str : string) => {
 	return str.replaceAll('-', '‑').replaceAll(' ', '\xa0');
 }
 
-export const makeColorElems = (variable) => {
+export const makeColorElems = (variable : any) => {
 	return toColorElems(toColorText(variable));
 }
 
-export const makeClickableLink = (linkStr, displayText = null) => {
+export const makeClickableLink = (linkStr : string, displayText : string | null = null) : any => {
 	const aNode = (
 		<a href={linkStr} target="_blank" rel="noreferrer" style={{color: typeColors.link, textDecoration: 'none'}}>
 			{displayText ?? linkStr}
@@ -311,6 +317,7 @@ export const makeClickableLink = (linkStr, displayText = null) => {
 	);
 
 	if (linkStr.endsWith('.png')) {
+		// @ts-ignore
 		return (
 			<ComponentTooltip zIndex={2} comp={
 				<div style={{maxWidth: 500, height: 'auto'}}>
@@ -326,7 +333,7 @@ export const makeClickableLink = (linkStr, displayText = null) => {
 	return aNode;
 }
 
-export const toColorElems = (colorData) => {
+export const toColorElems = (colorData : ColorDataObj) => {
 
 	return colorData.data.map(([color, text]) => {
 		text = text.replaceAll(' ', '\xa0')
@@ -341,7 +348,7 @@ export const toColorElems = (colorData) => {
 	})
 }
 
-export const jsonLines = (dictionary) => {
+export const jsonLines = (dictionary : any) => {
 	
 	let str = ''
 	
@@ -354,7 +361,8 @@ export const jsonLines = (dictionary) => {
 	return str;
 }
 
-const withLeadingZero = (num) => (num >= 10) ? num : '0' + num;
+const withLeadingZero = (num : number) => (num >= 10) ? num : '0' + num;
+
 export const currentTimeStamp = () => { // TODO:
 	const dateObj = new Date();
 	

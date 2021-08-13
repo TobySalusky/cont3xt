@@ -2,10 +2,9 @@ import ComponentTooltip from "./ComponentTooltip";
 import {ColorDictBox, PassiveTotalPassiveDNSColorDictBox, UrlScanColorDictBox, VirusTotalBox} from "./ColorDictBox";
 import { whiteFilter } from "../Util/Filters";
 import { classificationObj } from "../Util/Classification";
-import { log, makeUnbreakable, stripTrailingPeriod, tryGetThreatStreamCountIfAny, typeColors } from '../Util/Util';
+import { log, makeUnbreakable, stripTrailingPeriod, typeColors } from '../Util/Util';
 import { TooltipCopy } from "./TooltipCopy";
 import { generateIntegrationReportTooltipCopy } from "../Util/IntegrationReports";
-import { getCleaner } from "../Util/IntegrationCleaners";
 import {InlineDiv} from "../Util/StyleUtil";
 import {MaxLen} from "../Util/ElemUtil";
 import {emojiFlagOrEmptyString} from "../Util/StringUtil";
@@ -21,8 +20,6 @@ const withPipe = (html) => {
 }
 
 export function Integrations({integrations}) {
-	
-	
 	
 	if (!integrations) return null;
 	
@@ -129,67 +126,11 @@ export function Integrations({integrations}) {
 				<p>{emojiFlagOrEmptyString(ipAsnData.country)}</p>
 			</div>
 		</InlineDiv>,
-		// spur
-		createIntegration(spurResult,
-			<img className="ExternalLink" style={{width: 60}} src="./images/spur.png" alt="spur"/>
-			),
-		// censys
-		createIntegration(censysResult,
-			<img className="ExternalLink" src="./images/censysIcon.png" alt="censys"/>
-			),
-		// whois
-		createIntegration(whoisResult,
-			<img className="ExternalLink" src="./images/whoisIcon.svg" alt="whois"/>
-		),
-		// passivetotal whois
-		createIntegration(passiveTotalWhoisResult,
-			<img className="ExternalLink" style={whiteFilter} src="./images/whoisIcon.svg" alt="passivetotal whois"/>
-		),
-		// url scan
-		createUrlScanIntegration(urlScanResult,
-			<img className="ExternalLink" src="./images/urlscanIcon.png" alt="url scan"/>
-		),
-		// passivetotal passive dns
-		createPassiveTotalPassiveDNSIntegration(passiveTotalPassiveDNSResult,
-			<img className="ExternalLink" src="./images/passivetotalIcon.png" alt="passivetotal passive dns"/>
-		),
-		// passivetotal subdomains
-		(!passiveTotalSubDomainsResult || !passiveTotalSubDomainsResult.data || !passiveTotalSubDomainsResult.data.subdomains) ? null :
-			createListIntegration(passiveTotalSubDomainsResult, passiveTotalSubDomainsResult.data.subdomains,
-				<img className="ExternalLink" src="./images/passivetotalIcon.png" alt="passivetotal sub-domains"/>
-		),
-		// virus total domain
-		createVirusTotalIntegration(virusTotalDomainResult,
-			<img className="ExternalLink" style={whiteFilter} src="./images/virustotal.svg" alt="virus total domain"/>
-		),
-		// virus total ip
-		createVirusTotalIntegration(virusTotalIPResult,
-			<img className="ExternalLink" style={whiteFilter} src="./images/virustotal.svg" alt="virus total ip"/>
-		),
-		// virus total hash
-		createVirusTotalIntegration(virusTotalHashResult,
-			<img className="ExternalLink" style={whiteFilter} src="./images/virustotal.svg" alt="virus total hash"/>
-		),
-		// threatstream
-		createIntegration(threatStreamResult,
-			<span>
-				<img className="ExternalLink" src="./images/anomali.webp" alt="threatstream"/>
-				<ThreatStreamCount res={threatStreamResult}/>
-			</span>
-		),
 	];
 	
 	return (
 		<span style={{alignItems: 'center'}}>
 			{elems.map(el => withPipe(el))}
 		</span>
-	);
-}
-
-export const ThreatStreamCount = ({res}) => {
-	const count = tryGetThreatStreamCountIfAny(res);
-	if (count === null) return null;
-	return (
-		<p style={{fontSize: 14, ...(count > 0 ? {color: typeColors.malicious, fontWeight: 'bold'} : {})}}>({count})</p>
 	);
 }

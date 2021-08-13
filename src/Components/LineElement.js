@@ -1,7 +1,7 @@
-import { useEffect, useContext } from 'react';
+import { useContext } from 'react';
 import {LineContext} from "../State/LineContext";
 
-function LineElement ({lineID, lineFrom, children, style}) {
+function LineElement ({lineID = undefined, lineFrom= undefined, children= undefined, style= undefined}) {
 
     const [lineRefs] = useContext(LineContext)
 

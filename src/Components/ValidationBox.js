@@ -11,15 +11,9 @@ export default function ValidationBox({status, banner}) {
 	}
 	
 	return (
-		<div>
-			{(status === undefined) ? null :
-				<LineElement lineID="validation" lineFrom="main" style={{marginLeft: 40, marginBottom: 5}}>
-					<div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12}}>
-						<p style={{fontWeight: 'bolder', color: statusTable[status][1]}}>{statusTable[status][0]}</p>
-						{!banner ? null : <p style={{marginLeft: 5}}>{'| '}{banner}</p>}
-					</div>
-				</LineElement>
-			}
+		<div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, paddingBlock: 2, fontSize: 12}}>
+			<p style={{fontWeight: 'bolder', color: statusTable[status][1]}}>{statusTable[status][0]}</p>
+			{!banner || <p style={{marginLeft: 5}}>{'| '}{banner}</p>}
 		</div>
 	);
 }

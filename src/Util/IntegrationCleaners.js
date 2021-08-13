@@ -75,7 +75,7 @@ const getIntermediateCleaners = (integrationType) => {
 		case integrationNames.VIRUS_TOTAL_HASH:
 			return [removeEmptyArraysAndDicts, defangAll]
 		case integrationNames.THREAT_STREAM:
-			return [cleanThreatStreamObjects];
+			return [cleanThreatStreamObjects, removeNullAndUndefined];
 		default:
 			return [noCleaner];
 	}
@@ -217,6 +217,20 @@ const removeEmptyArraysAndDicts = (dict) => {
 	}, (arr) => arr.length === 0 ? intermediates.EMPTY_ARRAY : arr);
 }
 
+const removeNullAndUndefined = (dict) => {
+	return recurseAll(dict, (obj) => {
+		
+		const entries = Object.entries(obj);
+		const newObj = {};
+		for (const [key, val] of entries) {
+			if (val != null) newObj[key] = val;
+		}
+		
+		return newObj;
+		
+	}, (arr) => arr.filter(elem => elem != null));
+}
+
 const intermediates = {
 	EMPTY_OBJECT: '_____cont3xt_empty_object',
 	EMPTY_ARRAY: '_____cont3xt_empty_array',
@@ -253,8 +267,8 @@ const defangAll = (dict) => recurseAll(dict,
 });
 
 const cleanThreatStreamObjects = (res) => {
-	const {meta, objects} = res;
-	return {meta, objects: objects.map(obj => cleanThreatStreamObject(obj))};
+	const {objects} = res;
+	return {objects: objects.map(obj => cleanThreatStreamObject(obj))};
 }
 
 const cleanThreatStreamObject = (obj) => {
@@ -274,7 +288,7 @@ const cleanThreatStreamObject = (obj) => {
 	for (const key of sortedKeys) {
 		const val = obj[key];
 		if (key === 'tags') {
-			newObj['tagNames'] = val.map(entry => entry.name);
+			newObj['tagNames'] = val?.map(entry => entry.name);
 		} else {
 			newObj[key] = val;
 		}

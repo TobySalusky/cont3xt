@@ -1,7 +1,12 @@
-import React, {useContext, useState} from "react";
+import React, {useEffect, useState} from "react";
+import {LocalStorage} from "../Util/LocalStorage";
 
 export const LeftStatsPanel: React.FC = () => {
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(LocalStorage.getOrDefault('LeftSidePanelOpen', false));
+
+    useEffect(() => {
+        LocalStorage.set('LeftSidePanelOpen', open);
+    }, [open])
 
     return (
         <div className='LeftSidebar'>

@@ -1,9 +1,14 @@
-import React, {useContext, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {ActiveIntegrationContext} from "../State/ActiveIntegrationContext";
+import {LocalStorage} from "../Util/LocalStorage";
 
 export const RightIntegrationPanel: React.FC = () => {
     const [activeIntegration,] = useContext(ActiveIntegrationContext);
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(LocalStorage.getOrDefault('RightSidePanelOpen', false));
+
+    useEffect(() => {
+        LocalStorage.set('RightSidePanelOpen', open);
+    }, [open])
 
     return (
         <div className='RightSideBar'>

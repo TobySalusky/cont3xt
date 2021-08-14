@@ -259,6 +259,8 @@ export class IndicatorNode extends ResultNode {
                 integrate(integrationNames.PASSIVETOTAL_SUBDOMAINS);
 
                 integrate(integrationNames.VIRUS_TOTAL_DOMAIN);
+
+                integrate(integrationNames.URL_SCAN);
                 break;
             case 'IP':
                 fetchDataIP(this.value).then((res) => {
@@ -275,6 +277,8 @@ export class IndicatorNode extends ResultNode {
                 if (this.subType !== 'IPv6') integrate(integrationNames.VIRUS_TOTAL_IP);
 
                 integrate(integrationNames.CENSYS_IP);
+
+                integrate(integrationNames.URL_SCAN);
                 break;
             case 'Hash':
                 integrate(integrationNames.THREAT_STREAM);

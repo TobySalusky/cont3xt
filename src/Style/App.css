@@ -11,19 +11,31 @@
   display: none;
 }*/
 
+:root {
+  --highlight: orange;
+  --lighthighlight: #FEB062;
+  --lighter: #737373;
+  --lesslighter: #626262;
+  --neutral: #515151;
+  --lessdark: #323232;
+  --dark: #2B2B2B;
+  --darkest: #131313;
+  --lightgray: lightgray;
+}
+
 span {
   display: flex;
   flex-direction: row;
 }
 
 body {
-  background-color: #696969;
+  background-color: var(--neutral);
 }
 
 .App {
   text-align: center;
 
-  background-color: #696969;
+  background-color: var(--neutral);
   color: white;
 
   min-height: 100vh;
@@ -50,7 +62,7 @@ body {
 
 .LeftSidebar, .RightSideBar {
   height: 100vh;
-  background-color: #232323;
+  background-color: var(--darkest);
 
   display: flex;
   flex-direction: row;
@@ -68,11 +80,12 @@ body {
 .LeftSidebarCollapsableArea, .RightSidebarCollapsableArea {
   width: 15px;
   height: 100%;
-  background-color: #3c3c3c;
+  background-color: var(--dark);
   color: lightgray;
   font-weight: bold;
   justify-content: center;
   display: flex;
+  cursor: pointer;
 }
 .LeftSidebarCollapsableArea {border-left: 3px solid black;}
 .RightSidebarCollapsableArea {border-right: 3px solid black;}
@@ -93,7 +106,7 @@ body {
   justify-content: flex-start;
   align-items: center;
 
-  background-color: #4f4f4f;
+  background-color: var(--neutral);
   width: 100%;
 }
 
@@ -107,6 +120,16 @@ body {
   flex-grow: 1;
 }
 
+.InputAreasTopWrapper {
+  background-color: var(--lessdark);
+  margin-bottom: 5px;
+  border-bottom: 3px var(--darkest) solid;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
 .InputAreas {
   width: 90%;
   display: flex;
@@ -115,20 +138,29 @@ body {
   justify-content: center;
 }
 
-.SearchBar {
+.NumDaysInput, .SearchBar {
+  box-shadow: 0px 10px 13px -7px var(--darkest), 0px 3px 0px 0px var(--darkest);
   height: 25px;
   padding: 8px;
   font-size: 24px;
-  width: available;
   border-radius: 10px;
   border: none;
   outline: None;
-  flex-grow: 1;
   margin-right: 10px;
+  background-color: white;
 }
 
-.SearchBar:focus {
-  box-shadow: 0px 0px 2px 2px orange;
+.NumDaysInput {
+  width: 40px;
+}
+
+.SearchBar {
+  width: available;
+  flex-grow: 1;
+}
+
+.NumDaysInput:focus, .SearchBar:focus {
+  box-shadow: 0px 0px 2px 2px var(--highlight);
 }
 
 .DayContainer {
@@ -140,20 +172,29 @@ body {
   text-align: center;
 }
 
-.NumDaysInput {
-  width: 40px;
-  height: 25px;
-  padding: 8px;
-  font-size: 24px;
+.ResultBox {
+  background-color: var(--dark);
+  box-shadow: 0px 10px 13px -7px var(--darkest), 0px 3px 0px 0px var(--darkest);
+  border-top: 1px var(--lighter) solid;
+  color: white;
   border-radius: 10px;
-  border: none;
+  font-size: 20px;
+  padding: 10px;
+
+  display: flex;
+  flex-direction: row;
+
+  text-align: left;
 }
 
 .SearchSubmit, .Base64Copy {
-  padding: 8px;
-  background-color: #303030;
+  box-shadow: 0px 10px 13px -7px black, 0px 3px 0px 0px black;
+  border-width: 0px;
+  border-top: 1px var(--neutral) solid;
+
+  height: 41px;
+  background-color: var(--darkest);
   color: white;
-  border: 1px lightgray solid;
   border-radius: 10px;
   font-size: 25px;
   font-weight: bold;
@@ -162,7 +203,6 @@ body {
 
 .Base64Copy {
   height: 41px;
-  font-size: 16px;
   padding: 0;
   padding-inline: 5px;
   margin-right: 5px;
@@ -172,11 +212,11 @@ body {
 }
 
 .SearchSubmit:hover, .Base64Copy:hover {
-  background-color: #393939;
+  background-color: #303030;
 }
 
 .SearchSubmit:active, .Base64Copy:active {
-  background-color: #4a4a4a;
+  background-color: #414141;
 }
 
 .ResultArea {
@@ -187,20 +227,6 @@ body {
   flex-direction: column;
 }
 
-.ResultBox {
-  background-color: #3c3c3c;
-  color: white;
-  border: 1.7px lightgray solid;
-  border-radius: 25px;
-  font-size: 20px;
-  padding: 10px;
-
-  display: flex;
-  flex-direction: row;
-
-  text-align: left;
-}
-
 .ResultType {
   font-size: 20px;
   font-weight: bold;
@@ -208,9 +234,11 @@ body {
 }
 
 .Divider {
-  border-top: 3px black solid;
+  height: 5px;
+  border-block: 2px black solid;
+  background-color: var(--lessdark);
   width: 100%;
-  margin-bottom: 20px;
+  margin-block: 10px;
 }
 
 .Desktop {
@@ -242,12 +270,13 @@ body {
 }
 
 .DesktopBox {
-  background-color: #3c3c3c;
+  box-shadow: 0px 10px 13px -7px var(--darkest), 0px 8px 0px 0px var(--darkest);
+  border-top: 1px var(--lighter) solid;
+  background-color: var(--dark);
   color: white;
-  border: 1px lightgray solid;
-  border-radius: 25px;
-  font-size: 20px;
+  border-radius: 10px;
   padding: 10px;
+  font-size: 16px;
 
   display: flex;
   flex-direction: column;
@@ -260,15 +289,16 @@ body {
 .DesktopTitle {
   background-color: #1f7300;
   color: black;
+  font-size: 18px;
   font-weight: bold;
   width: 100%;
   align-items: center;
-  border-radius: 7px;
+  border-radius: 5px;
   text-align: center;
 }
 
 .Link {
-  color: orange;
+  color: var(--highlight);
   padding-left: 8px;
 }
 
@@ -288,14 +318,26 @@ body {
 }
 
 .OpenLinksButton {
-  margin-top: 20px;
+  background-color: var(--neutral);
+  color: white;
+  border-width: 0;
+  box-shadow: 0px 10px 13px -7px var(--darkest), 0px 3px 0px 0px var(--darkest);
+  border-top: 1px var(--lighter) solid;
+
+  margin-top: 10px;
   width: 100%;
-  height: 30px;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: bold;
-  border: 1px black solid;
-  border-radius: 7px;
+  border-radius: 5px;
   cursor: pointer;
+}
+
+.OpenLinksButton:hover {
+  background-color: var(--lesslighter);
+}
+
+.OpenLinksButton:active {
+  background-color: var(--lighter);
 }
 
 .IconButton {
@@ -421,10 +463,10 @@ body {
 }
 
 .ConfigBox {
-  background-color: #4f4f4f;
+  background-color: var(--dark);
   color: white;
   border: 1px lightgray solid;
-  border-radius: 25px;
+  border-radius: 10px;
   font-size: 20px;
   padding: 10px;
 
@@ -454,9 +496,10 @@ body {
 }
 
 .WhoIsBox {
-  background-color: #303030;
-  border: 1px lightgray solid;
-  border-radius: 15px;
+  background-color: var(--neutral);
+  box-shadow: 0px 10px 13px -7px var(--dark), 0px 3px 0px 0px var(--dark);
+  //border: 1px lightgray solid;
+  border-radius: 10px;
   padding: 3px;
 
   display: flex;
@@ -518,7 +561,7 @@ body {
   top: 0;
 }
 .StickyTableHeader th {
-  background-color: #3c3c3c;
+  background-color: var(--dark);
 }
 
 .StickyTableHeader th::after {
@@ -528,7 +571,7 @@ body {
   left: 0;
   width: 100%;
   height: 1px;
-  background-color: gray;
+  background-color: var(--lighter);
 }
 
 .TableSepLeft {

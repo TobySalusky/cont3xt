@@ -3,6 +3,7 @@ import {ASCENDING, DESCENDING, sortVirusTotalResults} from "../Util/SortUtil";
 import {LinkOut} from "./LinkBack";
 import { boolPadRight, numPadRight, padRight, stringPadRight, stringStyle } from './ColorDictBox';
 import {MaxLen} from "../Util/ElemUtil";
+import { Colors } from '../Style/Theme';
 
 const snipDateBySpace = (dateStr) => makeUnbreakable(dateStr.substr(0, dateStr.indexOf(' ')));
 
@@ -16,7 +17,7 @@ export function SampleTable({title, resultList, sortType, setSortType}) {
         <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
             marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}
         >
-            <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>{title}:</p>
+            <p style={{paddingRight: 8, color: Colors.highlight, fontWeight: 'bold'}}>{title}:</p>
             <table className="TableCollapseBorders">
                 <thead className="StickyTableHeader">
                 <tr>
@@ -63,7 +64,7 @@ export function DetectedUrlTable({title, resultList, sortType, setSortType}) {
         <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
             marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}
         >
-            <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>{title}:</p>
+            <p style={{paddingRight: 8, color: Colors.highlight, fontWeight: 'bold'}}>{title}:</p>
             <table className="TableCollapseBorders">
                 <thead className="StickyTableHeader">
                 <tr>
@@ -111,7 +112,7 @@ export function UndetectedUrlTable({title, resultList, sortType, setSortType}) {
         <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
             marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}
         >
-            <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>{title}:</p>
+            <p style={{paddingRight: 8, color: Colors.highlight, fontWeight: 'bold'}}>{title}:</p>
             <table className="TableCollapseBorders">
                 <thead className="StickyTableHeader">
                 <tr>
@@ -169,7 +170,7 @@ export function ResolutionsTable({title, resultList, sortType, setSortType}) {
         <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
             marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}
         >
-            <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>{title}:</p>
+            <p style={{paddingRight: 8, color: Colors.highlight, fontWeight: 'bold'}}>{title}:</p>
             <table className="TableCollapseBorders">
                 <thead className="StickyTableHeader">
                 <tr>
@@ -210,7 +211,7 @@ export function HashScansTable({title, resultList}) {
         <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
             marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}
         >
-            <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>{title}:</p>
+            <p style={{paddingRight: 8, color: Colors.highlight, fontWeight: 'bold'}}>{title}:</p>
             <table className="TableCollapseBorders">
                 <thead className="StickyTableHeader">
                 <tr>

@@ -15,6 +15,7 @@ import {colorTable} from "../Util/Colors";
 import ValidationBox from "../Components/ValidationBox";
 import {emojiFlagOrEmptyString, tabLines} from "../Util/StringUtil";
 import {InlineDiv} from "../Util/StyleUtil";
+import {Colors} from "../Style/Theme";
 
 
 export class ResultNode {
@@ -214,7 +215,7 @@ export class IndicatorNode extends ResultNode {
     genMainBodyUI(): JSX.Element { // TODO: this is slightly larger because the pipe fontsize is bigger on integrations!!
         if (this.topLevel) return (
             <div className="ResultBox" style={{alignItems: 'center', paddingInlineEnd: 5}}>
-                <p className="ResultType" style={{color: 'orange'}}>{this.type}{(this.subType === 'None') ? '' : '('+this.subType+')'}:</p>
+                <p className="ResultType" style={{color: Colors.highlight}}>{this.type}{(this.subType === 'None') ? '' : '('+this.subType+')'}:</p>
                 <p>{this.value}</p>
                 <Copy value={this.value}/>
                 <LinkBack query={this.value}/>

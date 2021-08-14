@@ -9,6 +9,7 @@ import {
     fetchThreatStream, fetchURLScan, fetchVirusTotalDomain, fetchVirusTotalHash, fetchVirusTotalIP, fetchWhois
 } from "../Components/SearchBar";
 import {
+    autoOrderedInfoBoxes,
     ColorDictBox,
     PassiveTotalPassiveDNSColorDictBox,
     UrlScanColorDictBox,
@@ -16,12 +17,13 @@ import {
 } from "../Components/ColorDictBox";
 import {TooltipCopy} from "../Components/TooltipCopy";
 import {generateIntegrationReportTooltipCopy} from "../Util/IntegrationReports";
-import {typeColors} from "../Util/Util";
+import {toColorElemsMultiline, typeColors} from "../Util/Util";
 import {IndicatorData} from "./Types";
 import {getCleaner} from "../Util/IntegrationCleaners";
 import React from "react";
 import {tryUseASN} from "../Util/IpASN";
 import {whiteFilter} from "../Util/Filters";
+import {Colors} from "../Style/Theme";
 
 export class Integration {
 
@@ -224,12 +226,22 @@ export class PassiveTotalSubdomainsIntegration extends PassiveTotalIntegration {
     genUI(): JSX.Element {
         const list: string[] = this.data.subdomains;
         return (
-            <div className="ResultBox" style={{maxWidth: 800, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}>
+            <div className="WhoIsBox">
                 <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(this.genIndicatorData(), this.type, this.data)}/>
-                <p style={{color: 'orange', fontWeight: 'bold'}}>Subdomains:</p>
-                {list.map((str: string) =>
-                    <p>{str}</p>
-                )}
+                <div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}>
+                    <div style={{display: 'flex', justifyContent:'flex-start',
+                        maxWidth: 1000, flexWrap: "wrap", flexDirection: 'row'}}>
+                        <div style={{display: 'flex', flexDirection: 'column'}}>
+                            <p style={{paddingRight: 8, color: Colors.highlight, fontWeight: 'bold'}}>Subdomains:</p>
+
+                            <div style={{display: 'flex', flexDirection: 'column'}}>
+                                {list.map((str: string) =>
+                                    <p>{str}</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }

@@ -23,6 +23,7 @@ import { toOrderedKeys } from "../Util/IntegrationCleaners";
 import {DetectedUrlTable, HashScansTable, ResolutionsTable, SampleTable, UndetectedUrlTable} from "./VirusTotalTables";
 import {MaxLen} from "../Util/ElemUtil";
 import {emojiFlagOrEmptyString} from "../Util/StringUtil";
+import { Colors } from '../Style/Theme';
 
 
 const infoBox = (title, data) => {
@@ -31,7 +32,7 @@ const infoBox = (title, data) => {
         <div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}>
             <div style={{display: 'flex', justifyContent:'flex-start',
                 maxWidth: 1000, flexWrap: "wrap", flexDirection: 'row'}}>
-                <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>{title}:</p>
+                <p style={{paddingRight: 8, color: Colors.highlight, fontWeight: 'bold'}}>{title}:</p>
 
                 {toColorElemsMultiline(data)}
 
@@ -98,7 +99,7 @@ export function PassiveTotalPassiveDNSColorDictBox({type, data, indicatorData}) 
             <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
                 marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}
             >
-                <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>Results:</p>
+                <p style={{paddingRight: 8, color: Colors.highlight, fontWeight: 'bold'}}>Results:</p>
                 <table className="TableCollapseBorders">
                     <thead className="StickyTableHeader">
                         <tr>
@@ -162,7 +163,7 @@ export function UrlScanColorDictBox({type, data, indicatorData}) {
             <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
                 marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}
             >
-                <p style={{paddingRight: 8, color: 'orange', fontWeight: 'bold'}}>Results:</p>
+                <p style={{paddingRight: 8, color: Colors.highlight, fontWeight: 'bold'}}>Results:</p>
                 <table className="TableCollapseBorders">
                     <thead className="StickyTableHeader">
                     <tr>

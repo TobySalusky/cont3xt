@@ -1,4 +1,5 @@
 import DarkTooltip from "../Style/DarkTooltip";
+import { Colors } from '../Style/Theme';
 
 export const MaxLen = ({max, children}) => {
     
@@ -12,7 +13,7 @@ export const MaxLen = ({max, children}) => {
         <DarkTooltip title={text} interactive>
             <span>
                 <p>{text.substr(0, max)}</p>
-                <p style={{color: 'orange'}}>...</p>
+                <p style={{color: Colors.highlight}}>...</p>
             </span>
         </DarkTooltip>
     );

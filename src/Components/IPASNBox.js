@@ -1,6 +1,7 @@
 import DarkTooltip from "../Style/DarkTooltip";
 import { LinkBack } from "./LinkBack";
 import { Copy } from "./Copy";
+import { Colors } from '../Style/Theme';
 
 
 export default function IPASNBox({ipData}) {
@@ -14,7 +15,7 @@ export default function IPASNBox({ipData}) {
 
                         <DarkTooltip title={ipData.link} interactive>
                             <div style={{display: 'flex', justifyContent:'flex-start'}}>
-                                <p style={{color: 'orange', fontWeight: 'bold', paddingRight: 8}}>Name:</p>
+                                <p style={{color: Colors.highlight, fontWeight: 'bold', paddingRight: 8}}>Name:</p>
                                 <p>{ipData.name}</p>
                             </div>
                         </DarkTooltip>

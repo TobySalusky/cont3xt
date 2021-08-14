@@ -16,13 +16,19 @@ function Loader (props) {
         }
         setRawConfigs(configs)
         
-        let test = await axios.get('/ip2asn', {
+        /*let test = await axios.get('/ip2asn', {
             params: {
                 ip: '1.1.1.2'
             }
         })
         
         log(test)
+        
+        const test = await axios.post('/register', {
+            username: 'a',
+            password: 'A',
+            id: 1
+        });*/
     }
     
     useEffect(() => {

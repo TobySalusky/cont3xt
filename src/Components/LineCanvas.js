@@ -4,6 +4,7 @@ import {useWindowDimen} from '../Util/ResizeUtil'
 import {LineContext} from "../State/LineContext";
 import { MutationContext } from '../State/MutationContext';
 import { MutationUtil } from './ChildMutationObserver';
+import { Colors } from '../Style/Theme';
 
 
 export default function LineCanvas(props) {
@@ -83,7 +84,7 @@ export default function LineCanvas(props) {
         const canvas = canvasRef.current
         const ctx = canvas.getContext('2d')
 
-        ctx.strokeStyle = 'lightgray'
+        ctx.strokeStyle = Colors.lightgray;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -117,13 +118,17 @@ export default function LineCanvas(props) {
         const fromRect = fromRef.getBoundingClientRect()
         const rect = toRef.getBoundingClientRect()
 
+        const edit = (vec) => {
+            return {x:vec.x, y:vec.y+2};
+        }
+        
         let start;
         if (rect.x > fromRect.x + fromRect.width) {
             start = {x: fromRect.x + fromRect.width, y: fromRect.y + fromRect.height/2}
-            drawLineRight(ctx, start, {x: rect.x, y: rect.y + rect.height/2})
+            drawLineRight(ctx, edit(start), edit({x: rect.x, y: rect.y + rect.height/2}));
         } else {
             start = {x: fromRect.x+20, y: fromRect.y+fromRect.height}
-            drawLineUnder(ctx, start, {x: rect.x, y: rect.y + rect.height/2})
+            drawLineUnder(ctx, edit(start), edit({x: rect.x, y: rect.y + rect.height/2}));
         }
     }
 

@@ -72,76 +72,64 @@ export const stringPadRight = {...padRight, ...stringStyle}
 export const boolPadRight = {...padRight, ...boolStyle}
 export const numPadRight = {...padRight, ...numStyle}
 
-export function PassiveTotalPassiveDNSColorDictBox({type, data, indicatorData}) {
+export function PassiveTotalPassiveDNSColorDictBox({resultList, indicatorData}) {
     
     const [sortType, setSortType] = useState(FIRST_SEEN);
-
-    function InfoBoxResults({resultList, sortType}) {
-        const isDomain = indicatorData.type === 'Domain';
-
-        function DateHeader({name, thisSortType, sortType})  {
-            return (
-                <th className="HoverClickLighten" onClick={() => setSortType(thisSortType)}>
-                    <InlineDiv style={{alignItems:'center', justifyContent: 'spaceAround'}}>
-                        {makeUnbreakable(`${name} `)}
-                        <CircleCheckBox filled={sortType === thisSortType}/>
-                    </InlineDiv>
-                </th>
-            );
-        }
-
-        // TODO: optimize/remove color text here
-        
+    
+    const isDomain = indicatorData.type === 'Domain';
+    
+    function DateHeader({name, thisSortType, sortType})  {
         return (
-            <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-                marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}
-            >
-                <p style={{paddingRight: 8, color: Colors.highlight, fontWeight: 'bold'}}>Results:</p>
-                <table className="TableCollapseBorders">
-                    <thead className="StickyTableHeader">
-                        <tr>
-                            <th/>
-                            {!isDomain || <><th>DNS Type</th><th>Type</th></>}
-                            <th>Value</th>
-                            <DateHeader name='First Seen' thisSortType={FIRST_SEEN} sortType={sortType}/>
-                            <DateHeader name='Last Seen' thisSortType={LAST_SEEN} sortType={sortType}/>
-                        </tr>
-                    </thead>
-                    
-                    <tbody>
-                    {sortPassiveDNSResults(resultList, sortType).map((result, i) =>
-                        <tr key={i}>
-                            <td>
-                                <LinkBack query={result.resolve} style={{width: 12, height: 12, margin: 0, marginRight: 5}}/>
-                            </td>
-                            {!isDomain ||
-                            <>
-                                <td style={stringStyle}>{result.recordType}</td>
-                                <td>
-                                    <InlineRightDiv>
-                                        {toColorElems(toColorText({[result.resolveType]: ' '}, {brackets: false, appendComma: false, spaces: false, multiline: false}))}
-                                    </InlineRightDiv>
-                                </td>
-                            </>
-                            }
-                            <td style={stringPadRight}>{result.resolve}</td>
-                            <td className="TableSepLeft" style={stringPadRight}>{result.firstSeen}</td>
-                            <td className="TableSepLeft" style={stringStyle}>{result.lastSeen}</td>
-                        </tr>
-                    )}
-                    </tbody>
-                </table>
-            </div>
+            <th className="HoverClickLighten" onClick={() => setSortType(thisSortType)}>
+                <InlineDiv style={{alignItems:'center', justifyContent: 'spaceAround'}}>
+                    {makeUnbreakable(`${name} `)}
+                    <CircleCheckBox filled={sortType === thisSortType}/>
+                </InlineDiv>
+            </th>
         );
     }
-
-    const {results:resultList, ...otherData} = data;
-
+    
+    // TODO: optimize/remove color text here
+    
     return (
-        <div className="WhoIsBox">
-            <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(indicatorData, type, data, {sortType: sortType})}/>
-            {autoOrderedInfoBoxes(type, otherData)}
-            {!resultList || <InfoBoxResults resultList={resultList} sortType={sortType}/>}
+        <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+            marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}
+        >
+            <p style={{paddingRight: 8, color: Colors.highlight, fontWeight: 'bold'}}>Results:</p>
+            <table className="TableCollapseBorders">
+                <thead className="StickyTableHeader">
+                <tr>
+                    <th/>
+                    {!isDomain || <><th>DNS Type</th><th>Type</th></>}
+                    <th>Value</th>
+                    <DateHeader name='First Seen' thisSortType={FIRST_SEEN} sortType={sortType}/>
+                    <DateHeader name='Last Seen' thisSortType={LAST_SEEN} sortType={sortType}/>
+                </tr>
+                </thead>
+                
+                <tbody>
+                {sortPassiveDNSResults(resultList, sortType).map((result, i) =>
+                    <tr key={i}>
+                        <td>
+                            <LinkBack query={result.resolve} style={{width: 12, height: 12, margin: 0, marginRight: 5}}/>
+                        </td>
+                        {!isDomain ||
+                        <>
+                            <td style={stringStyle}>{result.recordType}</td>
+                            <td>
+                                <InlineRightDiv>
+                                    {toColorElems(toColorText({[result.resolveType]: ' '}, {brackets: false, appendComma: false, spaces: false, multiline: false}))}
+                                </InlineRightDiv>
+                            </td>
+                        </>
+                        }
+                        <td style={stringPadRight}>{result.resolve}</td>
+                        <td className="TableSepLeft" style={stringPadRight}>{result.firstSeen}</td>
+                        <td className="TableSepLeft" style={stringStyle}>{result.lastSeen}</td>
+                    </tr>
+                )}
+                </tbody>
+            </table>
         </div>
     );
 }

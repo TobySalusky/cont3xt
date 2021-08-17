@@ -216,7 +216,7 @@ export class IndicatorNode extends ResultNode {
         if (this.topLevel) return (
             <div className="ResultBox" style={{alignItems: 'center', paddingInlineEnd: 5}}>
                 <p className="ResultType" style={{color: Colors.highlight}}>{this.type}{(this.subType === 'None') ? '' : '('+this.subType+')'}:</p>
-                <p>{this.value}</p>
+                <MaxLen max={30}>{this.value}</MaxLen>
                 <Copy value={this.value}/>
                 <LinkBack query={this.value}/>
                 {this.genFullInlineEnrichment()}

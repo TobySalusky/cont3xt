@@ -9,8 +9,7 @@ import {
     fetchThreatStream, fetchURLScan, fetchVirusTotalDomain, fetchVirusTotalHash, fetchVirusTotalIP, fetchWhois
 } from "../Requests/IntegrationRequests";
 import {
-    infoBox,
-    PassiveTotalPassiveDNSColorDictBox
+    infoBox
 } from "../Components/ColorDictBox";
 import {TooltipCopy} from "../Components/TooltipCopy";
 import {generateIntegrationReportTooltipCopy} from "../Util/IntegrationReports";
@@ -21,10 +20,14 @@ import React from "react";
 import {tryUseASN} from "../Util/IpASN";
 import {whiteFilter} from "../Util/Filters";
 import {Colors} from "../Style/Theme";
-import {DataLayout} from "../Layouts/DataLayout";
-import {linkOutColumn, Table} from "../Layouts/Table";
+import {DataLayout, layouts} from "../Layouts/DataLayout";
+import {linkOutColumn, TableLayout} from "../Layouts/TableLayout";
 import {emojiFlagOrEmptyString} from "../Util/StringUtil";
 import {Global} from "../Settings/Global";
+import {ListLayout, StringListLayout} from "../Layouts/ListLayout";
+import {PassiveTotalDnsTableLayout} from "../Layouts/CustomLayouts";
+import {MaxLen} from "../Util/ElemUtil";
+import {Unbreakable} from "../Style/Unbreakable";
 
 const DEF_DATE = 'N/A ';
 
@@ -47,12 +50,20 @@ export class Integration {
         this.imgAlt = type;
     }
 
-    getDataLayout(key: string) : DataLayout | null {
-        return null;
+    getDataLayout(key: string) : DataLayout | undefined {
+        return undefined;
     }
 
     getRes(): any {
         return null;
+    }
+
+    genTitleUI(): JSX.Element {
+        return (
+            <div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}>
+                <span style={{color: Colors.highlight, fontWeight: 'bold'}}>{this.type}<Unbreakable style={{color: Colors.lightgray}}>{' for '}</Unbreakable><p style={{color: 'white'}}><MaxLen max={30}>{this.genIndicatorData().value}</MaxLen></p><p style={{color: Colors.lightgray}}>:</p></span>
+            </div>
+        );
     }
 
     genUI() {
@@ -61,9 +72,10 @@ export class Integration {
         return (
             <div className="WhoIsBox">
                 <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(this.genIndicatorData(), this.type, this.data)}/>
+                {this.genTitleUI()}
                 {orderedKeys.map((key: string) => {
                     const dataLayout = this.getDataLayout(key);
-                    if (dataLayout === null) {
+                    if (dataLayout === undefined) {
                         const colorData = toColorText(this.data[key]);
                         return infoBox(key, colorData);
                     }
@@ -153,8 +165,44 @@ export class Integration {
         });
     }
 
+    static typeIsEnabled(type: string): boolean {
+        const mask = Global.settings.integrationMask;
+        switch (type) {
+            case integrationNames.SPUR:
+                return mask.spur;
+
+            case integrationNames.THREAT_STREAM:
+                return mask.threatStream;
+
+            case integrationNames.PASSIVETOTAL_WHOIS:
+            case integrationNames.PASSIVETOTAL_SUBDOMAINS:
+            case integrationNames.PASSIVETOTAL_PASSIVE_DNS_DOMAIN:
+            case integrationNames.PASSIVETOTAL_PASSIVE_DNS_IP:
+                return mask.passiveTotal;
+
+            case integrationNames.URL_SCAN:
+                return mask.urlScan;
+
+            case integrationNames.VIRUS_TOTAL_DOMAIN:
+            case integrationNames.VIRUS_TOTAL_IP:
+            case integrationNames.VIRUS_TOTAL_HASH:
+                return mask.virusTotal;
+
+            case integrationNames.CENSYS_IP:
+                return mask.censys;
+
+            case integrationNames.WHOIS:
+                return mask.whois;
+        }
+        return true;
+    }
+
     static startAsyncAddFromVal(type: string, value: string, indicatorNode: IndicatorNode, onFinish?: ()=>void) {
-        this.startAsyncAddTo(Integration.create(type, Integration.getResTask(type, value)), indicatorNode, onFinish);
+        if (this.typeIsEnabled(type)) {
+            this.startAsyncAddTo(Integration.create(type, Integration.getResTask(type, value)), indicatorNode, onFinish);
+        } else {
+            console.log(`${type} is disabled is settings... skipping.`)
+        }
     }
 
     static async create(type: string, resTask: Promise<any>): Promise<Integration | null> {
@@ -251,9 +299,9 @@ export class ThreatStreamIntegration extends Integration {
         return null;
     }
 
-    getDataLayout(key: string): DataLayout | null {
+    getDataLayout(key: string): DataLayout | undefined {
         if (key === 'object_table') {
-            return new Table(key, this.data.objects,
+            return new TableLayout(key, this.data.objects,
                 [
                     ['status', 'string'],
                     ['tlp', 'string'],
@@ -273,7 +321,6 @@ export class ThreatStreamIntegration extends Integration {
                     return [status, tlp, itype, source, confidence, import_session_id, import_session_id, created_ts];
                 }));
         }
-        return null;
     }
 }
 
@@ -297,27 +344,9 @@ export class PassiveTotalSubdomainsIntegration extends PassiveTotalIntegration {
         }
     }
 
-    genUI(): JSX.Element {
-        const list: string[] = this.data.subdomains;
-        return (
-            <div className="WhoIsBox">
-                <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(this.genIndicatorData(), this.type, this.data)}/>
-                <div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}>
-                    <div style={{display: 'flex', justifyContent:'flex-start',
-                        maxWidth: 1000, flexWrap: "wrap", flexDirection: 'row'}}>
-                        <div style={{display: 'flex', flexDirection: 'column'}}>
-                            <p style={{paddingRight: 8, color: Colors.highlight, fontWeight: 'bold'}}>Subdomains:</p>
-
-                            <div style={{display: 'flex', flexDirection: 'column'}}>
-                                {list.map((str: string) =>
-                                    <p>{str}</p>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
+    getDataLayout(key: string): DataLayout | undefined {
+        if (key === 'subdomains') return new StringListLayout(key, this.data[key], 70);
+        return layouts.hidden;
     }
 }
 
@@ -331,10 +360,8 @@ export class PassiveTotalPassiveDNSIntegration extends PassiveTotalIntegration {
         }
     }
 
-    genUI(): JSX.Element {
-        return (
-            <PassiveTotalPassiveDNSColorDictBox type={this.type} data={this.data} indicatorData={this.genIndicatorData()}/>
-        );
+    getDataLayout(key: string): DataLayout | undefined {
+        if (key === 'results') return new PassiveTotalDnsTableLayout(this.data.results, this.genIndicatorData());
     }
 }
 
@@ -365,10 +392,10 @@ export class UrlScanIntegration extends Integration {
         }
     }
 
-    getDataLayout(key: string): DataLayout | null {
+    getDataLayout(key: string): DataLayout | undefined {
 
         if (key === 'results') {
-            return new Table(key, this.data[key],
+            return new TableLayout(key, this.data[key],
                 [
                     ['visibility', 'string'],
                     ['method', 'string'],
@@ -396,8 +423,6 @@ export class UrlScanIntegration extends Integration {
                     return [visibility, method, url, uuid, country, server, status, screenshot, time];
                 });
         }
-
-        return null;
     }
 }
 
@@ -426,17 +451,11 @@ export class VirusTotalIntegration extends Integration {
         return count.toString();
     }
 
-    /*genUI(): JSX.Element {
-        return (
-            <VirusTotalBox type={this.type} data={this.data} indicatorData={this.genIndicatorData()}/>
-        );
-    }*/
-
-    getDataLayout(key: string): DataLayout | null {
+    getDataLayout(key: string): DataLayout | undefined {
 
         switch (key) {
             case 'detected_urls':
-                return new Table(key, this.data[key],
+                return new TableLayout(key, this.data[key],
                     [
                         ['positives', 'number'],
                         ['total', 'number'],
@@ -447,7 +466,7 @@ export class VirusTotalIntegration extends Integration {
                         return [positives, total, url, date];
                     }));
             case 'undetected_urls':
-                return new Table(key, this.data[key],
+                return new TableLayout(key, this.data[key],
                     [
                         ['positives', 'number'],
                         ['total', 'number'],
@@ -461,14 +480,14 @@ export class VirusTotalIntegration extends Integration {
                     }));
             case 'resolutions':
                 const tableData = this.data[key];
-                if (!tableData?.[0]) return null;
+                if (!tableData?.[0]) return undefined;
                 let display = 'host name';
                 let valName = 'hostname';
                 if (tableData[0].ip_address) {
                     display = 'ip address';
                     valName = 'ip_address';
                 }
-                return new Table(key, tableData,
+                return new TableLayout(key, tableData,
                     [
                     [display, 'string|max_40'],
                     ['scan date', 'primary_date'],
@@ -477,7 +496,7 @@ export class VirusTotalIntegration extends Integration {
                     return [val, date];
                 }));
             case 'scans':
-                return new Table(key, this.data[key],
+                return new TableLayout(key, this.data[key],
                     [
                         ['scan type', 'string'],
                         ['detected', 'boolean'],
@@ -500,7 +519,7 @@ export class VirusTotalIntegration extends Integration {
         }
 
         if (key.endsWith('samples')) {
-            return new Table(key, this.data[key],
+            return new TableLayout(key, this.data[key],
                 [
                     ['positives', 'number'],
                     ['total', 'number'],
@@ -512,7 +531,6 @@ export class VirusTotalIntegration extends Integration {
                     return [positives, total, sha256, sha256, date];
                 }));
         }
-        return null;
     }
 }
 

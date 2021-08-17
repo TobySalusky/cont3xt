@@ -23,6 +23,21 @@
   --lightgray: lightgray;
 }
 
+
+/* REMOVES ARROWS FROM INPUT-NUMBER */
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+/* ============================== */
+
 span {
   display: flex;
   flex-direction: row;
@@ -78,9 +93,9 @@ body {
   height: 100%;
   overflow: auto;
   color: white;
-  font-size: 12px;
+  font-size: 14px;
 }
-.LeftSidebarContentArea {width: 10vw;}
+.LeftSidebarContentArea {width: 12vw;}
 .RightSidebarContentArea {width: 40vw;}
 
 .LeftSidebarCollapsableArea, .RightSidebarCollapsableArea {
@@ -95,6 +110,36 @@ body {
 }
 .LeftSidebarCollapsableArea {border-left: 3px solid black;}
 .RightSidebarCollapsableArea {border-right: 3px solid black;}
+
+.SideBarInputField {
+  padding-block: 0;
+  padding-right: 3px;
+  border-radius: 2px;
+  background-color: var(--lightgray);
+  color: black;
+  border: none;
+  outline: None;
+}
+
+.SideBarDivider {
+  width: 100%;
+  height: 1px;
+  background-color: var(--lightgray);
+  opacity: 0.3;
+  margin-block: 2px;
+}
+
+.SettingsSection {
+  padding-block: 2px;
+  padding-left: 5px;
+  border-bottom: 1px #4a4a4a solid;
+}
+
+.RightAlignDown {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
 
 .SideBarStatLabel {
   font-size: 15px;

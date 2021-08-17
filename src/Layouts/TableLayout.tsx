@@ -81,7 +81,7 @@ const makeColumn = (columnable: Columnable): Column => {
 
 type Columnable = Column | string | 'string' | 'number' | 'boolean' | 'color' | 'primary_date' | 'nosep';
 
-export class Table extends DataLayout {
+export class TableLayout extends DataLayout {
 
     title: string;
     headers: Header[];
@@ -169,7 +169,7 @@ export class Table extends DataLayout {
     }
 }
 
-const TableDisplay: React.FC<{table: Table}> = ({table}) => {
+const TableDisplay: React.FC<{table: TableLayout}> = ({table}) => {
 
     const [state, setState] = useState(table.preState);
 

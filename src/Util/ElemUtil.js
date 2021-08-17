@@ -3,7 +3,9 @@ import { Colors } from '../Style/Theme';
 
 export const MaxLen = ({max, children}) => {
     
-    if (typeof children !== 'string') console.log('Error-MaxLen child should be of type string')
+    if (children == null) return null;
+    
+    if (typeof children !== 'string') console.log('Error-MaxLen child should be of type string', children)
     const text = children;
     const len = text.length;
 

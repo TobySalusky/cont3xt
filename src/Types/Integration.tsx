@@ -372,7 +372,7 @@ export class UrlScanIntegration extends Integration {
                 [
                     ['visibility', 'string'],
                     ['method', 'string'],
-                    ['url', 'string'],
+                    ['url', 'string|max_30'],
                     ['',
                         linkOutColumn(value => `https://urlscan.io/result/${value}`),
                     ],

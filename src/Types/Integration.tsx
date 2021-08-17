@@ -264,7 +264,7 @@ export class ThreatStreamIntegration extends Integration {
                     ['',
                         linkOutColumn(value => {
                             const {REACT_APP_THREATSTREAM_UI_URL: urlBase} = process.env;
-                            if (urlBase != null || value != null) return `https://${urlBase}/import/review/${value}`;
+                            if (urlBase != null && value != null) return `https://${urlBase}/import/review/${value}`;
                         })
                     ],
                     ['created_ts', 'primary_date'],

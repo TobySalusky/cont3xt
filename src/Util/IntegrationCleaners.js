@@ -4,6 +4,8 @@ import {mapOrder, onEnd} from "./SortUtil";
 import dr from 'defang-refang'
 import {isArray, isDict} from "./VariableClassifier";
 
+const PLACE_HOLDER = '_____cont3xt_placeholder';
+
 export function toOrderedKeys(integrationType, keyList) {
 	switch (integrationType) {
 		case integrationNames.PASSIVETOTAL_WHOIS:
@@ -267,8 +269,9 @@ const defangAll = (dict) => recurseAll(dict,
 });
 
 const cleanThreatStreamObjects = (res) => {
-	const {objects} = res;
-	return {objects: objects.map(obj => cleanThreatStreamObject(obj))};
+	const objects = res?.objects?.map(obj => cleanThreatStreamObject(obj));
+	const noObjects = objects == null || objects.length === 0;
+	return {all_tagnames: noObjects ? null : objects?.map(object => object.tagNames).flat(), object_table: noObjects ? null : PLACE_HOLDER, objects};
 }
 
 const cleanThreatStreamObject = (obj) => {

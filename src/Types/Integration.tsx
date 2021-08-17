@@ -7,23 +7,26 @@ import {
     fetchPassiveTotalSubDomains,
     fetchPassiveTotalWhois, fetchSpurDataIP,
     fetchThreatStream, fetchURLScan, fetchVirusTotalDomain, fetchVirusTotalHash, fetchVirusTotalIP, fetchWhois
-} from "../Components/SearchBar";
+} from "../Requests/IntegrationRequests";
 import {
-    autoOrderedInfoBoxes,
-    ColorDictBox,
-    PassiveTotalPassiveDNSColorDictBox,
-    UrlScanColorDictBox,
-    VirusTotalBox
+    infoBox,
+    PassiveTotalPassiveDNSColorDictBox
 } from "../Components/ColorDictBox";
 import {TooltipCopy} from "../Components/TooltipCopy";
 import {generateIntegrationReportTooltipCopy} from "../Util/IntegrationReports";
-import {toColorElemsMultiline, typeColors} from "../Util/Util";
+import {makeClickableLink, toColorText, typeColors} from "../Util/Util";
 import {IndicatorData} from "./Types";
-import {getCleaner} from "../Util/IntegrationCleaners";
+import {getCleaner, toOrderedKeys} from "../Util/IntegrationCleaners";
 import React from "react";
 import {tryUseASN} from "../Util/IpASN";
 import {whiteFilter} from "../Util/Filters";
 import {Colors} from "../Style/Theme";
+import {DataLayout} from "../Layouts/DataLayout";
+import {linkOutColumn, Table} from "../Layouts/Table";
+import {emojiFlagOrEmptyString} from "../Util/StringUtil";
+import {Global} from "../Settings/Global";
+
+const DEF_DATE = 'N/A ';
 
 export class Integration {
 
@@ -44,13 +47,29 @@ export class Integration {
         this.imgAlt = type;
     }
 
+    getDataLayout(key: string) : DataLayout | null {
+        return null;
+    }
+
     getRes(): any {
         return null;
     }
 
     genUI() {
+        const orderedKeys = toOrderedKeys(this.type, Object.keys(this.data));
+
         return (
-            <ColorDictBox type={this.type} data={this.data} indicatorData={this.genIndicatorData()}/>
+            <div className="WhoIsBox">
+                <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(this.genIndicatorData(), this.type, this.data)}/>
+                {orderedKeys.map((key: string) => {
+                    const dataLayout = this.getDataLayout(key);
+                    if (dataLayout === null) {
+                        const colorData = toColorText(this.data[key]);
+                        return infoBox(key, colorData);
+                    }
+                    return dataLayout.genUI();
+                })}
+            </div>
         );
     }
 
@@ -72,12 +91,23 @@ export class Integration {
     genIntegrationUI: React.FC<{
         setActiveIntegration: React.Dispatch<React.SetStateAction<JSX.Element>>
     }> = (props) => {
+
+        let handle: NodeJS.Timeout;
+
+        const inner = (
+            <div className="Pointer" onMouseEnter={() => {
+                handle = setTimeout(()=>{
+                    props.setActiveIntegration(this.compUI as JSX.Element);
+                }, 1000 * Global.settings.integrationPanelDelayTime)
+            }} onMouseLeave={() => {
+                clearTimeout(handle);
+            }}>
+                {this.genInlineUI()}
+            </div>
+        );
+
         return (
-            <ComponentTooltip comp={this.compUI}>
-                <div onMouseEnter={() => props.setActiveIntegration(this.compUI as JSX.Element)}>
-                    {this.genInlineUI()}
-                </div>
-            </ComponentTooltip>
+            Global.settings.integrationPopups ? <ComponentTooltip comp={this.compUI}>{inner}</ComponentTooltip> : inner
         );
     }
 
@@ -97,6 +127,10 @@ export class Integration {
     }
 
     genFlavorStyle(): any {
+        const text = this.genFlavorText();
+        if (text !== '' && text !== '0') {
+            return {color: typeColors.dnsType, fontWeight: 'bold'};
+        }
         return {color: 'lightgray'};
     }
 
@@ -109,11 +143,13 @@ export class Integration {
         return (withHeader ? `${this.type}: ` : '') + JSON.stringify(this.data);
     }
 
-    static startAsyncAddTo(integrationTask: Promise<Integration>, indicatorNode: IndicatorNode, onFinish?: ()=>void) {
+    static startAsyncAddTo(integrationTask: Promise<Integration | null>, indicatorNode: IndicatorNode, onFinish?: ()=>void) {
         integrationTask.then(integration => {
-            indicatorNode.integrations.push(integration);
-            integration.onAdd(indicatorNode);
-            onFinish?.();
+            if (integration !== null) {
+                indicatorNode.integrations.push(integration);
+                integration.onAdd(indicatorNode);
+                onFinish?.();
+            }
         });
     }
 
@@ -121,8 +157,13 @@ export class Integration {
         this.startAsyncAddTo(Integration.create(type, Integration.getResTask(type, value)), indicatorNode, onFinish);
     }
 
-    static async create(type: string, resTask: Promise<any>): Promise<Integration> {
+    static async create(type: string, resTask: Promise<any>): Promise<Integration | null> {
         const res: any = await resTask;
+
+        if (res?.data == null || res?.data === 'err') {
+            return null;
+        }
+
         switch (type) {
             case integrationNames.SPUR:
                 return new SpurIntegration(res);
@@ -149,7 +190,7 @@ export class Integration {
                 return new Integration(res, type);
         }
     }
-    
+
     static async getResTask(type: string, value: string): Promise<any> {
         switch (type) {
             case integrationNames.THREAT_STREAM:
@@ -209,6 +250,31 @@ export class ThreatStreamIntegration extends Integration {
         if (count > 0) return {color: typeColors.malicious, fontWeight: 'bold'};
         return null;
     }
+
+    getDataLayout(key: string): DataLayout | null {
+        if (key === 'object_table') {
+            return new Table(key, this.data.objects,
+                [
+                    ['status', 'string'],
+                    ['tlp', 'string'],
+                    ['itype', 'string'],
+                    ['source', 'string'],
+                    ['confidence', 'number'],
+                    ['import_session_id', 'number'],
+                    ['',
+                        linkOutColumn(value => {
+                            const {REACT_APP_THREATSTREAM_UI_URL: urlBase} = process.env;
+                            if (urlBase != null || value != null) return `https://${urlBase}/import/review/${value}`;
+                        })
+                    ],
+                    ['created_ts', 'primary_date'],
+                ], (rowData => {
+                    const {status, tlp, itype, source, confidence, import_session_id, created_ts} = rowData;
+                    return [status, tlp, itype, source, confidence, import_session_id, import_session_id, created_ts];
+                }));
+        }
+        return null;
+    }
 }
 
 export class PassiveTotalIntegration extends Integration {
@@ -221,6 +287,14 @@ export class PassiveTotalIntegration extends Integration {
 export class PassiveTotalSubdomainsIntegration extends PassiveTotalIntegration {
     constructor(result: any) {
         super(result, integrationNames.PASSIVETOTAL_SUBDOMAINS);
+    }
+
+    genFlavorText(): string {
+        try {
+            return String(this.data.subdomains.length);
+        } catch {
+            return super.genFlavorText();
+        }
     }
 
     genUI(): JSX.Element {
@@ -248,6 +322,15 @@ export class PassiveTotalSubdomainsIntegration extends PassiveTotalIntegration {
 }
 
 export class PassiveTotalPassiveDNSIntegration extends PassiveTotalIntegration {
+
+    genFlavorText(): string {
+        try {
+            return String(this.data.results.length);
+        } catch {
+            return super.genFlavorText();
+        }
+    }
+
     genUI(): JSX.Element {
         return (
             <PassiveTotalPassiveDNSColorDictBox type={this.type} data={this.data} indicatorData={this.genIndicatorData()}/>
@@ -274,10 +357,47 @@ export class UrlScanIntegration extends Integration {
         tryUseASN(indicatorNode, this.type, this.data);
     }
 
-    genUI(): JSX.Element {
-        return (
-            <UrlScanColorDictBox type={this.type} data={this.data} indicatorData={this.genIndicatorData()}/>
-        );
+    genFlavorText(): string {
+        try {
+            return String(this.data.total);
+        } catch {
+            return super.genFlavorText();
+        }
+    }
+
+    getDataLayout(key: string): DataLayout | null {
+
+        if (key === 'results') {
+            return new Table(key, this.data[key],
+                [
+                    ['visibility', 'string'],
+                    ['method', 'string'],
+                    ['url', 'string'],
+                    ['',
+                        linkOutColumn(value => `https://urlscan.io/result/${value}`),
+                    ],
+                    ['country',
+                        {
+                            genContents: value => `${value} ${emojiFlagOrEmptyString(value)}`,
+                            style: {color: typeColors.string}
+                        }],
+                    ['server', 'string'],
+                    ['status', 'number'],
+                    ['screenshot',
+                        {genContents: value => makeClickableLink(value, value.substr(0, 15))},
+                    ],
+                    ['time', 'primary_date'],
+                ],
+                (rowData: any) => {
+                    const {visibility, method, url, uuid, time} = rowData.task ?? {};
+                    const {country = 'N/A', server, status} = rowData.page ?? {};
+                    const {screenshot} = rowData;
+
+                    return [visibility, method, url, uuid, country, server, status, screenshot, time];
+                });
+        }
+
+        return null;
     }
 }
 
@@ -306,16 +426,93 @@ export class VirusTotalIntegration extends Integration {
         return count.toString();
     }
 
-    genFlavorStyle(): any {
-        const count = this.tryCount();
-        if (count !== null && count !== 0) return {color: typeColors.dnsType, fontWeight: 'bold'};
-        return null;
-    }
-
-    genUI(): JSX.Element {
+    /*genUI(): JSX.Element {
         return (
             <VirusTotalBox type={this.type} data={this.data} indicatorData={this.genIndicatorData()}/>
         );
+    }*/
+
+    getDataLayout(key: string): DataLayout | null {
+
+        switch (key) {
+            case 'detected_urls':
+                return new Table(key, this.data[key],
+                    [
+                        ['positives', 'number'],
+                        ['total', 'number'],
+                        ['url', 'string|max_30'],
+                        ['scan date', 'primary_date'],
+                    ], (rowData => {
+                        const {scan_date:date = DEF_DATE, positives, total, url} = rowData;
+                        return [positives, total, url, date];
+                    }));
+            case 'undetected_urls':
+                return new Table(key, this.data[key],
+                    [
+                        ['positives', 'number'],
+                        ['total', 'number'],
+                        ['url', 'string|max_30'],
+                        ['sha256', 'string|max_30'],
+                        ['', linkOutColumn(value => `https://www.virustotal.com/gui/search/${value}`)],
+                        ['scan date', 'primary_date'],
+                    ], (rowData => {
+                        const [url, sha256, positives, total, date = DEF_DATE] = rowData;
+                        return [positives, total, url, sha256, sha256, date];
+                    }));
+            case 'resolutions':
+                const tableData = this.data[key];
+                if (!tableData?.[0]) return null;
+                let display = 'host name';
+                let valName = 'hostname';
+                if (tableData[0].ip_address) {
+                    display = 'ip address';
+                    valName = 'ip_address';
+                }
+                return new Table(key, tableData,
+                    [
+                    [display, 'string|max_40'],
+                    ['scan date', 'primary_date'],
+                ], (rowData => {
+                    const {last_resolved:date = DEF_DATE, [valName]:val} = rowData;
+                    return [val, date];
+                }));
+            case 'scans':
+                return new Table(key, this.data[key],
+                    [
+                        ['scan type', 'string'],
+                        ['detected', 'boolean'],
+                        ['result', {
+                    genContents: value => <p style={value ? {color: typeColors.malicious, fontWeight: 'bold'} : {color: typeColors.null}}>{String(value)}</p>
+                        }],
+                        ['update', 'string'],
+                        ['version', 'string'],
+                    ], (rowData => {
+                        const {scan, detected, result, update, version} = rowData;
+                        return [scan, detected, result, update, version];
+                    }), (data: any) => {
+                        return Object.entries(data).map(([key, val]) => {
+                            // @ts-ignore
+                            const valTemp: any = val;
+                            console.log('e', {scan: key, ...valTemp})
+                            return {scan: key, ...valTemp};
+                        });
+                    });
+        }
+
+        if (key.endsWith('samples')) {
+            return new Table(key, this.data[key],
+                [
+                    ['positives', 'number'],
+                    ['total', 'number'],
+                    ['sha256', 'string|max_15'],
+                    ['', linkOutColumn(value => `https://www.virustotal.com/gui/search/${value}`)],
+                    ['time', 'primary_date'],
+                ], (rowData => {
+                    const {date = DEF_DATE, positives, total, sha256} = rowData;
+                    return [positives, total, sha256, sha256, date];
+                }));
+        }
+        return null;
     }
 }
 
@@ -323,6 +520,16 @@ export class CensysIntegration extends Integration {
     constructor(result: any, type: string) {
         super(result, type);
         this.imgSrc = './images/censysIcon.png';
+    }
+
+    genFlavorText(): string {
+        if (Object.keys(this.data).length === 0) return '0';
+
+        try {
+            return this.data.protocols.length;
+        } catch {
+            return super.genFlavorText();
+        }
     }
 }
 

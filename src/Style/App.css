@@ -60,6 +60,10 @@ body {
   flex-direction: row;
 }
 
+.Pointer {
+  cursor: pointer;
+}
+
 .LeftSidebar, .RightSideBar {
   height: 100vh;
   background-color: var(--darkest);
@@ -73,6 +77,8 @@ body {
 .LeftSidebarContentArea, .RightSidebarContentArea {
   height: 100%;
   overflow: auto;
+  color: white;
+  font-size: 12px;
 }
 .LeftSidebarContentArea {width: 10vw;}
 .RightSidebarContentArea {width: 40vw;}

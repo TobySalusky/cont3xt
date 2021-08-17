@@ -1,11 +1,11 @@
-export function CircleCheckBox({onClick, filled}) {
+export function CircleCheckBox({onClick = undefined, filled}) {
 	return (
-		<div style={{
+		<div onClick={onClick} style={{
 			width: 6,
 			height: 6,
 			border: '1px solid white',
 			borderRadius: '50%',
-			backgroundColor: !filled ? 'none' : 'white'
+			backgroundColor: filled === true ? 'white' : null,
 		}}/>
 	);
 }

@@ -3,9 +3,9 @@ import {
     toColorElems,
     toColorText,
     typeColors,
-    toColorElemsMultiline, makeUnbreakable, makeClickableLink
+    toColorElemsMultiline, makeUnbreakable
 } from "../Util/Util";
-import {LinkBack, LinkOut} from "./LinkBack";
+import {LinkBack} from "./LinkBack";
 import { TooltipCopy } from "./TooltipCopy";
 import { InlineDiv, InlineRightDiv } from "../Util/StyleUtil";
 import { CircleCheckBox } from "./CircleCheckBox";
@@ -20,13 +20,10 @@ import {
     sortUrlScanResults
 } from "../Util/SortUtil";
 import { toOrderedKeys } from "../Util/IntegrationCleaners";
-import {DetectedUrlTable, HashScansTable, ResolutionsTable, SampleTable, UndetectedUrlTable} from "./VirusTotalTables";
-import {MaxLen} from "../Util/ElemUtil";
-import {emojiFlagOrEmptyString} from "../Util/StringUtil";
 import { Colors } from '../Style/Theme';
 
 
-const infoBox = (title, data) => {
+export const infoBox = (title, data) => {
 
     return (
         <div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}>
@@ -145,128 +142,6 @@ export function PassiveTotalPassiveDNSColorDictBox({type, data, indicatorData}) 
             <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(indicatorData, type, data, {sortType: sortType})}/>
             {autoOrderedInfoBoxes(type, otherData)}
             {!resultList || <InfoBoxResults resultList={resultList} sortType={sortType}/>}
-        </div>
-    );
-}
-
-export function UrlScanColorDictBox({type, data, indicatorData}) {
-
-    const [sortType, setSortType] = useState(DESCENDING);
-
-    function InfoBoxResults({resultList, sortType}) {
-
-        // TODO: optimize/remove color text here
-
-        const snipDate = (dateStr) => makeUnbreakable(dateStr.substr(0, dateStr.indexOf('T')));
-
-        return (
-            <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-                marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}
-            >
-                <p style={{paddingRight: 8, color: Colors.highlight, fontWeight: 'bold'}}>Results:</p>
-                <table className="TableCollapseBorders">
-                    <thead className="StickyTableHeader">
-                    <tr>
-                        <th>visibility</th>
-                        <th>method</th>
-                        <th>url</th>
-                        <th/>
-                        <th>country</th>
-                        <th>server</th>
-                        <th>status</th>
-                        <th>screenshot</th>
-                        <th className="HoverClickLighten"
-                            onClick={() => setSortType(sortType === DESCENDING ? ASCENDING : DESCENDING)}>
-                            time {sortType === DESCENDING ? '∨' : '∧'}
-                        </th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                    {sortUrlScanResults(resultList, sortType).map((result, i) => {
-                        const {visibility, method, url, uuid, time} = result.task ?? {};
-                        const {country = 'N/A', server, status} = result.page ?? {};
-                        const {screenshot} = result;
-
-                        return (
-                            <tr key={`urlscan-result-row-${i}`}>
-                                <td style={stringPadRight}>{visibility}</td>
-                                <td className="TableSepLeft" style={stringPadRight}>{method}</td>
-                                <td className="TableSepLeft" style={stringPadRight}>
-                                    <MaxLen max={40}>{url}</MaxLen>
-                                </td>
-                                <td>
-                                    <LinkOut url={`https://urlscan.io/result/${uuid}`} style={{width: 12, height: 12, margin: 0, marginRight: 5}}/>
-                                </td>
-                                <td className="TableSepLeft" style={stringPadRight}>{country} {emojiFlagOrEmptyString(country)}</td>
-                                <td className="TableSepLeft" style={stringPadRight}>{server}</td>
-                                <td className="TableSepLeft" style={{...stringPadRight, color:typeColors.number}}>{status}</td>
-                                <td className="TableSepLeft" style={stringPadRight}>{makeClickableLink(screenshot, screenshot.substr(0, 15))}</td>
-                                <td className="TableSepLeft" style={stringStyle}>{snipDate(time)}</td>
-                            </tr>
-                        );
-                    })}
-                    </tbody>
-                </table>
-            </div>
-        );
-    }
-
-    const {results:resultList, ...otherData} = data;
-
-    return (
-        <div className="WhoIsBox">
-            <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(indicatorData, type, data, {sortType: sortType})}/>
-            {autoOrderedInfoBoxes(type, otherData)}
-            {!resultList || <InfoBoxResults resultList={resultList} sortType={sortType}/>}
-        </div>
-    );
-}
-
-
-export function VirusTotalBox({type, data, indicatorData}) {
-
-    const [sortType, setSortType] = useState(DESCENDING);
-
-    const orderedKeys = toOrderedKeys(type, Object.keys(data));
-
-    return (
-        <div className="WhoIsBox">
-            <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(indicatorData, type, data, {sortType: sortType})}/>
-            {orderedKeys.map(key => {
-
-                if (key === 'detected_urls') {
-                    return {res: <DetectedUrlTable title={key} resultList={data[key]} sortType={sortType} setSortType={setSortType}/>};
-                }
-
-                if (key === 'undetected_urls') {
-                    return {res: <UndetectedUrlTable title={key} resultList={data[key]} sortType={sortType} setSortType={setSortType}/>};
-                }
-
-                // eslint-disable-next-line default-case
-                switch (key) {
-                    case 'detected_urls':
-                        return {res: <DetectedUrlTable title={key} resultList={data[key]} sortType={sortType} setSortType={setSortType}/>};
-                    case 'undetected_urls':
-                        return {res: <UndetectedUrlTable title={key} resultList={data[key]} sortType={sortType} setSortType={setSortType}/>};
-                    case 'resolutions':
-                        return {res: <ResolutionsTable title={key} resultList={data[key]} sortType={sortType} setSortType={setSortType}/>};
-                }
-
-                if (key.endsWith('samples')) {
-                    return {res: <SampleTable title={key} resultList={data[key]} sortType={sortType} setSortType={setSortType}/>};
-                }
-
-                if (key === 'scans') {
-                    return {res: <HashScansTable title={key} resultList={data[key]}/>};
-                }
-
-                const colorData = toColorText(data[key])
-                return {key, colorData};
-            }).filter(({res, colorData}) => res != null || colorData != null).map(({res, key, colorData}) => {
-                if (res) return res;
-                return infoBox(key, colorData)
-            })}
         </div>
     );
 }

@@ -10,7 +10,7 @@ import {makeUnbreakable, stripTrailingPeriod} from "../Util/Util";
 import axios from "axios";
 import {MaxLen} from "../Util/ElemUtil";
 import IPASNBox from "../Components/IPASNBox";
-import {fetchDataIP, fetchEmailVerification, fetchPhoneNumberValidation} from "../Components/SearchBar";
+import {fetchDataIP, fetchEmailVerification, fetchPhoneNumberValidation} from "../Requests/IntegrationRequests";
 import {colorTable} from "../Util/Colors";
 import ValidationBox from "../Components/ValidationBox";
 import {emojiFlagOrEmptyString, tabLines} from "../Util/StringUtil";

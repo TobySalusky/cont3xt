@@ -29,25 +29,38 @@ export const typeColors = {
 	dnsType: 'lightgreen',
 }
 
+export const trySnipDate = (timestamp: string): string => {
+	try {
+		const tIndex = timestamp.indexOf('T');
+		const spaceIndex = timestamp.indexOf(' ');
+		if ((tIndex < spaceIndex && tIndex !== -1) || spaceIndex === -1) {
+			return makeUnbreakable(timestamp.substr(0, tIndex));
+		}
+		return makeUnbreakable(timestamp.substr(0, spaceIndex));
+	} catch {
+		return timestamp;
+	}
+}
+
 export const toColorTextOld = (variable : any, brackets = true, appendComma = false, spaces = true) : any => {
-	
+
 	try {
 		let returnVar = undefined;
 		let colorData = [];
-		
+
 		if (isDict(variable)) {
 			let str = '';
 			if (brackets) {
 				str += '{';
 				colorData.push([typeColors.brackets, 1]);
 			}
-			
+
 			let init = true
 			for (const key of Object.keys(variable)) {
-				
+
 				let entry = toColorTextOld(variable[key])
 				const val = entry.val
-				
+
 				if (val) {
 					if (!init) {
 						str += spaces ? ', ' : ',';
@@ -59,27 +72,27 @@ export const toColorTextOld = (variable : any, brackets = true, appendComma = fa
 					init = false
 				}
 			}
-			
+
 			if (brackets) {
 				str += '}'
 				colorData.push([typeColors.brackets, 1])
 			}
-			
+
 			if (str !== '{}') returnVar = str
-			
+
 		} else if (isArray(variable)) {
-			
+
 			let str = '';
 			if (brackets) {
 				str += '[';
 				colorData.push([typeColors.brackets, 1]);
 			}
-			
+
 			let init = true
 			for (const element of variable) {
 				let entry = toColorTextOld(element)
 				const val = entry.val
-				
+
 				if (val) {
 					if (!init) {
 						str += spaces ? ', ' : ',';
@@ -94,12 +107,12 @@ export const toColorTextOld = (variable : any, brackets = true, appendComma = fa
 				str += ']';
 				colorData.push([typeColors.brackets, 1]);
 			}
-			
+
 			if (str !== '[]') returnVar = str
 		} else {
-			
+
 			returnVar = '' + variable
-			
+
 			let col = typeColors.plain
 			if (typeof variable === "boolean"){
 				col = typeColors.boolean
@@ -110,7 +123,7 @@ export const toColorTextOld = (variable : any, brackets = true, appendComma = fa
 			}
 			colorData.push([col, (''+returnVar).length])
 		}
-		
+
 		// TODO: figure out what to do when input fits no types (returnVar is undefined)
 		// add null case?
 		/*
@@ -130,14 +143,14 @@ export const toColorTextOld = (variable : any, brackets = true, appendComma = fa
 			returnVar = newReturnVar;
 			colorData = newColorData;
 		}*/
-		
+
 		if (appendComma) {
 			returnVar += ',';
 			colorData.push([typeColors.comma, 1]);
 		}
-		
+
 		return {val: returnVar, colorData}
-		
+
 	} catch (e) {
 		const failureMessage = 'FAILED_TO_PARSE';
 		return {val: failureMessage, colorData: [['red', failureMessage.length]]};
@@ -169,7 +182,7 @@ export const toColorText = (variable : any, settings : ColorTextSettings = {}) :
 		tab();
 		for (let i = 0; i < colorData.length; i++) {
 			const entry = colorData[i];
-			
+
 			thisColorData.push(entry);
 			if (entry[1] === '\n') tab();
 		}
@@ -196,7 +209,7 @@ export const toColorText = (variable : any, settings : ColorTextSettings = {}) :
 
 			let init = true
 			for (const key of Object.keys(variable)) {
-				
+
 				let entry = toColorText(variable[key], settings)
 
 				if (entry) {
@@ -302,14 +315,15 @@ export const toColorElemsMultiline = (colorData : ColorDataObj) => {
 }
 
 export const makeUnbreakable = (str : string) => {
+	if (typeof str !== 'string') return str;
 	return str.replaceAll('-', '‑').replaceAll(' ', '\xa0');
 }
 
-export const makeColorElems = (variable : any) => {
+export const makeColorElems = (variable : any) : JSX.Element[] => {
 	return toColorElems(toColorText(variable));
 }
 
-export const makeClickableLink = (linkStr : string, displayText : string | null = null) : any => {
+export const makeClickableLink = (linkStr : string, displayText : string | null = null) : JSX.Element => {
 	const aNode = (
 		<a href={linkStr} target="_blank" rel="noreferrer" style={{color: typeColors.link, textDecoration: 'none'}}>
 			{displayText ?? linkStr}
@@ -333,7 +347,7 @@ export const makeClickableLink = (linkStr : string, displayText : string | null 
 	return aNode;
 }
 
-export const toColorElems = (colorData : ColorDataObj) => {
+export const toColorElems = (colorData : ColorDataObj) : JSX.Element[] => {
 
 	return colorData.data.map(([color, text]) => {
 		text = text.replaceAll(' ', '\xa0')
@@ -349,15 +363,15 @@ export const toColorElems = (colorData : ColorDataObj) => {
 }
 
 export const jsonLines = (dictionary : any) => {
-	
+
 	let str = ''
-	
+
 	for (const key of Object.keys(dictionary)) {
 		const text = toColorTextOld(dictionary[key]).val
-		
+
 		if (text) str += `${key}: ${text}\n`
 	}
-	
+
 	return str;
 }
 
@@ -365,7 +379,7 @@ const withLeadingZero = (num : number) => (num >= 10) ? num : '0' + num;
 
 export const currentTimeStamp = () => { // TODO:
 	const dateObj = new Date();
-	
+
 	return `${dateObj.getFullYear()}-${withLeadingZero(dateObj.getMonth() + 1)}-${withLeadingZero(dateObj.getDate())}_${
 		withLeadingZero(dateObj.getHours())}-${
 		withLeadingZero(dateObj.getMinutes())}-${

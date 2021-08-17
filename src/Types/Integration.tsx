@@ -13,7 +13,7 @@ import {
 } from "../Components/ColorDictBox";
 import {TooltipCopy} from "../Components/TooltipCopy";
 import {generateIntegrationReportTooltipCopy} from "../Util/IntegrationReports";
-import {makeClickableLink, toColorText, typeColors} from "../Util/Util";
+import {abbreviateNumber, makeClickableLink, toColorText, typeColors} from "../Util/Util";
 import {IndicatorData} from "./Types";
 import {getCleaner, toOrderedKeys} from "../Util/IntegrationCleaners";
 import React from "react";
@@ -290,7 +290,7 @@ export class ThreatStreamIntegration extends Integration {
     genFlavorText(): string {
         const count = this.tryCount();
         if (count === -1) return super.genFlavorText();
-        return count.toString();
+        return abbreviateNumber(count);
     }
 
     genFlavorStyle(): any {
@@ -338,7 +338,7 @@ export class PassiveTotalSubdomainsIntegration extends PassiveTotalIntegration {
 
     genFlavorText(): string {
         try {
-            return String(this.data.subdomains.length);
+            return abbreviateNumber(this.data.subdomains.length);
         } catch {
             return super.genFlavorText();
         }
@@ -354,7 +354,7 @@ export class PassiveTotalPassiveDNSIntegration extends PassiveTotalIntegration {
 
     genFlavorText(): string {
         try {
-            return String(this.data.results.length);
+            return abbreviateNumber(this.data.results.length);
         } catch {
             return super.genFlavorText();
         }
@@ -386,7 +386,7 @@ export class UrlScanIntegration extends Integration {
 
     genFlavorText(): string {
         try {
-            return String(this.data.total);
+            return abbreviateNumber(this.data.total);
         } catch {
             return super.genFlavorText();
         }
@@ -544,7 +544,7 @@ export class CensysIntegration extends Integration {
         if (Object.keys(this.data).length === 0) return '0';
 
         try {
-            return this.data.protocols.length;
+            return abbreviateNumber(this.data.protocols.length);
         } catch {
             return super.genFlavorText();
         }

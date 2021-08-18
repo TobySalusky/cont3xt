@@ -28,6 +28,7 @@ import {ListLayout, StringListLayout} from "../Layouts/ListLayout";
 import {PassiveTotalDnsTableLayout} from "../Layouts/CustomLayouts";
 import {MaxLen} from "../Util/ElemUtil";
 import {Unbreakable} from "../Style/Unbreakable";
+import {tryUseRegistrarData} from "../Util/RegistrarData";
 
 const DEF_DATE = 'N/A ';
 
@@ -175,18 +176,23 @@ export class Integration {
                 return mask.threatStream;
 
             case integrationNames.PASSIVETOTAL_WHOIS:
+                return mask.PT_Whois;
             case integrationNames.PASSIVETOTAL_SUBDOMAINS:
+                return mask.PT_Subdomains;
             case integrationNames.PASSIVETOTAL_PASSIVE_DNS_DOMAIN:
+                return mask.PT_PDNS_Domain;
             case integrationNames.PASSIVETOTAL_PASSIVE_DNS_IP:
-                return mask.passiveTotal;
+                return mask.PT_PDNS_IP;
 
             case integrationNames.URL_SCAN:
                 return mask.urlScan;
 
             case integrationNames.VIRUS_TOTAL_DOMAIN:
+                return mask.virusTotal_Domain;
             case integrationNames.VIRUS_TOTAL_IP:
+                return mask.virusTotal_IP;
             case integrationNames.VIRUS_TOTAL_HASH:
-                return mask.virusTotal;
+                return mask.virusTotal_Hash;
 
             case integrationNames.CENSYS_IP:
                 return mask.censys;
@@ -370,6 +376,11 @@ export class PassiveTotalWhoisIntegration extends PassiveTotalIntegration {
         super(result, integrationNames.PASSIVETOTAL_WHOIS);
         this.imgSrc = './images/whoisIcon.svg';
         this.imgStyle = whiteFilter;
+    }
+
+    onAdd(indicatorNode: IndicatorNode) {
+        super.onAdd(indicatorNode);
+        tryUseRegistrarData(indicatorNode, this.type, this.data);
     }
 }
 
@@ -555,6 +566,11 @@ export class WhoisIntegration extends Integration {
     constructor(result: any) {
         super(result, integrationNames.WHOIS);
         this.imgSrc = './images/whoisIcon.svg';
+    }
+
+    onAdd(indicatorNode: IndicatorNode) {
+        super.onAdd(indicatorNode);
+        tryUseRegistrarData(indicatorNode, this.type, this.data);
     }
 }
 

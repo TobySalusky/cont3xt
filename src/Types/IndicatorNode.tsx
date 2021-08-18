@@ -16,6 +16,7 @@ import ValidationBox from "../Components/ValidationBox";
 import {emojiFlagOrEmptyString, tabLines} from "../Util/StringUtil";
 import {InlineDiv} from "../Util/StyleUtil";
 import {Colors} from "../Style/Theme";
+import {RegistrarData} from "../Util/RegistrarData";
 
 
 export class ResultNode {
@@ -147,17 +148,19 @@ export interface IpAsnData {
 
 export class IndicatorNode extends ResultNode {
     // value
-    value : string;
-    type : string;
-    subType : string;
+    value: string;
+    type: string;
+    subType: string;
 
     // important
-    integrations : Integration[] = [];
+    integrations: Integration[] = [];
     // flags
-    topLevel? : boolean;
+    topLevel?: boolean;
     // more value stuff
-    dnsType? : string;
-    ipAsnData? : IpAsnData;
+    dnsType?: string;
+    ipAsnData?: IpAsnData;
+    registrarData?: RegistrarData;
+
 
     // STATIC VARIABLES
     static rerender : ()=>void;
@@ -191,6 +194,14 @@ export class IndicatorNode extends ResultNode {
     }
 
     genInlineEnrichment(): JSX.Element | null {
+        if (this.registrarData) return (
+            <InlineDiv style={{fontSize: '70%', alignItems: 'center', padding: 0, margin: 0, justifyContent: 'center'}}>
+                <div>
+                    <p>{this.registrarData.registeredDateString}</p>
+                    <MaxLen max={15}>{makeUnbreakable(this.registrarData.registrar)}</MaxLen>
+                </div>
+            </InlineDiv>
+        );
         if (this.ipAsnData) return (
             <InlineDiv style={{fontSize: '70%', alignItems: 'center', padding: 0, margin: 0, justifyContent: 'center'}}>
                 <div>

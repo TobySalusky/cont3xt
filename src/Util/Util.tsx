@@ -397,11 +397,12 @@ export const jsonLines = (dictionary : any) => {
 const withLeadingZero = (num : number) => (num >= 10) ? num : '0' + num;
 
 export const currentTimeStamp = () => { // TODO:
-	const dateObj = new Date();
+	return createTimeStamp(new Date(), true);
+}
 
-	return `${dateObj.getFullYear()}-${withLeadingZero(dateObj.getMonth() + 1)}-${withLeadingZero(dateObj.getDate())}_${
-		withLeadingZero(dateObj.getHours())}-${
-		withLeadingZero(dateObj.getMinutes())}-${
-		withLeadingZero(dateObj.getSeconds())}`;
-	//return dateObj.toString();
+export const createTimeStamp = (date: Date, precise: boolean = false) => {
+	return `${date.getFullYear()}-${withLeadingZero(date.getMonth() + 1)}-${withLeadingZero(date.getDate())}${precise ? `_${
+		withLeadingZero(date.getHours())}-${
+		withLeadingZero(date.getMinutes())}-${
+		withLeadingZero(date.getSeconds())}` : ''}`;
 }

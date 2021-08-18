@@ -1,6 +1,11 @@
 import axios from "axios";
 import {EmailVerificationData, PhoneNumberValidationData} from "../Types/IndicatorNode";
 import {log} from "../Util/Util";
+import {integrationNames} from "../Util/IntegrationDefinitions";
+
+const logData = (integrationName: string, indicator: string, data: any): void => {
+    log(`${integrationName} for ${indicator}`, data);
+}
 
 export const fetchDataIP = async (ip : string) => {
     let query_url = 'https://rdap.db.ripe.net/ip/' + ip.toString();
@@ -17,11 +22,15 @@ export const fetchDataIP = async (ip : string) => {
 }
 
 export const fetchWhois = async (domain: string) => {
-    return await axios.get('/who-is-domain', {
+    const res = await axios.get('/who-is-domain', {
         params: {
             q: domain
         }
     });
+
+    logData(integrationNames.WHOIS, domain, res);
+
+    return res;
 }
 
 export const fetchPhoneNumberValidation = async (phoneNumber: string) : Promise<PhoneNumberValidationData> => {
@@ -70,11 +79,10 @@ export const fetchCensysDataIP = async (ip : string) => {
             ip, fields
         );
 
-        let censysObj = {};
+        let censysData = {};
 
         for await (let page of query2) {
-            log('test censys', page);
-            censysObj = {...censysObj, ...page};
+            censysData = {...censysData, ...page};
         }
 
         /*{ //TODO: account for balance!
@@ -83,7 +91,9 @@ export const fetchCensysDataIP = async (ip : string) => {
             });
         }*/
 
-        return {data: censysObj};
+        logData(integrationNames.CENSYS_IP, ip, censysData);
+
+        return {data: censysData};
     }
     log('no censys api authentication provided.');
     return null;
@@ -103,7 +113,8 @@ export const fetchPassiveTotalWhois = async (domain : string) => {
         }
     });
 
-    log('passivetotal whois',passiveTotalWhois);
+    logData(integrationNames.PASSIVETOTAL_WHOIS, domain, passiveTotalWhois);
+
     return passiveTotalWhois;
 }
 
@@ -120,7 +131,7 @@ export const fetchPassiveTotalSubDomains = async (domain : string) => {
         }
     });
 
-    log('passivetotal subdomains',passiveTotalSubDomainsResult);
+    logData(integrationNames.PASSIVETOTAL_SUBDOMAINS, domain, passiveTotalSubDomainsResult);
     return passiveTotalSubDomainsResult;
 }
 
@@ -137,7 +148,7 @@ export const fetchPassiveTotalPassiveDNS = async (ip : string) => {
         }
     });
 
-    log('passivetotal passive dns', passiveTotalPassiveDNS);
+    logData('PassiveTotal Passive DNS', ip, passiveTotalPassiveDNS)
     return passiveTotalPassiveDNS;
 }
 
@@ -151,7 +162,7 @@ export const fetchThreatStream = async (indicator : string) => {
         },
     })
 
-    log(`threatstream result for ${indicator}`, res);
+    logData(integrationNames.THREAT_STREAM, indicator, res);
     return res;
 }
 
@@ -166,8 +177,7 @@ export const fetchSpurDataIP = async (ip : string) => {
         }
     })
 
-    log('spur', spurRes)
-
+    logData(integrationNames.SPUR, ip, spurRes);
     return spurRes
 }
 
@@ -184,7 +194,7 @@ export const fetchURLScan = async (ipOrDomain : string) => {
         },
     })
 
-    log('URL Scan', res)
+    logData(integrationNames.URL_SCAN, ipOrDomain, res);
 
     return res
 }
@@ -199,7 +209,7 @@ export const fetchVirusTotalDomain = async (domain : string) => {
         },
     })
 
-    log('virus total res domain', res);
+    logData(integrationNames.VIRUS_TOTAL_DOMAIN, domain, res);
     return res;
 }
 
@@ -213,7 +223,7 @@ export const fetchVirusTotalIP = async (ip : string) => {
         },
     })
 
-    log('virus total res ip', res);
+    logData(integrationNames.VIRUS_TOTAL_IP, ip, res);
     return res;
 }
 
@@ -227,6 +237,6 @@ export const fetchVirusTotalHash = async (hash : string) => {
         },
     })
 
-    log('virus total res hash', res);
+    logData(integrationNames.VIRUS_TOTAL_HASH, hash, res);
     return res;
 }

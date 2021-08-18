@@ -4,9 +4,14 @@ export interface IntegrationMask {
     whois: boolean;
     spur: boolean;
     censys: boolean;
-    passiveTotal: boolean;
+    PT_Whois: boolean;
+    PT_Subdomains: boolean;
+    PT_PDNS_Domain: boolean;
+    PT_PDNS_IP: boolean;
     urlScan: boolean;
-    virusTotal: boolean;
+    virusTotal_Domain: boolean;
+    virusTotal_IP: boolean;
+    virusTotal_Hash: boolean;
     threatStream: boolean;
     [key: string]: boolean;
 }
@@ -45,9 +50,14 @@ export const defaultSettings: Settings = {
         whois: true,
         spur: true,
         censys: true,
-        passiveTotal: true,
+        PT_Whois: true,
+        PT_Subdomains: true,
+        PT_PDNS_Domain: true,
+        PT_PDNS_IP: true,
         urlScan: true,
-        virusTotal: true,
+        virusTotal_Domain: true,
+        virusTotal_IP: true,
+        virusTotal_Hash: true,
         threatStream: true,
     }
 };

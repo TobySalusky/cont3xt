@@ -2,18 +2,12 @@ import '../Style/App.css';
 import React, { useState, useEffect, useContext } from 'react';
 import {useUpdateArgsURL} from "../Util/URLHandler";
 import { Base64Context, QueryContext } from "../State/SearchContext";
-import axios from 'axios';
 import { DisplayStatsContext } from '../State/DisplayStatsContext';
 import dr from 'defang-refang'
-import { log, stripTrailingPeriod } from "../Util/Util";
 import { whiteFilter } from "../Util/Filters";
-import { classificationObj } from "../Util/Classification";
-import { integrationNames } from "../Util/IntegrationDefinitions";
 import { downloadFullReport } from "../Util/ReportGenerator";
-import { getCleaner } from "../Util/IntegrationCleaners";
-import {tryUseASN} from "../Util/IpASN";
-import {EmailVerificationData, IndicatorNode, PhoneNumberValidationData} from "../Types/IndicatorNode";
-import exp from "constants";
+import {IndicatorNode} from "../Types/IndicatorNode";
+import {ActiveIntegrationContext} from "../State/ActiveIntegrationContext";
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 // TODO: auto-format phone number results
@@ -38,8 +32,13 @@ const SearchBar : React.FC<{
     const [, setBase64] = useContext(Base64Context);
     const updateArgsURL = useUpdateArgsURL();
     const [displayStats, setDisplayStats] = useContext(DisplayStatsContext)
+    const [, setActiveIntegration] = useContext(ActiveIntegrationContext);
 
     useEffect(() => {
+
+        setDisplayStats({});
+
+        setActiveIntegration(null);
 
         if (query === '') {
             setResults([])

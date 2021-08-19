@@ -5,6 +5,7 @@ import {makeColorElems, makeUnbreakable, trySnipDate, typeColors} from "../Util/
 import {ASCENDING, DESCENDING} from "../Util/SortUtil";
 import {LinkOut} from "../Components/LinkBack";
 import {MaxLen} from "../Util/ElemUtil";
+import {CollapsableFieldBox} from "../Components/CollapsableFieldBox";
 
 export interface Header {
     value: string;
@@ -18,6 +19,9 @@ export interface Column {
     style?: React.CSSProperties;
     noSep?: boolean;
     primaryDate?: boolean;
+    alphaSort?: boolean;
+    boolSort?: boolean;
+    subSort?: boolean;
 }
 
 export const combine = (columnableBase: Columnable, columnableOverride: Columnable): Column => {
@@ -43,12 +47,18 @@ const makeColumn = (columnable: Columnable): Column => {
             column = {...column, ...obj};
         }
 
-        for (const str of strings) {
+        for (let str of strings) {
             if (str.startsWith('max_')) {
                 const num = parseInt(str.substr(str.indexOf('_') + 1));
                 column.genContents = value => <MaxLen max={num}>{value}</MaxLen>
                 continue;
             }
+
+            if (str.startsWith('sub_')) {
+                column.subSort = true;
+                str = str.replace('sub_', '');
+            }
+
             switch (str) {
                 case 'color':
                     column.genContents = value => <>{makeColorElems(value)}</>;
@@ -58,6 +68,18 @@ const makeColumn = (columnable: Columnable): Column => {
                         genContents: (value: any) => <>{trySnipDate(value)}</>,
                         style: {color: typeColors.string},
                         primaryDate: true
+                    });
+                    break;
+                case 'bool_sort':
+                    override({
+                        style: {color: typeColors.boolean},
+                        boolSort: true
+                    });
+                    break;
+                case 'alphabetic':
+                    override({
+                        style: {color: typeColors.string},
+                        alphaSort: true
                     });
                     break;
                 case 'string':
@@ -79,7 +101,7 @@ const makeColumn = (columnable: Columnable): Column => {
     return columnable;
 }
 
-type Columnable = Column | string | 'string' | 'number' | 'boolean' | 'color' | 'primary_date' | 'nosep';
+type Columnable = Column | string | 'string' | 'number' | 'boolean' | 'color' | 'primary_date' | 'nosep' | 'bool_sort' | 'alphabetic';
 
 export class TableLayout extends DataLayout {
 
@@ -133,13 +155,39 @@ export class TableLayout extends DataLayout {
     }
 
     genDefaultSortGenerator(): ((state: any)=>(a: any, b: any)=>number) | undefined {
+
+        let primary: (((state: any)=>(a: any, b: any)=>number) | undefined) = undefined;
+        let sub: (((state: any)=>(a: any, b: any)=>number) | undefined) = undefined;
+
+        const set = (sortGen: (state: any)=>(a: any, b: any)=>number, column: Column): void => {
+            if (column.subSort) sub = sortGen;
+            else primary = sortGen;
+        }
+
         for (const [i, column] of Object.entries(this.columns)) {
             if (column.primaryDate) {
-                return (state) => {
+                set((state) => {
                     const comp = (val1: any, val2: any) => (state.primaryDateSort === DESCENDING) ? val1 - val2 : val2 - val1;
-                    return (a, b) => comp(new Date(a[i]), new Date(b[i]));
-                }
+                    return(a, b) => comp(new Date(a[i]), new Date(b[i]));
+                }, column);
+            } else if (column.alphaSort)  {
+                set(() => (a, b) => a[i].localeCompare(b[i]), column);
+            } else if (column.boolSort)  {
+                set(() => (a, b) => (b[i] - a[i]), column);
             }
+        }
+
+        if (primary === undefined) return undefined;
+
+        if (sub === undefined) return primary;
+
+        let finalPrimary: (((state: any)=>(a: any, b: any)=>number)) = primary;
+        let finalSub: (((state: any)=>(a: any, b: any)=>number)) = sub;
+
+        return (state) => {
+            return (a, b) => {
+                return finalPrimary(state)(a, b) || finalSub(state)(a, b);
+            };
         }
     }
 
@@ -174,10 +222,7 @@ const TableDisplay: React.FC<{table: TableLayout}> = ({table}) => {
     const [state, setState] = useState(table.preState);
 
     return (
-        <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-            marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}
-        >
-            <p style={{paddingRight: 8, color: Colors.highlight, fontWeight: 'bold'}}>{table.title}:</p>
+        <CollapsableFieldBox title={table.title}>
             <table className="TableCollapseBorders">
                 <thead className="StickyTableHeader">
                 <tr>
@@ -193,6 +238,6 @@ const TableDisplay: React.FC<{table: TableLayout}> = ({table}) => {
                 )}
                 </tbody>
             </table>
-        </div>
+        </CollapsableFieldBox>
     );
 }

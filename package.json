@@ -18,6 +18,7 @@
     "country-code-emoji": "^2.3.0",
     "defang-refang": "0.0.5",
     "email-verify": "^0.2.1",
+    "extract-domain": "^2.3.3",
     "ip-regex": "^4.3.0",
     "mongodb-client-encryption": "^1.2.3",
     "nodejs-base64": "^2.0.0",

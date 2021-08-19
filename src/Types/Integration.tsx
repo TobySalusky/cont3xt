@@ -20,7 +20,7 @@ import React from "react";
 import {tryUseASN} from "../Util/IpASN";
 import {whiteFilter} from "../Util/Filters";
 import {Colors} from "../Style/Theme";
-import {DataLayout, layouts} from "../Layouts/DataLayout";
+import {ClosedLayout, DataLayout, layouts} from "../Layouts/DataLayout";
 import {linkOutColumn, TableLayout} from "../Layouts/TableLayout";
 import {emojiFlagOrEmptyString} from "../Util/StringUtil";
 import {Global} from "../Settings/Global";
@@ -67,7 +67,7 @@ export class Integration {
         );
     }
 
-    genUI() {
+    genUI() { // TODO: increase performance by not rendering raw by default!!
         const orderedKeys = toOrderedKeys(this.type, Object.keys(this.data));
 
         return (
@@ -82,6 +82,7 @@ export class Integration {
                     }
                     return dataLayout.genUI();
                 })}
+                {new ClosedLayout('raw', this.data).genUI()}
             </div>
         );
     }
@@ -157,11 +158,16 @@ export class Integration {
     }
 
     static startAsyncAddTo(integrationTask: Promise<Integration | null>, indicatorNode: IndicatorNode, onFinish?: ()=>void) {
+        indicatorNode.outgoingIntegrationRequests++;
         integrationTask.then(integration => {
             if (integration !== null) {
+                indicatorNode.returnedIntegrationRequests++;
+
                 indicatorNode.integrations.push(integration);
                 integration.onAdd(indicatorNode);
                 onFinish?.();
+            } else {
+                indicatorNode.failedIntegrationRequests++;
             }
         });
     }
@@ -471,10 +477,13 @@ export class VirusTotalIntegration extends Integration {
                         ['positives', 'number'],
                         ['total', 'number'],
                         ['url', 'string|max_30'],
+                        ['',
+                            linkOutColumn(value => `todo`),
+                        ],
                         ['scan date', 'primary_date'],
                     ], (rowData => {
                         const {scan_date:date = DEF_DATE, positives, total, url} = rowData;
-                        return [positives, total, url, date];
+                        return [positives, total, url, url, date];
                     }));
             case 'undetected_urls':
                 return new TableLayout(key, this.data[key],
@@ -482,12 +491,15 @@ export class VirusTotalIntegration extends Integration {
                         ['positives', 'number'],
                         ['total', 'number'],
                         ['url', 'string|max_30'],
+                        ['',
+                            linkOutColumn(value => `todo`),
+                        ],
                         ['sha256', 'string|max_30'],
                         ['', linkOutColumn(value => `https://www.virustotal.com/gui/search/${value}`)],
                         ['scan date', 'primary_date'],
                     ], (rowData => {
                         const [url, sha256, positives, total, date = DEF_DATE] = rowData;
-                        return [positives, total, url, sha256, sha256, date];
+                        return [positives, total, url, url, sha256, sha256, date];
                     }));
             case 'resolutions':
                 const tableData = this.data[key];
@@ -509,8 +521,8 @@ export class VirusTotalIntegration extends Integration {
             case 'scans':
                 return new TableLayout(key, this.data[key],
                     [
-                        ['scan type', 'string'],
-                        ['detected', 'boolean'],
+                        ['scan type', 'sub_alphabetic'],
+                        ['detected', 'bool_sort'],
                         ['result', {
                     genContents: value => <p style={value ? {color: typeColors.malicious, fontWeight: 'bold'} : {color: typeColors.null}}>{String(value)}</p>
                         }],
@@ -527,6 +539,8 @@ export class VirusTotalIntegration extends Integration {
                             return {scan: key, ...valTemp};
                         });
                     });
+            case 'response_code':
+                return layouts.hidden;
         }
 
         if (key.endsWith('samples')) {

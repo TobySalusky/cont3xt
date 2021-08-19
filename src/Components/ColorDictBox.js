@@ -3,7 +3,7 @@ import {
     toColorElems,
     toColorText,
     typeColors,
-    toColorElemsMultiline, makeUnbreakable
+    toColorElemsMultiline, makeUnbreakable, countColorDataLines
 } from "../Util/Util";
 import {LinkBack} from "./LinkBack";
 import { TooltipCopy } from "./TooltipCopy";
@@ -12,29 +12,20 @@ import { CircleCheckBox } from "./CircleCheckBox";
 import { useState } from "react";
 import { generateIntegrationReportTooltipCopy } from "../Util/IntegrationReports";
 import {
-    ASCENDING,
-    DESCENDING,
     FIRST_SEEN,
     LAST_SEEN,
     sortPassiveDNSResults,
-    sortUrlScanResults
 } from "../Util/SortUtil";
 import { toOrderedKeys } from "../Util/IntegrationCleaners";
-import { Colors } from '../Style/Theme';
+import { CollapsableFieldBox } from "./CollapsableFieldBox";
 
 
-export const infoBox = (title, data) => {
+export const infoBox = (title, data, startOpen = true) => {
 
     return (
-        <div className="ResultBox" style={{justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}>
-            <div style={{display: 'flex', justifyContent:'flex-start',
-                maxWidth: 1000, flexWrap: "wrap", flexDirection: 'row'}}>
-                <p style={{paddingRight: 8, color: Colors.highlight, fontWeight: 'bold'}}>{title}:</p>
-
-                {toColorElemsMultiline(data)}
-
-            </div>
-        </div>
+        <CollapsableFieldBox title={title} inline={countColorDataLines(data) === 1} startOpen={startOpen}>
+            {toColorElemsMultiline(data)}
+        </CollapsableFieldBox>
     );
 }
 
@@ -92,10 +83,7 @@ export function PassiveTotalPassiveDNSColorDictBox({resultList, indicatorData}) 
     // TODO: optimize/remove color text here
     
     return (
-        <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-            marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8}}
-        >
-            <p style={{paddingRight: 8, color: Colors.highlight, fontWeight: 'bold'}}>Results:</p>
+        <CollapsableFieldBox title={'results'}>
             <table className="TableCollapseBorders">
                 <thead className="StickyTableHeader">
                 <tr>
@@ -106,7 +94,7 @@ export function PassiveTotalPassiveDNSColorDictBox({resultList, indicatorData}) 
                     <DateHeader name='Last Seen' thisSortType={LAST_SEEN} sortType={sortType}/>
                 </tr>
                 </thead>
-                
+        
                 <tbody>
                 {sortPassiveDNSResults(resultList, sortType).map((result, i) =>
                     <tr key={i}>
@@ -130,6 +118,6 @@ export function PassiveTotalPassiveDNSColorDictBox({resultList, indicatorData}) 
                 )}
                 </tbody>
             </table>
-        </div>
+        </CollapsableFieldBox>
     );
 }

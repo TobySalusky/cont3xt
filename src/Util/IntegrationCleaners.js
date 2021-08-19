@@ -3,6 +3,7 @@ import { integrationNames } from "./IntegrationDefinitions";
 import {mapOrder, onEnd} from "./SortUtil";
 import dr from 'defang-refang'
 import {isArray, isDict} from "./VariableClassifier";
+import extractDomain from "extract-domain";
 
 const PLACE_HOLDER = '_____cont3xt_placeholder';
 
@@ -19,12 +20,13 @@ export function toOrderedKeys(integrationType, keyList) {
 			]);
 		case integrationNames.VIRUS_TOTAL_IP:
 		case integrationNames.VIRUS_TOTAL_DOMAIN:
-			return mapOrder(keyList, [
+			return onEnd(mapOrder(keyList, [ // TODO: allow regex in mapOrder (for category and info)
 				'asn',
 				'as_owner',
 				'country',
 				'verbose_msg',
 				'Alexa category',
+				'Alexa rank',
 				'Alexa domain info',
 				'Webutation domain info',
 				'BitDefender category',
@@ -37,8 +39,7 @@ export function toOrderedKeys(integrationType, keyList) {
 				'detected_referrer_samples',
 				'undetected_referrer_samples',
 				'resolutions',
-				'response_code'
-			]);
+			]), ['subdomains', 'pcaps']);
 		case integrationNames.VIRUS_TOTAL_HASH:
 			return mapOrder(keyList, [
 				'scan_date',
@@ -75,7 +76,7 @@ const getIntermediateCleaners = (integrationType) => {
 		case integrationNames.VIRUS_TOTAL_DOMAIN:
 		case integrationNames.VIRUS_TOTAL_IP:
 		case integrationNames.VIRUS_TOTAL_HASH:
-			return [removeEmptyArraysAndDicts, defangAll]
+			return [removeEmptyArraysAndDicts, defangVirusTotal]
 		case integrationNames.THREAT_STREAM:
 			return [cleanThreatStreamObjects, removeNullAndUndefined];
 		default:
@@ -257,15 +258,25 @@ const defangUrlScanUrls = (dict) => recurseAll(dict, (obj) => {
 	return newObj;
 });
 
-const defangAll = (dict) => recurseAll(dict,
-	(val)=>val,
-	(val)=>val,
-	(val) => {
+const makeValueEditor = (valFunc) => {
+	return (dict) => recurseAll(dict, val=>val, val=>val, valFunc);
+}
+
+// eslint-disable-next-line no-unused-vars
+const defangAll = makeValueEditor((val) => {
 		const str = `${val}`;
 		if (str.match(/^https?:/)) {
 			return dr.defang(str);
 		}
 		return val;
+});
+
+const defangVirusTotal = makeValueEditor((val) => {
+	const str = `${val}`;
+	if (str.match(/^https?:/) && extractDomain(val) !== 'virustotal.com') {
+		return dr.defang(str);
+	}
+	return val;
 });
 
 const cleanThreatStreamObjects = (res) => {

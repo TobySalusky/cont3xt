@@ -58,6 +58,21 @@ export const LeftStatsPanel: React.FC = () => {
         setSettings({...settings, ...changes});
     }
 
+    const withAll = (obj: any, desiredVal: any): any => {
+        const newObj: any = {};
+        for (const key of Object.keys(obj)) {
+            newObj[key] = desiredVal;
+        }
+        return newObj;
+    }
+
+    const areAll = (obj: object, desiredVal: any): boolean => {
+        for (const val of Object.values(obj)) {
+            if (val !== desiredVal) return false;
+        }
+        return true;
+    }
+
     // TODO: allow change popup delay panel
 
     return (
@@ -79,7 +94,13 @@ export const LeftStatsPanel: React.FC = () => {
 	                    </NumInput>
                     </Section>
                     <Section>
-	                    <b>Active Integrations:</b>
+	                    <ToggleOption value={!areAll(settings.integrationMask, false)} onClick={() => {
+	                        const newMask = (()=>{
+                                if (!areAll(settings.integrationMask, false)) return withAll(settings.integrationMask, false);
+	                            return withAll(settings.integrationMask, true);
+                            })();
+                            editSettings({integrationMask: newMask})
+                        }}>Active Integrations</ToggleOption>
 	                    <div className="RightAlignDown">
                             {Object.keys(settings.integrationMask).map((integrationType: string) => (
                                 <ToggleOption onClick={() => editSettings({integrationMask: {...settings.integrationMask, ...{[integrationType]: !settings.integrationMask[integrationType]}}})}

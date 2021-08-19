@@ -161,6 +161,12 @@ export class IndicatorNode extends ResultNode {
     ipAsnData?: IpAsnData;
     registrarData?: RegistrarData;
 
+    // progress checks
+    outgoingIntegrationRequests: number = 0;
+    returnedIntegrationRequests: number = 0;
+    finishedIntegrations: number = 0;
+    failedIntegrationRequests: number = 0;
+
 
     // STATIC VARIABLES
     static rerender : ()=>void;
@@ -224,6 +230,10 @@ export class IndicatorNode extends ResultNode {
     }
 
     genMainBodyUI(): JSX.Element { // TODO: this is slightly larger because the pipe fontsize is bigger on integrations!!
+
+        /*if (this.topLevel) return (
+            <p>{this.reportIntegrationProgress()}</p>
+        );*/
         if (this.topLevel) return (
             <div className="ResultBox" style={{alignItems: 'center', paddingInlineEnd: 5}}>
                 <p className="ResultType" style={{color: Colors.highlight}}>{this.type}{(this.subType === 'None') ? '' : '('+this.subType+')'}:</p>
@@ -252,10 +262,36 @@ export class IndicatorNode extends ResultNode {
         return (<p>Error generating ui</p>);
     }
 
+    reportIntegrationProgress() {
+        let numOutgoing = 0, numReturned = 0, numFinished = 0, numFailed = 0;
+
+        const add = (node: IndicatorNode) => {
+            numOutgoing += node.outgoingIntegrationRequests;
+            numReturned += node.returnedIntegrationRequests;
+            numFinished += node.finishedIntegrations;
+            numFailed += node.failedIntegrationRequests;
+        }
+
+        add(this);
+        for (const child of this.children) {
+            if (child instanceof IndicatorNode) {
+                const indicatorChild = child as IndicatorNode;
+                add(indicatorChild);
+            }
+        }
+
+        return `Current progress:
+        ${(numReturned/numOutgoing) * 100}%
+        outgoing: ${numOutgoing}
+        returned: ${numReturned}
+        failed: ${numFailed}`;
+    }
+
     startAdditions() {
         const rerender = () => {IndicatorNode.rerender();};
         const integrate = (type : string) => {
             Integration.startAsyncAddFromVal(type, this.value, this, rerender);
+            this.reportIntegrationProgress();
         }
 
         switch (this.type) {

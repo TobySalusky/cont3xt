@@ -7,7 +7,7 @@ import {ActiveIntegrationContext} from "../State/ActiveIntegrationContext";
 export const withPipe = (html : any) : JSX.Element => {
     return (
         <span style={{alignItems: 'center'}}>
-			<p style={{marginLeft: 10}}>|</p>
+			<p style={{marginLeft: 5}}>|</p>
             {html}
 		</span>
     );

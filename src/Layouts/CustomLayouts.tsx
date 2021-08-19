@@ -12,7 +12,6 @@ export class PassiveTotalDnsTableLayout extends DataLayout {
     }
 
     genUI(): JSX.Element {
-        return <PassiveTotalPassiveDNSColorDictBox
-            resultList={this.resultList} indicatorData={this.indicatorData}/>
+        return <PassiveTotalPassiveDNSColorDictBox resultList={this.resultList} indicatorData={this.indicatorData}/>
     }
 }

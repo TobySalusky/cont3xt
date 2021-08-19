@@ -311,6 +311,16 @@ class ColorDataObj {
 	genText = () : string => fullText(this.data);
 }
 
+export const countColorDataLines = (colorData : ColorDataObj): number => {
+	let i = 0;
+	for (const colorDataEntry of colorData.data) {
+		if (colorDataEntry[1] === '\n') {
+			i++;
+		}
+	}
+	return i + 1;
+}
+
 export const toColorElemsMultiline = (colorData : ColorDataObj) => {
 	const list : any = [[]];
 

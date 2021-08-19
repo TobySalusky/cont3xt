@@ -8,6 +8,7 @@ export const fillLinkFormat = (formatLink : string, data : LinkGenerationData) :
     formatLink = formatLink.replaceAll('${subType}', data.subType);
     formatLink = formatLink.replaceAll('${indicator}', data.indicator);
     formatLink = formatLink.replaceAll('${numDays}', String(data.numDays));
+    formatLink = formatLink.replaceAll('${numHours}', String(data.numDays * 24));
     formatLink = formatLink.replaceAll('${startDate}', data.startDate);
 
     return formatLink;

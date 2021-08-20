@@ -5,7 +5,7 @@ import {LinkBack} from "../Components/LinkBack";
 import {AllIntegrations, withPipe} from "../Components/AllIntegrations";
 import {Integration} from "./Integration";
 import {integrationNames} from "../Util/IntegrationDefinitions";
-import {IndicatorData} from "./Types";
+import {IndicatorData, IntegrationGenerationProgressReport} from "./Types";
 import {makeUnbreakable, stripTrailingPeriod} from "../Util/Util";
 import axios from "axios";
 import {MaxLen} from "../Util/ElemUtil";
@@ -231,9 +231,6 @@ export class IndicatorNode extends ResultNode {
 
     genMainBodyUI(): JSX.Element { // TODO: this is slightly larger because the pipe fontsize is bigger on integrations!!
 
-        /*if (this.topLevel) return (
-            <p>{this.reportIntegrationProgress()}</p>
-        );*/
         if (this.topLevel) return (
             <div className="ResultBox" style={{alignItems: 'center', paddingInlineEnd: 5}}>
                 <p className="ResultType" style={{color: Colors.highlight}}>{this.type}{(this.subType === 'None') ? '' : '('+this.subType+')'}:</p>
@@ -262,7 +259,7 @@ export class IndicatorNode extends ResultNode {
         return (<p>Error generating ui</p>);
     }
 
-    reportIntegrationProgress() {
+    reportIntegrationProgress(): IntegrationGenerationProgressReport {
         let numOutgoing = 0, numReturned = 0, numFinished = 0, numFailed = 0;
 
         const add = (node: IndicatorNode) => {
@@ -279,12 +276,7 @@ export class IndicatorNode extends ResultNode {
                 add(indicatorChild);
             }
         }
-
-        return `Current progress:
-        ${(numReturned/numOutgoing) * 100}%
-        outgoing: ${numOutgoing}
-        returned: ${numReturned}
-        failed: ${numFailed}`;
+        return {numOutgoing, numReturned, numFinished, numFailed};
     }
 
     startAdditions() {
@@ -321,11 +313,12 @@ export class IndicatorNode extends ResultNode {
 
                 integrate(integrationNames.PASSIVETOTAL_PASSIVE_DNS_IP);
 
-                if (this.subType !== 'IPv6') integrate(integrationNames.VIRUS_TOTAL_IP);
+                if (this.subType !== 'IPv6') {
+                    integrate(integrationNames.CENSYS_IP);
+                    integrate(integrationNames.VIRUS_TOTAL_IP);
+                    integrate(integrationNames.URL_SCAN);
+                }
 
-                integrate(integrationNames.CENSYS_IP);
-
-                integrate(integrationNames.URL_SCAN);
                 break;
             case 'Hash':
                 integrate(integrationNames.THREAT_STREAM);

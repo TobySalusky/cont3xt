@@ -10,13 +10,14 @@ import {ConfigContext} from "../State/ConfigContext";
 import LineCanvas from "../Components/LineCanvas";
 import {NumDaysContext} from "../State/SearchContext";
 import {useReadArgsURL} from "../Util/URLHandler";
-import { DisplayStatsContext } from '../State/DisplayStatsContext';
 import {IndicatorNode} from "../Types/IndicatorNode";
-import {LinkGenerationData} from "../Types/Types";
+import {IntegrationGenerationProgressReport, LinkGenerationData} from "../Types/Types";
 import {RightIntegrationPanel} from "../Components/RightIntegrationPanel";
 import {LeftStatsPanel} from "../Components/LeftStatsPanel";
 import {ChildMutationObserver} from "../Components/ChildMutationObserver";
 import {whiteFilter} from "../Util/Filters";
+import {IntegrationProgressBar} from "../Components/IntegrationProgressBar";
+import {Global} from "../Settings/Global";
 
 // NOTE: Open All function is blocked unless popup blocking is disable for website (add notice when it doesn't work?)
 function Home() {
@@ -32,9 +33,7 @@ function Home() {
 
     const [rawConfigs, ] = useContext(ConfigContext)
     const readArgsURL = useReadArgsURL();
-    
-    const [displayStats, ] = useContext(DisplayStatsContext)
-    
+
     const readURL = () => {
         readArgsURL()
     }
@@ -71,6 +70,17 @@ function Home() {
         return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
     }
 
+    const reportIntegrationProgress = (nodes: IndicatorNode[]): IntegrationGenerationProgressReport => {
+        return nodes.map(node => node.reportIntegrationProgress()).reduce((a, b): IntegrationGenerationProgressReport => {
+            return {
+                numFinished: a.numFinished + b.numFinished,
+                numOutgoing: a.numOutgoing + b.numOutgoing,
+                numReturned: a.numReturned + b.numReturned,
+                numFailed: a.numFailed + b.numFailed
+            };
+        }, {numFailed: 0, numReturned: 0, numFinished: 0, numOutgoing: 0});
+    }
+
     const genResults = () => {
         return results.map(indicatorNode =>
             <div>
@@ -103,6 +113,7 @@ function Home() {
 
                         <div className="ResultArea">
                             {genResults()}
+                            {!Global.settings.progressBar || <IntegrationProgressBar report={reportIntegrationProgress(results)}/>}
                         </div>
                     </div>
 

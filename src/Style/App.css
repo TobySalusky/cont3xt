@@ -642,3 +642,38 @@ body {
   display: flex;
   justify-content: flex-end;
 }
+
+
+/* PROGRESS BAR ==================================  */
+.ProgressBarBlock {
+  position: fixed;
+  right: 50px;
+  opacity: 0;
+  bottom: -100px;
+
+  transition-delay: 0.2s;
+  transition-property: bottom, opacity !important;
+  transition-duration: 0.5s !important;
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1) !important;
+}
+
+.ProgressBarWrapper {
+  overflow: hidden;
+  border-radius: 999px;
+  height: 15px;
+  width: 300px;
+  background-color: var(--lighter);
+  box-shadow: 0px 10px 13px -7px var(--darkest), 0px 4px 0px 0px var(--darkest);
+  margin-bottom: 4px;
+}
+
+.ProgressBarSuccess, .ProgressBarFail {
+  background-color: #bcf672;
+  transition-property: width !important;
+  transition-duration: 0.5s !important;
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1) !important;
+}
+
+.ProgressBarFail {
+  background-color: #f16565;
+}

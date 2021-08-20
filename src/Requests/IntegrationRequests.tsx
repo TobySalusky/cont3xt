@@ -52,7 +52,7 @@ export const fetchEmailVerification = async (email: string) : Promise<EmailVerif
     return {valid: res.data.success, banner: res.data.banner};
 }
 
-export const fetchCensysDataIP = async (ip : string) => {
+export const fetchCensysDataIPv4 = async (ip : string) => {
     const {REACT_APP_CENSYS_API_ID, REACT_APP_CENSYS_API_SECRET} = process.env
     if (REACT_APP_CENSYS_API_ID && REACT_APP_CENSYS_API_SECRET) {
         const { SearchClient } = require("@censys/node");

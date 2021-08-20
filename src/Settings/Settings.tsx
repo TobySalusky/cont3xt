@@ -20,9 +20,12 @@ export interface Settings {
     integrationPopups: boolean;
     integrationPanelDelayTime: number;
     integrationMask: IntegrationMask;
+
+    progressBar: boolean;
 }
 
 export interface SettingChanges {
+    progressBar?: boolean;
     integrationPopups?: boolean;
     integrationPanelDelayTime?: number;
     integrationMask?: IntegrationMask;
@@ -59,5 +62,6 @@ export const defaultSettings: Settings = {
         virusTotal_IP: true,
         virusTotal_Hash: true,
         threatStream: true,
-    }
+    },
+    progressBar: true,
 };

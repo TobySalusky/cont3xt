@@ -112,6 +112,11 @@ export const LeftStatsPanel: React.FC = () => {
                             ))}
 	                    </div>
                     </Section>
+				    <Section>
+					    <ToggleOption value={settings.progressBar} onClick={() => {
+                            editSettings({progressBar: !settings.progressBar})
+                        }}>Progress Bar</ToggleOption>
+				    </Section>
                 </div>
             }
             <div className='LeftSidebarCollapsableArea' style={!open ? {borderWidth: 0} : undefined} onClick={()=>setOpen(!open)}>

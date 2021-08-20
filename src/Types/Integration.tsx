@@ -2,7 +2,7 @@ import ComponentTooltip from "../Components/ComponentTooltip";
 import {IndicatorNode} from "./IndicatorNode";
 import {integrationNames} from "../Util/IntegrationDefinitions";
 import {
-    fetchCensysDataIP,
+    fetchCensysDataIPv4,
     fetchPassiveTotalPassiveDNS,
     fetchPassiveTotalSubDomains,
     fetchPassiveTotalWhois, fetchSpurDataIP,
@@ -265,7 +265,7 @@ export class Integration {
             case integrationNames.SPUR:
                 return fetchSpurDataIP(value);
             case integrationNames.CENSYS_IP:
-                return fetchCensysDataIP(value);
+                return fetchCensysDataIPv4(value);
             case integrationNames.URL_SCAN:
                 return fetchURLScan(value);
             case integrationNames.VIRUS_TOTAL_DOMAIN:

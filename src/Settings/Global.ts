@@ -1,5 +1,5 @@
-import {Settings} from "./Settings";
+import {defaultSettings, Settings} from "./Settings";
 
 export class Global {
-    static settings: Settings;
+    static settings: Settings = defaultSettings;
 }

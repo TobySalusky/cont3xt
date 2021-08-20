@@ -29,8 +29,7 @@ export const CollapsableFieldBox: React.FC<{title: string, inline?: boolean, sta
     );
 
     return (
-        <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-            marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8, maxWidth: 1000}}>
+        <div className="ResultBox" style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', marginBottom: 5, padding: 5, fontSize: 12, borderRadius: 8, maxWidth: 1000}}>
             {titleNode}
             {mainNode}
         </div>

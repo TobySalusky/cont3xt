@@ -27,3 +27,10 @@ export interface LinkGenerationData {
     numDays: number;
     startDate: string;
 }
+
+export interface IntegrationGenerationProgressReport {
+    numOutgoing: number;
+    numReturned: number;
+    numFailed: number;
+    numFinished: number;
+}

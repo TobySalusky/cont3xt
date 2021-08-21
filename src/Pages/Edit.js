@@ -106,7 +106,7 @@ function Edit() {
         <div className="App">
             <div className="SettingsTopBar">
                 <Link to="/configurations">
-                    <img className="IconButton" src="./images/backArrow.png" alt="back arrow" onClick={saveConfig}/>
+                    <img className="IconButton" src="./images/backArrow.png" style={{width: 30, height: 30}} alt="back arrow" onClick={saveConfig}/>
                 </Link>
                 {['General', ...tabTypes].map(thisType => (
                     <LinkTypeTab selectedType={type} setType={setType} type={thisType}/>

@@ -19,6 +19,8 @@ import {whiteFilter} from "../Util/Filters";
 import {IntegrationProgressBar} from "../Components/IntegrationProgressBar";
 import {Global} from "../Settings/Global";
 import {ISubTypes, ITypes} from "../Enums/ITypes";
+import {TagInput} from "../Components/TagInput";
+import {Colors} from "../Style/Theme";
 
 // NOTE: Open All function is blocked unless popup blocking is disable for website (add notice when it doesn't work?)
 function Home() {
@@ -27,6 +29,8 @@ function Home() {
     const [numDays, ] = useContext(NumDaysContext)
     const [startDate, setStartDate] = useState('')
     const [results, setResults] = useState<IndicatorNode[]>([])
+
+    const [tags, setTags] = useState<string[]>([])
 
     const [instance, setInstance] = useState(0)
 
@@ -103,12 +107,36 @@ function Home() {
                 <div className="App">
                     <div className="TopBar">
                         <div className="InputAreasTopWrapper">
-                            <div className="InputAreas">
-                                <NumDayInput startDate={startDate}/>
-                                <SearchBar results={results} setResults={setResults}/>
-                                <Link to="/configurations">
-                                    <img className="IconButton" style={whiteFilter} src="./images/settingsBars.png" alt="settings button"/>
-                                </Link>
+                            <div className='InputAreaWithInfo'>
+                                <div className="InputAreas">
+                                    <TagInput setTags={setTags} tags={tags}/>
+                                    <NumDayInput startDate={startDate}/>
+                                    <SearchBar results={results} setResults={setResults}/>
+                                    <Link to="/configurations" style={{width: 40, height: 40}}>
+                                        <img className="IconButton" style={{width: 40, height: 40, ...whiteFilter}} src="./images/settingsBars.png" alt="settings button"/>
+                                    </Link>
+                                </div>
+                                {tags.length === 0 ||
+                                    <div className='TagArea'>
+                                        {tags.map((tag: string, i: number) =>
+                                            <div className='TagBody'>
+                                                <p style={{color: Colors.highlight}}>{tag}</p>
+                                                <div className="HoverClickLighten"
+                                                     style={{marginLeft: 5, paddingInline: 4, borderRadius: 4}}
+                                                     onClick={() => {
+                                                         setTags(Object.entries(tags).filter(([key, tag]) => key !== `${i}`).map(([, tag]) => tag));
+                                                     }}>
+                                                    <p>x</p>
+                                                </div>
+                                            </div>
+                                        )}
+	                                    <div className="HoverClickLighten"
+	                                         style={{marginLeft: 5, paddingInline: 4, borderRadius: 4, backgroundColor: Colors.neutral}}
+	                                         onClick={() => setTags([])}>
+		                                    <p>x</p>
+	                                    </div>
+                                    </div>
+                                }
                             </div>
                         </div>
 

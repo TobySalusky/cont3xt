@@ -86,7 +86,7 @@ const SearchBar : React.FC<{
 
     return (
         <form className="SearchContainer" onSubmit={getQuery}>
-            <input autoFocus className="SearchBar" type="text" value={search} onChange={e => setSearch(e.target.value)}/>
+            <input autoFocus className="SearchBar" type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder='indicators:'/>
             <div className="Base64Copy" onClick={()=>{
                 copyBase64LinkToClipboard(query);
             }}>

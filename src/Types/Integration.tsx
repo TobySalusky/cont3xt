@@ -504,12 +504,9 @@ export class VirusTotalIntegration extends Integration {
                     ], (rowData => {
                         const {scan, detected, result, update, version} = rowData;
                         return [scan, detected, result, update, version];
-                    }), (data: any) => {
+                    }), (data: {[key: string]: any}) => {
                         return Object.entries(data).map(([key, val]) => {
-                            // @ts-ignore
-                            const valTemp: any = val;
-                            console.log('e', {scan: key, ...valTemp})
-                            return {scan: key, ...valTemp};
+                            return {scan: key, ...val};
                         });
                     });
             case 'response_code':

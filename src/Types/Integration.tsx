@@ -174,38 +174,7 @@ export class Integration {
 
     static typeIsEnabled(type: IntegrationTypes): boolean {
         const mask = Global.settings.integrationMask;
-        switch (type) {
-            case IntegrationTypes.SPUR:
-                return mask.spur;
-
-            case IntegrationTypes.THREAT_STREAM:
-                return mask.threatStream;
-
-            case IntegrationTypes.PASSIVETOTAL_WHOIS:
-                return mask.PT_Whois;
-            case IntegrationTypes.PASSIVETOTAL_SUBDOMAINS:
-                return mask.PT_Subdomains;
-            case IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_DOMAIN:
-                return mask.PT_PDNS_Domain;
-            case IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_IP:
-                return mask.PT_PDNS_IP;
-
-            case IntegrationTypes.URL_SCAN:
-                return mask.urlScan;
-
-            case IntegrationTypes.VIRUS_TOTAL_DOMAIN:
-                return mask.virusTotal_Domain;
-            case IntegrationTypes.VIRUS_TOTAL_IP:
-                return mask.virusTotal_IP;
-            case IntegrationTypes.VIRUS_TOTAL_HASH:
-                return mask.virusTotal_Hash;
-
-            case IntegrationTypes.CENSYS_IP:
-                return mask.censys;
-
-            case IntegrationTypes.WHOIS:
-                return mask.whois;
-        }
+        if (mask[type] !== undefined) return mask[type];
         return true;
     }
 

@@ -18,6 +18,7 @@ import {ChildMutationObserver} from "../Components/ChildMutationObserver";
 import {whiteFilter} from "../Util/Filters";
 import {IntegrationProgressBar} from "../Components/IntegrationProgressBar";
 import {Global} from "../Settings/Global";
+import {ISubTypes, ITypes} from "../Enums/ITypes";
 
 // NOTE: Open All function is blocked unless popup blocking is disable for website (add notice when it doesn't work?)
 function Home() {
@@ -50,8 +51,8 @@ function Home() {
         if (results.length === 0) return;
 
         const linkGenerationData : LinkGenerationData = {
-            type: results[0].type,
-            subType: results[0].subType,
+            type: ITypes[results[0].type],
+            subType: ISubTypes[results[0].subType],
             indicator: results[0].value,
             numDays,
             startDate,

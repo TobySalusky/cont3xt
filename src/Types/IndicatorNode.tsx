@@ -4,7 +4,6 @@ import {Copy} from "../Components/Copy";
 import {LinkBack} from "../Components/LinkBack";
 import {AllIntegrations, withPipe} from "../Components/AllIntegrations";
 import {Integration} from "./Integration";
-import {integrationNames} from "../Util/IntegrationDefinitions";
 import {IndicatorData, IntegrationGenerationProgressReport} from "./Types";
 import {makeUnbreakable, stripTrailingPeriod} from "../Util/Util";
 import axios from "axios";
@@ -17,6 +16,8 @@ import {emojiFlagOrEmptyString, tabLines} from "../Util/StringUtil";
 import {InlineDiv} from "../Util/StyleUtil";
 import {Colors} from "../Style/Theme";
 import {RegistrarData} from "../Util/RegistrarData";
+import {ISubTypes, ITypes} from "../Enums/ITypes";
+import {IntegrationTypes} from "../Enums/IntegrationTypes";
 
 
 export class ResultNode {
@@ -149,8 +150,8 @@ export interface IpAsnData {
 export class IndicatorNode extends ResultNode {
     // value
     value: string;
-    type: string;
-    subType: string;
+    type: ITypes;
+    subType: ISubTypes;
 
     // important
     integrations: Integration[] = [];
@@ -233,7 +234,7 @@ export class IndicatorNode extends ResultNode {
 
         if (this.topLevel) return (
             <div className="ResultBox" style={{alignItems: 'center', paddingInlineEnd: 5}}>
-                <p className="ResultType" style={{color: Colors.highlight}}>{this.type}{(this.subType === 'None') ? '' : '('+this.subType+')'}:</p>
+                <p className="ResultType" style={{color: Colors.highlight}}>{ITypes[this.type]}{(this.subType === ISubTypes.NONE) ? '' : '('+ISubTypes[this.subType]+')'}:</p>
                 <MaxLen max={30}>{this.value}</MaxLen>
                 <Copy value={this.value}/>
                 <LinkBack query={this.value}/>
@@ -281,57 +282,60 @@ export class IndicatorNode extends ResultNode {
 
     startAdditions() {
         const rerender = () => {IndicatorNode.rerender();};
-        const integrate = (type : string) => {
+        const integrate = (type: IntegrationTypes) => {
             Integration.startAsyncAddFromVal(type, this.value, this, rerender);
             this.reportIntegrationProgress();
         }
 
         switch (this.type) {
-            case 'Domain':
+            case ITypes.Domain:
                 this.dnsQueries(this.value).then(rerender);
-                integrate(integrationNames.WHOIS);
+                integrate(IntegrationTypes.WHOIS);
 
-                integrate(integrationNames.THREAT_STREAM);
+                integrate(IntegrationTypes.THREAT_STREAM);
 
-                integrate(integrationNames.PASSIVETOTAL_WHOIS);
-                integrate(integrationNames.PASSIVETOTAL_PASSIVE_DNS_DOMAIN);
-                integrate(integrationNames.PASSIVETOTAL_SUBDOMAINS);
+                integrate(IntegrationTypes.PASSIVETOTAL_WHOIS);
+                integrate(IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_DOMAIN);
+                integrate(IntegrationTypes.PASSIVETOTAL_SUBDOMAINS);
 
-                integrate(integrationNames.VIRUS_TOTAL_DOMAIN);
+                integrate(IntegrationTypes.VIRUS_TOTAL_DOMAIN);
 
-                integrate(integrationNames.URL_SCAN);
+                integrate(IntegrationTypes.URL_SCAN);
+
+                integrate(IntegrationTypes.SHODAN);
                 break;
-            case 'IP':
+            case ITypes.IP:
                 fetchDataIP(this.value).then((res) => {
                     this.addChild(new IpAsnNode(res));
                     rerender();
                 });
 
-                integrate(integrationNames.SPUR);
+                integrate(IntegrationTypes.SPUR);
 
-                integrate(integrationNames.THREAT_STREAM);
+                integrate(IntegrationTypes.THREAT_STREAM);
 
-                integrate(integrationNames.PASSIVETOTAL_PASSIVE_DNS_IP);
+                integrate(IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_IP);
 
-                if (this.subType !== 'IPv6') {
-                    integrate(integrationNames.CENSYS_IP);
-                    integrate(integrationNames.VIRUS_TOTAL_IP);
-                    integrate(integrationNames.URL_SCAN);
+                if (this.subType !== ISubTypes.IPv6) {
+                    integrate(IntegrationTypes.CENSYS_IP);
+                    integrate(IntegrationTypes.VIRUS_TOTAL_IP);
+                    integrate(IntegrationTypes.URL_SCAN);
                 }
 
+                integrate(IntegrationTypes.SHODAN);
                 break;
-            case 'Hash':
-                integrate(integrationNames.THREAT_STREAM);
+            case ITypes.Hash:
+                integrate(IntegrationTypes.THREAT_STREAM);
 
-                integrate(integrationNames.VIRUS_TOTAL_HASH);
+                integrate(IntegrationTypes.VIRUS_TOTAL_HASH);
                 break;
-            case 'Email':
+            case ITypes.Email:
                 fetchEmailVerification(this.value).then((emailValidation) => {
                     this.addChild(new ValidationNode(emailValidation.valid, emailValidation.banner));
                     rerender();
                 });
                 break;
-            case 'PhoneNumber':
+            case ITypes.PhoneNumber:
                 fetchPhoneNumberValidation(this.value).then((phoneNumberValidation) => {
                     this.addChild(new ValidationNode(phoneNumberValidation.valid));
                     rerender();
@@ -406,7 +410,7 @@ export class IndicatorNode extends ResultNode {
         let str : string = this.genIndicatorData().stringify();
         str += '\n\n';
         str = str += this.integrations.map(integration => integration.generateReport(true)).join('\n\n');
-        if (this.type === 'Domain') {
+        if (this.type === ITypes.Domain) {
             str += '\n\n';
             const dns = this.children.filter(child => child instanceof IndicatorNode).map(child => child as IndicatorNode)
                 .map(dnsRecord => `${dnsRecord.dnsType}: ${dnsRecord.value}`).join('\n');

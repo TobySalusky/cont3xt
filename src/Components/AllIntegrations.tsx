@@ -1,8 +1,8 @@
 import React, {useContext} from "react";
 import {Integration} from "../Types/Integration";
 import {mapOrder} from "../Util/SortUtil";
-import {integrationNames} from "../Util/IntegrationDefinitions";
 import {ActiveIntegrationContext} from "../State/ActiveIntegrationContext";
+import {IntegrationTypes} from "../Enums/IntegrationTypes";
 
 export const withPipe = (html : any) : JSX.Element => {
     return (
@@ -36,19 +36,19 @@ export const AllIntegrations : React.FC<{
     );
 }
 
-const sortIntegrationTypes = (integrationTypes: string[]) : string[] => {
+const sortIntegrationTypes = (integrationTypes: IntegrationTypes[]) : string[] => {
     return mapOrder(integrationTypes, [
-        integrationNames.SPUR,
-        integrationNames.CENSYS_IP,
-        integrationNames.WHOIS,
-        integrationNames.PASSIVETOTAL_WHOIS,
-        integrationNames.PASSIVETOTAL_PASSIVE_DNS_DOMAIN,
-        integrationNames.PASSIVETOTAL_PASSIVE_DNS_IP,
-        integrationNames.PASSIVETOTAL_SUBDOMAINS,
-        integrationNames.URL_SCAN,
-        integrationNames.VIRUS_TOTAL_DOMAIN,
-        integrationNames.VIRUS_TOTAL_IP,
-        integrationNames.VIRUS_TOTAL_HASH,
-        integrationNames.THREAT_STREAM,
+        IntegrationTypes.SPUR,
+        IntegrationTypes.CENSYS_IP,
+        IntegrationTypes.WHOIS,
+        IntegrationTypes.PASSIVETOTAL_WHOIS,
+        IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_DOMAIN,
+        IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_IP,
+        IntegrationTypes.PASSIVETOTAL_SUBDOMAINS,
+        IntegrationTypes.URL_SCAN,
+        IntegrationTypes.VIRUS_TOTAL_DOMAIN,
+        IntegrationTypes.VIRUS_TOTAL_IP,
+        IntegrationTypes.VIRUS_TOTAL_HASH,
+        IntegrationTypes.THREAT_STREAM,
     ]);
 }

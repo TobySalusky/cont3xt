@@ -1,25 +1,25 @@
 import {makeUnbreakable, stripTrailingPeriod} from "./Util";
-import { integrationNames } from "./IntegrationDefinitions";
 import {mapOrder, onEnd} from "./SortUtil";
 import dr from 'defang-refang'
 import {isArray, isDict} from "./VariableClassifier";
 import extractDomain from "extract-domain";
+import { IntegrationTypes } from "../Enums/IntegrationTypes";
 
 const PLACE_HOLDER = '_____cont3xt_placeholder';
 
 export function toOrderedKeys(integrationType, keyList) {
 	switch (integrationType) {
-		case integrationNames.PASSIVETOTAL_WHOIS:
+		case IntegrationTypes.PASSIVETOTAL_WHOIS:
 			return mapOrder(keyList, [
 				'Domain', 'registrar', 'organization', 'registered', 'expiresAt', 'lastLoadedAt', 'registryUpdateAt', 'nameServers',
 				'admin', 'billing', 'registrant', 'tech', 'whoisServer', 'name', 'telephone', 'domainStatus'
 			]);
-		case integrationNames.URL_SCAN:
+		case IntegrationTypes.URL_SCAN:
 			return mapOrder(keyList, [
 				'total', 'took', 'has_more'
 			]);
-		case integrationNames.VIRUS_TOTAL_IP:
-		case integrationNames.VIRUS_TOTAL_DOMAIN:
+		case IntegrationTypes.VIRUS_TOTAL_IP:
+		case IntegrationTypes.VIRUS_TOTAL_DOMAIN:
 			return onEnd(mapOrder(keyList, [ // TODO: allow regex in mapOrder (for category and info)
 				'asn',
 				'as_owner',
@@ -40,7 +40,7 @@ export function toOrderedKeys(integrationType, keyList) {
 				'undetected_referrer_samples',
 				'resolutions',
 			]), ['subdomains', 'pcaps']);
-		case integrationNames.VIRUS_TOTAL_HASH:
+		case IntegrationTypes.VIRUS_TOTAL_HASH:
 			return mapOrder(keyList, [
 				'scan_date',
 				'total',
@@ -60,24 +60,24 @@ export function toOrderedKeys(integrationType, keyList) {
 
 const getIntermediateCleaners = (integrationType) => {
 	switch (integrationType) {
-		case integrationNames.SPUR:
+		case IntegrationTypes.SPUR:
 			return [cleanSpurExists, removeEmptyDicts, cleanSpur];
-		case integrationNames.CENSYS_IP:
+		case IntegrationTypes.CENSYS_IP:
 			return [cleanCensys];
-		case integrationNames.WHOIS:
+		case IntegrationTypes.WHOIS:
 			return [cleanWhoIs];
-		case integrationNames.PASSIVETOTAL_WHOIS:
+		case IntegrationTypes.PASSIVETOTAL_WHOIS:
 			return [removeEmptyDicts, cleanPassiveTotalWhois];
-		case integrationNames.PASSIVETOTAL_PASSIVE_DNS_IP:
-		case integrationNames.PASSIVETOTAL_PASSIVE_DNS_DOMAIN:
+		case IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_IP:
+		case IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_DOMAIN:
 			return [cleanPassiveTotalPassiveDNS];
-		case integrationNames.URL_SCAN:
+		case IntegrationTypes.URL_SCAN:
 			return [defangUrlScanUrls];
-		case integrationNames.VIRUS_TOTAL_DOMAIN:
-		case integrationNames.VIRUS_TOTAL_IP:
-		case integrationNames.VIRUS_TOTAL_HASH:
+		case IntegrationTypes.VIRUS_TOTAL_DOMAIN:
+		case IntegrationTypes.VIRUS_TOTAL_IP:
+		case IntegrationTypes.VIRUS_TOTAL_HASH:
 			return [removeEmptyArraysAndDicts, defangVirusTotal]
-		case integrationNames.THREAT_STREAM:
+		case IntegrationTypes.THREAT_STREAM:
 			return [cleanThreatStreamObjects, removeNullAndUndefined];
 		default:
 			return [noCleaner];

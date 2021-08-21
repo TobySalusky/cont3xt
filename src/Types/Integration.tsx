@@ -1,11 +1,10 @@
 import ComponentTooltip from "../Components/ComponentTooltip";
 import {IndicatorNode} from "./IndicatorNode";
-import {integrationNames} from "../Util/IntegrationDefinitions";
 import {
     fetchCensysDataIPv4,
     fetchPassiveTotalPassiveDNS,
     fetchPassiveTotalSubDomains,
-    fetchPassiveTotalWhois, fetchSpurDataIP,
+    fetchPassiveTotalWhois, fetchShodan, fetchSpurDataIP,
     fetchThreatStream, fetchURLScan, fetchVirusTotalDomain, fetchVirusTotalHash, fetchVirusTotalIP, fetchWhois
 } from "../Requests/IntegrationRequests";
 import {
@@ -29,12 +28,13 @@ import {PassiveTotalDnsTableLayout} from "../Layouts/CustomLayouts";
 import {MaxLen} from "../Util/ElemUtil";
 import {Unbreakable} from "../Style/Unbreakable";
 import {tryUseRegistrarData} from "../Util/RegistrarData";
+import {IntegrationTypes} from "../Enums/IntegrationTypes";
 
 const DEF_DATE = 'N/A ';
 
 export class Integration {
 
-    type: string;
+    type: IntegrationTypes;
     data: any;
     imgSrc: string = './images/report.svg';
     imgAlt: string;
@@ -44,7 +44,7 @@ export class Integration {
 
     compUI? : JSX.Element;
 
-    constructor(result: any, type: string) {
+    constructor(result: any, type: IntegrationTypes) {
         const cleaner = getCleaner(type);
         this.data = cleaner(result.data);
         this.type = type;
@@ -172,44 +172,44 @@ export class Integration {
         });
     }
 
-    static typeIsEnabled(type: string): boolean {
+    static typeIsEnabled(type: IntegrationTypes): boolean {
         const mask = Global.settings.integrationMask;
         switch (type) {
-            case integrationNames.SPUR:
+            case IntegrationTypes.SPUR:
                 return mask.spur;
 
-            case integrationNames.THREAT_STREAM:
+            case IntegrationTypes.THREAT_STREAM:
                 return mask.threatStream;
 
-            case integrationNames.PASSIVETOTAL_WHOIS:
+            case IntegrationTypes.PASSIVETOTAL_WHOIS:
                 return mask.PT_Whois;
-            case integrationNames.PASSIVETOTAL_SUBDOMAINS:
+            case IntegrationTypes.PASSIVETOTAL_SUBDOMAINS:
                 return mask.PT_Subdomains;
-            case integrationNames.PASSIVETOTAL_PASSIVE_DNS_DOMAIN:
+            case IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_DOMAIN:
                 return mask.PT_PDNS_Domain;
-            case integrationNames.PASSIVETOTAL_PASSIVE_DNS_IP:
+            case IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_IP:
                 return mask.PT_PDNS_IP;
 
-            case integrationNames.URL_SCAN:
+            case IntegrationTypes.URL_SCAN:
                 return mask.urlScan;
 
-            case integrationNames.VIRUS_TOTAL_DOMAIN:
+            case IntegrationTypes.VIRUS_TOTAL_DOMAIN:
                 return mask.virusTotal_Domain;
-            case integrationNames.VIRUS_TOTAL_IP:
+            case IntegrationTypes.VIRUS_TOTAL_IP:
                 return mask.virusTotal_IP;
-            case integrationNames.VIRUS_TOTAL_HASH:
+            case IntegrationTypes.VIRUS_TOTAL_HASH:
                 return mask.virusTotal_Hash;
 
-            case integrationNames.CENSYS_IP:
+            case IntegrationTypes.CENSYS_IP:
                 return mask.censys;
 
-            case integrationNames.WHOIS:
+            case IntegrationTypes.WHOIS:
                 return mask.whois;
         }
         return true;
     }
 
-    static startAsyncAddFromVal(type: string, value: string, indicatorNode: IndicatorNode, onFinish?: ()=>void) {
+    static startAsyncAddFromVal(type: IntegrationTypes, value: string, indicatorNode: IndicatorNode, onFinish?: ()=>void) {
         if (this.typeIsEnabled(type)) {
             this.startAsyncAddTo(Integration.create(type, Integration.getResTask(type, value)), indicatorNode, onFinish);
         } else {
@@ -217,7 +217,7 @@ export class Integration {
         }
     }
 
-    static async create(type: string, resTask: Promise<any>): Promise<Integration | null> {
+    static async create(type: IntegrationTypes, resTask: Promise<any>): Promise<Integration | null> {
         const res: any = await resTask;
 
         if (res?.data == null || res?.data === 'err') {
@@ -225,57 +225,61 @@ export class Integration {
         }
 
         switch (type) {
-            case integrationNames.SPUR:
+            case IntegrationTypes.SPUR:
                 return new SpurIntegration(res);
-            case integrationNames.THREAT_STREAM:
+            case IntegrationTypes.THREAT_STREAM:
                 return new ThreatStreamIntegration(res);
-            case integrationNames.PASSIVETOTAL_SUBDOMAINS:
+            case IntegrationTypes.PASSIVETOTAL_SUBDOMAINS:
                 return new PassiveTotalSubdomainsIntegration(res);
-            case integrationNames.PASSIVETOTAL_PASSIVE_DNS_DOMAIN:
-            case integrationNames.PASSIVETOTAL_PASSIVE_DNS_IP:
+            case IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_DOMAIN:
+            case IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_IP:
                 return new PassiveTotalPassiveDNSIntegration(res, type);
-            case integrationNames.PASSIVETOTAL_WHOIS:
+            case IntegrationTypes.PASSIVETOTAL_WHOIS:
                 return new PassiveTotalWhoisIntegration(res);
-            case integrationNames.URL_SCAN:
+            case IntegrationTypes.URL_SCAN:
                 return new UrlScanIntegration(res);
-            case integrationNames.VIRUS_TOTAL_DOMAIN:
-            case integrationNames.VIRUS_TOTAL_IP:
-            case integrationNames.VIRUS_TOTAL_HASH:
+            case IntegrationTypes.VIRUS_TOTAL_DOMAIN:
+            case IntegrationTypes.VIRUS_TOTAL_IP:
+            case IntegrationTypes.VIRUS_TOTAL_HASH:
                 return new VirusTotalIntegration(res, type);
-            case integrationNames.CENSYS_IP:
+            case IntegrationTypes.CENSYS_IP:
                 return new CensysIntegration(res, type);
-            case integrationNames.WHOIS:
+            case IntegrationTypes.WHOIS:
                 return new WhoisIntegration(res);
+            case IntegrationTypes.SHODAN:
+                return new ShodanIntegration(res);
             default:
                 return new Integration(res, type);
         }
     }
 
-    static async getResTask(type: string, value: string): Promise<any> {
+    static async getResTask(type: IntegrationTypes, value: string): Promise<any> {
         switch (type) {
-            case integrationNames.THREAT_STREAM:
+            case IntegrationTypes.THREAT_STREAM:
                 return fetchThreatStream(value);
-            case integrationNames.PASSIVETOTAL_WHOIS:
+            case IntegrationTypes.PASSIVETOTAL_WHOIS:
                 return fetchPassiveTotalWhois(value);
-            case integrationNames.PASSIVETOTAL_SUBDOMAINS:
+            case IntegrationTypes.PASSIVETOTAL_SUBDOMAINS:
                 return fetchPassiveTotalSubDomains(value);
-            case integrationNames.PASSIVETOTAL_PASSIVE_DNS_DOMAIN:
-            case integrationNames.PASSIVETOTAL_PASSIVE_DNS_IP:
+            case IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_DOMAIN:
+            case IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_IP:
                 return fetchPassiveTotalPassiveDNS(value);
-            case integrationNames.SPUR:
+            case IntegrationTypes.SPUR:
                 return fetchSpurDataIP(value);
-            case integrationNames.CENSYS_IP:
+            case IntegrationTypes.CENSYS_IP:
                 return fetchCensysDataIPv4(value);
-            case integrationNames.URL_SCAN:
+            case IntegrationTypes.URL_SCAN:
                 return fetchURLScan(value);
-            case integrationNames.VIRUS_TOTAL_DOMAIN:
+            case IntegrationTypes.VIRUS_TOTAL_DOMAIN:
                 return fetchVirusTotalDomain(value);
-            case integrationNames.VIRUS_TOTAL_IP:
+            case IntegrationTypes.VIRUS_TOTAL_IP:
                 return fetchVirusTotalIP(value);
-            case integrationNames.VIRUS_TOTAL_HASH:
+            case IntegrationTypes.VIRUS_TOTAL_HASH:
                 return fetchVirusTotalHash(value);
-            case integrationNames.WHOIS:
+            case IntegrationTypes.WHOIS:
                 return fetchWhois(value);
+            case IntegrationTypes.SHODAN:
+                return fetchShodan(value);
         }
     }
 
@@ -287,7 +291,7 @@ export class Integration {
 
 export class ThreatStreamIntegration extends Integration {
     constructor(result: any) {
-        super(result, integrationNames.THREAT_STREAM);
+        super(result, IntegrationTypes.THREAT_STREAM);
         this.imgSrc = './images/anomali.webp';
     }
 
@@ -337,7 +341,7 @@ export class ThreatStreamIntegration extends Integration {
 }
 
 export class PassiveTotalIntegration extends Integration {
-    constructor(result: any, type: string) {
+    constructor(result: any, type: IntegrationTypes) {
         super(result, type);
         this.imgSrc = './images/passivetotalIcon.png';
     }
@@ -345,7 +349,7 @@ export class PassiveTotalIntegration extends Integration {
 
 export class PassiveTotalSubdomainsIntegration extends PassiveTotalIntegration {
     constructor(result: any) {
-        super(result, integrationNames.PASSIVETOTAL_SUBDOMAINS);
+        super(result, IntegrationTypes.PASSIVETOTAL_SUBDOMAINS);
     }
 
     genFlavorText(): string {
@@ -379,7 +383,7 @@ export class PassiveTotalPassiveDNSIntegration extends PassiveTotalIntegration {
 
 export class PassiveTotalWhoisIntegration extends PassiveTotalIntegration {
     constructor(result: any) {
-        super(result, integrationNames.PASSIVETOTAL_WHOIS);
+        super(result, IntegrationTypes.PASSIVETOTAL_WHOIS);
         this.imgSrc = './images/whoisIcon.svg';
         this.imgStyle = whiteFilter;
     }
@@ -392,7 +396,7 @@ export class PassiveTotalWhoisIntegration extends PassiveTotalIntegration {
 
 export class UrlScanIntegration extends Integration {
     constructor(result: any) {
-        super(result, integrationNames.URL_SCAN);
+        super(result, IntegrationTypes.URL_SCAN);
         this.imgSrc = './images/urlscanIcon.png';
     }
 
@@ -444,14 +448,14 @@ export class UrlScanIntegration extends Integration {
 }
 
 export class VirusTotalIntegration extends Integration {
-    constructor(result: any, type: string) {
+    constructor(result: any, type: IntegrationTypes) {
         super(result, type);
         this.imgSrc = './images/virustotal.svg';
     }
 
     onAdd(indicatorNode: IndicatorNode) {
         super.onAdd(indicatorNode);
-        if (this.type === integrationNames.VIRUS_TOTAL_IP) tryUseASN(indicatorNode, this.type, this.data);
+        if (this.type === IntegrationTypes.VIRUS_TOTAL_IP) tryUseASN(indicatorNode, this.type, this.data);
     }
 
     tryCount(): number | null {
@@ -560,7 +564,7 @@ export class VirusTotalIntegration extends Integration {
 }
 
 export class CensysIntegration extends Integration {
-    constructor(result: any, type: string) {
+    constructor(result: any, type: IntegrationTypes) {
         super(result, type);
         this.imgSrc = './images/censysIcon.png';
     }
@@ -578,7 +582,7 @@ export class CensysIntegration extends Integration {
 
 export class WhoisIntegration extends Integration {
     constructor(result: any) {
-        super(result, integrationNames.WHOIS);
+        super(result, IntegrationTypes.WHOIS);
         this.imgSrc = './images/whoisIcon.svg';
     }
 
@@ -590,7 +594,7 @@ export class WhoisIntegration extends Integration {
 
 export class SpurIntegration extends Integration {
     constructor(result: any) {
-        super(result, integrationNames.SPUR);
+        super(result, IntegrationTypes.SPUR);
         this.imgSrc = './images/spur.png';
         this.imgStyle = {width: 60};
     }
@@ -598,5 +602,20 @@ export class SpurIntegration extends Integration {
     onAdd(indicatorNode: IndicatorNode) {
         super.onAdd(indicatorNode);
         tryUseASN(indicatorNode, this.type, this.data);
+    }
+}
+
+export class ShodanIntegration extends Integration {
+    constructor(result: any) {
+        super(result, IntegrationTypes.SHODAN);
+        this.imgSrc = './images/shodan.png';
+    }
+
+    genFlavorText(): string {
+        try {
+            return abbreviateNumber(this.data.total);
+        } catch {
+            return super.genFlavorText();
+        }
     }
 }

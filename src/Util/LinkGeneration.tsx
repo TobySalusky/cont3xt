@@ -1,6 +1,7 @@
 /* eslint-disable no-template-curly-in-string */
 
 import {LinkGenerationData} from "../Types/Types";
+import {ISubTypes, ITypes} from "../Enums/ITypes";
 
 export const fillLinkFormat = (formatLink : string, data : LinkGenerationData) : string => {
 

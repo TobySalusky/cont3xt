@@ -1,6 +1,6 @@
 import {createTimeStamp} from "./Util";
-import {integrationNames} from "./IntegrationDefinitions";
 import {IndicatorNode} from "../Types/IndicatorNode";
+import {IntegrationTypes} from "../Enums/IntegrationTypes";
 
 export interface RegistrarData {
     registrar: string;
@@ -12,14 +12,14 @@ export const createRegistrarData = (integrationType: string, registrar: string, 
     return {
         registrar,
         registeredDateString: createTimeStamp(new Date(registeredDateTimestamp)),
-        precedence: integrationType === integrationNames.PASSIVETOTAL_WHOIS ? 1 : 0,
+        precedence: integrationType === IntegrationTypes.PASSIVETOTAL_WHOIS ? 1 : 0,
     };
 }
 
 export const tryUseRegistrarData = (indicatorNode: IndicatorNode, integrationType: string, data: any): void => {
     try {
         const registrarData = (()=>{
-            if (integrationType === integrationNames.PASSIVETOTAL_WHOIS) {
+            if (integrationType === IntegrationTypes.PASSIVETOTAL_WHOIS) {
                 // PT whois
                 return createRegistrarData(integrationType, data.registrar, data.registered);
             }

@@ -1,9 +1,9 @@
-import { integrationNames } from "./IntegrationDefinitions";
 
 import { toColorTextOld } from "./Util";
 import {FIRST_SEEN, sortPassiveDNSResults} from "./SortUtil";
 import { tabLines } from "./StringUtil";
 import { toOrderedKeys } from "./IntegrationCleaners";
+import { IntegrationTypes } from "../Enums/IntegrationTypes";
 
 export const dnsString = (dns, settingsObj) => {
 	let {tabs = false, spaceCount = -1} = settingsObj
@@ -28,13 +28,13 @@ export const generateIntegrationReport = (integrationType, integrationData, sett
 	
 	switch (integrationType) {
 		
-		case integrationNames.PASSIVETOTAL_SUBDOMAINS: {
+		case IntegrationTypes.PASSIVETOTAL_SUBDOMAINS: {
 			const list = data.subdomains;
 			return ['Subdomains:'].concat(tabLines(list.join('\n'), spaceCount)).join('\n');
 		}
 		
-		case integrationNames.PASSIVETOTAL_PASSIVE_DNS_DOMAIN:
-		case integrationNames.PASSIVETOTAL_PASSIVE_DNS_IP: {
+		case IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_DOMAIN:
+		case IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_IP: {
 			const keysAndColorText = keys.filter(key => key !== 'results').map(key => {
 				const colorText = toColorTextOld(data[key])
 				return {key, colorText};
@@ -46,7 +46,7 @@ export const generateIntegrationReport = (integrationType, integrationData, sett
 			
 			const stringifyResult = (result) => {
 				const {recordType, resolveType, resolve, firstSeen, lastSeen} = result;
-				return `${(integrationType === integrationNames.PASSIVETOTAL_PASSIVE_DNS_DOMAIN) ? `${resolveType}${recordType ? `(${recordType})` : ''}: ` : ''}${resolve}, firstSeen: ${firstSeen}, lastSeen: ${lastSeen}`;
+				return `${(integrationType === IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_DOMAIN) ? `${resolveType}${recordType ? `(${recordType})` : ''}: ` : ''}${resolve}, firstSeen: ${firstSeen}, lastSeen: ${lastSeen}`;
 			}
 
 			return keysAndColorText.map(({key, colorText}) => `${key}: ${colorText.val}`).concat(['Results:'])

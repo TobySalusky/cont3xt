@@ -17,7 +17,7 @@ export const abbreviateNumber = (value: number): string => {
 		if (shortValue % 1 != 0)  shortValue = shortValue.toFixed(1);
 		newValue = shortValue+suffixes[suffixNum];
 	}
-	return newValue;
+	return String(newValue);
 }
 
 

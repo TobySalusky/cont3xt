@@ -1,18 +1,7 @@
 import {isDict} from "../Util/VariableClassifier";
+import {IntegrationTypes, shortSettingsName} from "../Enums/IntegrationTypes";
 
 export interface IntegrationMask {
-    whois: boolean;
-    spur: boolean;
-    censys: boolean;
-    PT_Whois: boolean;
-    PT_Subdomains: boolean;
-    PT_PDNS_Domain: boolean;
-    PT_PDNS_IP: boolean;
-    urlScan: boolean;
-    virusTotal_Domain: boolean;
-    virusTotal_IP: boolean;
-    virusTotal_Hash: boolean;
-    threatStream: boolean;
     [key: string]: boolean;
 }
 
@@ -49,19 +38,14 @@ export const validatePropertyKeysAndTypes = (testObj: any, referenceObj: any):bo
 export const defaultSettings: Settings = {
     integrationPopups: true,
     integrationPanelDelayTime: 0.2,
-    integrationMask: {
-        whois: true,
-        spur: true,
-        censys: true,
-        PT_Whois: true,
-        PT_Subdomains: true,
-        PT_PDNS_Domain: true,
-        PT_PDNS_IP: true,
-        urlScan: true,
-        virusTotal_Domain: true,
-        virusTotal_IP: true,
-        virusTotal_Hash: true,
-        threatStream: true,
-    },
+    integrationMask: (()=>{
+        const dict: IntegrationMask = {};
+
+        for (const val of Object.values(IntegrationTypes)) {
+            dict[shortSettingsName(val)] = true;
+        }
+
+        return dict;
+    })(),
     progressBar: true,
 };

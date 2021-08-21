@@ -18,6 +18,7 @@ import {
 } from "../Util/SortUtil";
 import { toOrderedKeys } from "../Util/IntegrationCleaners";
 import { CollapsableFieldBox } from "./CollapsableFieldBox";
+import { ISubTypes, ITypes } from "../Enums/ITypes";
 
 
 export const infoBox = (title, data, startOpen = true) => {
@@ -67,7 +68,7 @@ export function PassiveTotalPassiveDNSColorDictBox({resultList, indicatorData}) 
     
     const [sortType, setSortType] = useState(FIRST_SEEN);
     
-    const isDomain = indicatorData.type === 'Domain';
+    const isDomain = indicatorData.type === ITypes.Domain;
     
     function DateHeader({name, thisSortType, sortType})  {
         return (

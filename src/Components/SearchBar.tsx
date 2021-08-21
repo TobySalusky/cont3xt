@@ -1,13 +1,16 @@
 import '../Style/App.css';
-import React, { useState, useEffect, useContext } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {useUpdateArgsURL} from "../Util/URLHandler";
-import { Base64Context, QueryContext } from "../State/SearchContext";
-import { DisplayStatsContext } from '../State/DisplayStatsContext';
+import {Base64Context, QueryContext} from "../State/SearchContext";
+import {DisplayStatsContext} from '../State/DisplayStatsContext';
 import dr from 'defang-refang'
-import { whiteFilter } from "../Util/Filters";
-import { downloadFullReport } from "../Util/ReportGenerator";
+import {whiteFilter} from "../Util/Filters";
+import {downloadFullReport} from "../Util/ReportGenerator";
 import {IndicatorNode} from "../Types/IndicatorNode";
 import {ActiveIntegrationContext} from "../State/ActiveIntegrationContext";
+import {ITypes} from "../Enums/ITypes";
+import extractDomain from "extract-domain";
+
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 // TODO: auto-format phone number results
@@ -56,11 +59,16 @@ const SearchBar : React.FC<{
         }
 
         // TODO: sanitize indicator (phone, etc.)
-        if (topResultNode.type === 'Email') {
-            const afterEmailAt = indicator.substring(indicator.indexOf('@') + 1);
+        if (topResultNode.type === ITypes.Email) {
+            const domain = indicator.substring(indicator.indexOf('@') + 1);
 
-            newResults.push(new IndicatorNode(afterEmailAt, {topLevel: true}));
+            newResults.push(new IndicatorNode(domain, {topLevel: true}));
+        } else if (topResultNode.type === ITypes.Url) {
+            const domain = extractDomain(indicator);
+
+            newResults.push(new IndicatorNode(domain, {topLevel: true}));
         }
+
 
         setResults(newResults)
         console.log(newResults);

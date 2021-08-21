@@ -1,7 +1,7 @@
 import axios from "axios";
 import {EmailVerificationData, PhoneNumberValidationData} from "../Types/IndicatorNode";
 import {log} from "../Util/Util";
-import {integrationNames} from "../Util/IntegrationDefinitions";
+import {IntegrationTypes} from "../Enums/IntegrationTypes";
 
 const logData = (integrationName: string, indicator: string, data: any): void => {
     log(`${integrationName} for ${indicator}`, data);
@@ -28,7 +28,7 @@ export const fetchWhois = async (domain: string) => {
         }
     });
 
-    logData(integrationNames.WHOIS, domain, res);
+    logData(IntegrationTypes.WHOIS, domain, res);
 
     return res;
 }
@@ -91,7 +91,7 @@ export const fetchCensysDataIPv4 = async (ip : string) => {
             });
         }*/
 
-        logData(integrationNames.CENSYS_IP, ip, censysData);
+        logData(IntegrationTypes.CENSYS_IP, ip, censysData);
 
         return {data: censysData};
     }
@@ -113,7 +113,7 @@ export const fetchPassiveTotalWhois = async (domain : string) => {
         }
     });
 
-    logData(integrationNames.PASSIVETOTAL_WHOIS, domain, passiveTotalWhois);
+    logData(IntegrationTypes.PASSIVETOTAL_WHOIS, domain, passiveTotalWhois);
 
     return passiveTotalWhois;
 }
@@ -131,7 +131,7 @@ export const fetchPassiveTotalSubDomains = async (domain : string) => {
         }
     });
 
-    logData(integrationNames.PASSIVETOTAL_SUBDOMAINS, domain, passiveTotalSubDomainsResult);
+    logData(IntegrationTypes.PASSIVETOTAL_SUBDOMAINS, domain, passiveTotalSubDomainsResult);
     return passiveTotalSubDomainsResult;
 }
 
@@ -162,7 +162,7 @@ export const fetchThreatStream = async (indicator : string) => {
         },
     })
 
-    logData(integrationNames.THREAT_STREAM, indicator, res);
+    logData(IntegrationTypes.THREAT_STREAM, indicator, res);
     return res;
 }
 
@@ -177,7 +177,7 @@ export const fetchSpurDataIP = async (ip : string) => {
         }
     })
 
-    logData(integrationNames.SPUR, ip, spurRes);
+    logData(IntegrationTypes.SPUR, ip, spurRes);
     return spurRes
 }
 
@@ -194,7 +194,7 @@ export const fetchURLScan = async (ipOrDomain : string) => {
         },
     })
 
-    logData(integrationNames.URL_SCAN, ipOrDomain, res);
+    logData(IntegrationTypes.URL_SCAN, ipOrDomain, res);
 
     return res
 }
@@ -209,7 +209,7 @@ export const fetchVirusTotalDomain = async (domain : string) => {
         },
     })
 
-    logData(integrationNames.VIRUS_TOTAL_DOMAIN, domain, res);
+    logData(IntegrationTypes.VIRUS_TOTAL_DOMAIN, domain, res);
     return res;
 }
 
@@ -223,7 +223,7 @@ export const fetchVirusTotalIP = async (ip : string) => {
         },
     })
 
-    logData(integrationNames.VIRUS_TOTAL_IP, ip, res);
+    logData(IntegrationTypes.VIRUS_TOTAL_IP, ip, res);
     return res;
 }
 
@@ -237,6 +237,22 @@ export const fetchVirusTotalHash = async (hash : string) => {
         },
     })
 
-    logData(integrationNames.VIRUS_TOTAL_HASH, hash, res);
+    logData(IntegrationTypes.VIRUS_TOTAL_HASH, hash, res);
+    return res;
+}
+
+export const fetchShodan = async (query : string) => {
+
+    const {REACT_APP_SHODAN_KEY: key} = process.env;
+    if (!key) return null;
+
+    const res = await axios.get('/shodan-search', {
+        params: {
+            q: query,
+            key: key,
+        },
+    })
+
+    logData(IntegrationTypes.SHODAN, query, res);
     return res;
 }

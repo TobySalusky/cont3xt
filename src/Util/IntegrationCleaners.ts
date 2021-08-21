@@ -163,7 +163,7 @@ const cleanPassiveTotalPassiveDNS = (dict: any) => {
 			firstSeen: snipDate(firstSeen), lastSeen: snipDate(lastSeen),
 			fullFirstSeen: firstSeen, fullLastSeen: lastSeen
 		}
-	}).sort((a: any, b: any) => new Date(b.fullLastSeen) - new Date(a.fullFirstSeen));
+	}).sort((a: any, b: any) => (new Date(b.fullLastSeen)).valueOf() - (new Date(a.fullFirstSeen)).valueOf());
 
 	return clean;
 }
@@ -257,7 +257,7 @@ const cleanSpurExists = (dict: any) => recurseAll(dict, (obj) => {
 const defangUrlScanUrls = (dict: any) => recurseAll(dict, (obj) => {
 	const newObj: any = {};
 	for (const [key, val] of Object.entries(obj)) {
-		newObj[key] = (key === 'url') ? dr.defang(val) : val;
+		newObj[key] = (key === 'url' && typeof val === 'string') ? dr.defang(val) : val;
 	}
 
 	return newObj;

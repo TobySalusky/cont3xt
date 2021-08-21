@@ -1,53 +1,59 @@
 Cont3xt intends to centralize and simplify a structured approach to gathering contextual intelligence in support of technical investigations.
 
-** Install/Configuration
+# Install/Configuration
 
 * Install NodeJS (~5-6 minutes)
-brew install node
+
+```brew install node```
 
 
 
-* Install the UI
+# Install the UI
+```
 git clone https://github.com/TobySalusky/cont3xt.git
 cd cont3xt
 npm ci install
 npm audit fix
 ;# Add your API Keys to `.env` (after renaming from .env.template), and you can make customizations to /public/config/*.txt configs at any time.
+```
+
+* If you add/change API Keys, the NodeJS service must restart.
+* Changes to configurations in public/config do not require a restart
 
 
-# If you add/change API Keys, the NodeJS service must restart.
-# Changes to configurations in public/config do not require a restart
+# Install the backend 
 
-
-* Install the backend ;# ( This backend/proxy process is necessary to work around CORS issues )
+`( This backend/proxy process is necessary to work around CORS issues )`
+```
 npx --package express-generator express c3b
 git clone https://github.com/TobySalusky/cont3xtbackend.git
 cp -Rp cont3xtbackend/* c3b
 cd c3b
 npm ci install
 npm audit fix
-
+```
 
 * Start it up
 
 I recommend running this only on your local machine to avoid exposing the interface to any network larger network. So, In a separate window, with two different terminal tabs.
+```
 1. # 1st window; cd c3b; # The backend ; npm start
 2. # 2nd window; cd cont3xt; # The UI; npm start
-
+```
 
 ** Note: First time you try to 'Open All' from a reporting section, you'll need to approve pop-blocker
 
 
 ===========
 
-* Using Cont3xt
+# Using Cont3xt
 
 Cont3xt will attempt to auto enrich supported iTypes of IP, domain/hostname, email address, hashes, phone numbers (not just yet) and sooner or later URL's.
 
 Enter an indicator in the search bar on top. The search bar supports refanging input and identifies the iType. Search does not currently support bulk lookups, but will in the future.
 
 
-* Auto Enrichment currently supported:
+# Auto Enrichments currently supported:
 
 For Domains/hostnames:
 1. Use of Cloudflare DNS over HTTPS to perform resolution of records types including A, AAAA, NS, MX, TXT, SPF/DMARC, CAA and SOA. Any explicit IP's resolved will have the IP iType enrichment performed.
@@ -67,6 +73,7 @@ For IP's:
 4. PassiveTotal IP PDNS query
 5. VirusTotal IP query
 6. Anomali ThreatStream IP query
+7. Shodan IP query
 
 
 For Email:
@@ -86,7 +93,7 @@ There is a basic report generation feature that will drop results into a ${indic
 
 
 
-* Add your own links:
+# Add your own links:
 
 You can add custom query external links to your own resources as long as you can craft a URL query string with the available format strings: (see public/config/*.txt files)
 
@@ -94,6 +101,9 @@ You can add custom query external links to your own resources as long as you can
 ${indicator}
 ${startDate}
 ${numDays}
+${numHours}
+${type}
+${subType}
 ```
 
 
@@ -114,3 +124,7 @@ VirusTotal Icon: https://vecta.io/symbols/100/brands-va-vz/45/virustotal-icon
 Outside-external-link Icon: https://commons.wikimedia.org/wiki/File:Icon_External_Link.svgs
 
 Anomali Icon: https://www.programmableweb.com/api/anomali-threatstream-rest-api-v10
+
+Shodan Icon: 
+
+

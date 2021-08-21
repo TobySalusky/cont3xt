@@ -301,8 +301,6 @@ export class IndicatorNode extends ResultNode {
                 integrate(IntegrationTypes.VIRUS_TOTAL_DOMAIN);
 
                 integrate(IntegrationTypes.URL_SCAN);
-
-                integrate(IntegrationTypes.SHODAN);
                 break;
             case ITypes.IP:
                 fetchDataIP(this.value).then((res) => {

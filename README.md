@@ -1,6 +1,6 @@
 Cont3xt intends to centralize and simplify a structured approach to gathering contextual intelligence in support of technical investigations.
 
-![cont3xt screenshot](https://github.com/TobySalusky/cont3xt/blob/public/images/Capture.png?raw=true)
+![cont3xt screenshot](https://github.com/TobySalusky/cont3xt/blob/master/public/images/Capture.PNG?raw=true)
 
 # Install/Configuration
 

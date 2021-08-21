@@ -41,6 +41,7 @@ const sortIntegrationTypes = (integrationTypes: IntegrationTypes[]) : string[] =
         IntegrationTypes.SPUR,
         IntegrationTypes.CENSYS_IP,
         IntegrationTypes.WHOIS,
+        IntegrationTypes.SHODAN,
         IntegrationTypes.PASSIVETOTAL_WHOIS,
         IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_DOMAIN,
         IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_IP,

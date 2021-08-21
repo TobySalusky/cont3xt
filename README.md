@@ -1,5 +1,7 @@
 Cont3xt intends to centralize and simplify a structured approach to gathering contextual intelligence in support of technical investigations.
 
+![cont3xt screenshot](https://github.com/TobySalusky/cont3xt/blob/public/images/Capture.png?raw=true)
+
 # Install/Configuration
 
 * Install NodeJS (~5-6 minutes)

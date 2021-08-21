@@ -7,6 +7,7 @@ import {defaultSettings, SettingChanges, Settings, validateSettings} from "../Se
 import styled from "styled-components";
 import {makeUnbreakable} from "../Util/Util";
 import {Colors} from "../Style/Theme";
+import {IntegrationTypes, shortSettingsName} from "../Enums/IntegrationTypes";
 
 const CenteredSpan = styled.span`
       display: flex;
@@ -102,12 +103,12 @@ export const LeftStatsPanel: React.FC = () => {
                             editSettings({integrationMask: newMask})
                         }}>Active Integrations</ToggleOption>
 	                    <div className="RightAlignDown">
-                            {Object.keys(settings.integrationMask).map((integrationType: string) => (
+                            {(Object.keys(settings.integrationMask) as IntegrationTypes[]).map((integrationType: IntegrationTypes) => (
                                 <ToggleOption onClick={() => editSettings({integrationMask: {...settings.integrationMask, ...{[integrationType]: !settings.integrationMask[integrationType]}}})}
                                               value={settings.integrationMask[integrationType]}
                                               color={settings.integrationMask[integrationType] ? 'lightgray' : 'grey'}
                                 >
-                                    {integrationType}
+                                    {shortSettingsName(integrationType)}
                                 </ToggleOption>
                             ))}
 	                    </div>

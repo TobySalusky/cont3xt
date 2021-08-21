@@ -42,7 +42,7 @@ export const defaultSettings: Settings = {
         const dict: IntegrationMask = {};
 
         for (const val of Object.values(IntegrationTypes)) {
-            dict[shortSettingsName(val)] = true;
+            dict[val] = true;
         }
 
         return dict;

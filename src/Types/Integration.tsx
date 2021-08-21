@@ -174,6 +174,7 @@ export class Integration {
 
     static typeIsEnabled(type: IntegrationTypes): boolean {
         const mask = Global.settings.integrationMask;
+        console.log(mask)
         if (mask[type] !== undefined) return mask[type];
         return true;
     }

@@ -8,6 +8,7 @@ import { IntegrationTypes } from "../Enums/IntegrationTypes";
 const PLACE_HOLDER = '_____cont3xt_placeholder';
 
 export function toOrderedKeys(integrationType, keyList) {
+	
 	switch (integrationType) {
 		case IntegrationTypes.PASSIVETOTAL_WHOIS:
 			return mapOrder(keyList, [
@@ -53,6 +54,8 @@ export function toOrderedKeys(integrationType, keyList) {
 				'scans',
 				'response_code',
 			]);
+		case IntegrationTypes.SHODAN:
+			return onEnd(mapOrder(keyList, ['tags', 'ports']), ['data']);
 		default:
 			return keyList;
 	}
@@ -79,6 +82,8 @@ const getIntermediateCleaners = (integrationType) => {
 			return [removeEmptyArraysAndDicts, defangVirusTotal]
 		case IntegrationTypes.THREAT_STREAM:
 			return [cleanThreatStreamObjects, removeNullAndUndefined];
+		case IntegrationTypes.SHODAN:
+			return [removeNullAndUndefined];
 		default:
 			return [noCleaner];
 	}

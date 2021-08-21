@@ -7,8 +7,8 @@ import { IntegrationTypes } from "../Enums/IntegrationTypes";
 
 const PLACE_HOLDER = '_____cont3xt_placeholder';
 
-export function toOrderedKeys(integrationType, keyList) {
-	
+export function toOrderedKeys(integrationType: IntegrationTypes, keyList: string[]) {
+
 	switch (integrationType) {
 		case IntegrationTypes.PASSIVETOTAL_WHOIS:
 			return mapOrder(keyList, [
@@ -61,7 +61,7 @@ export function toOrderedKeys(integrationType, keyList) {
 	}
 }
 
-const getIntermediateCleaners = (integrationType) => {
+const getIntermediateCleaners = (integrationType: IntegrationTypes) => {
 	switch (integrationType) {
 		case IntegrationTypes.SPUR:
 			return [cleanSpurExists, removeEmptyDicts, cleanSpur];
@@ -89,11 +89,11 @@ const getIntermediateCleaners = (integrationType) => {
 	}
 }
 
-export const getCleaner = (integrationType) => {
-	
+export const getCleaner = (integrationType: IntegrationTypes) => {
+
 	const cleaners = getIntermediateCleaners(integrationType);
-	
-	return (dict) => {
+
+	return (dict: any) => {
 		let newDict = dict;
 		for (const cleaner of cleaners) {
 			newDict = cleaner(newDict);
@@ -102,60 +102,60 @@ export const getCleaner = (integrationType) => {
 	};
 }
 
-const noCleaner = (dict) => dict;
+const noCleaner = (dict: any) => dict;
 
-const cleanSpur = (dict) => {
-	const clean = {};
+const cleanSpur = (dict: any) => {
+	const clean: any = {};
 	for (const key of Object.keys(dict)) {
 		if (key !== 'ip' && (key !== 'anonymous' || dict.anonymous === true)) clean[key] = dict[key];
 	}
-	
+
 	return clean;
 }
 
-const cleanCensys = (dict) => {
-	const clean = {};
+const cleanCensys = (dict: any) => {
+	const clean: any = {};
 	for (const key of Object.keys(dict)) {
 		if (key !== 'ip') clean[key] = dict[key];
 	}
-	
+
 	return clean;
 }
 
-const cleanWhoIs = (dict) => {
+const cleanWhoIs = (dict: any) => {
 	const keepFields = [
 		'adminCountry',
 		'registrar', 'registrantOrganization',
 		'creationDate', 'created',
 		'updatedDate'
 	];
-	
-	const clean = {};
+
+	const clean: any = {};
 	for (const key of Object.keys(dict)) {
 		if (keepFields.indexOf(key) !== -1) clean[key] = dict[key];
 	}
-	
+
 	return clean;
 }
 
-const cleanPassiveTotalWhois = (dict) => {
-	const clean = {};
+const cleanPassiveTotalWhois = (dict: any) => {
+	const clean: any = {};
 	for (const key of Object.keys(dict)) {
 		if (key !== 'rawText' && key !== 'domain') clean[key] = dict[key];
 	}
-	
+
 	return clean;
 }
 
-const cleanPassiveTotalPassiveDNS = (dict) => {
-	const clean = {};
+const cleanPassiveTotalPassiveDNS = (dict: any) => {
+	const clean: any = {};
 	for (const key of Object.keys(dict)) {
 		if (dict[key] != null && key !== 'queryValue' && key !== 'queryType') clean[key] = dict[key];
 	}
-	
-	const snipDate = (date) => makeUnbreakable(date.substring(0, date.indexOf(' '))); // uses non-breaking hyphens
-	
-	clean.results = clean.results.map(result => {
+
+	const snipDate = (date: string) => makeUnbreakable(date.substring(0, date.indexOf(' '))); // uses non-breaking hyphens
+
+	clean.results = clean.results.map((result: any) => {
 		const {recordType, resolveType, resolve, firstSeen, lastSeen} = result;
 		return {
 			recordType, resolveType,
@@ -163,8 +163,8 @@ const cleanPassiveTotalPassiveDNS = (dict) => {
 			firstSeen: snipDate(firstSeen), lastSeen: snipDate(lastSeen),
 			fullFirstSeen: firstSeen, fullLastSeen: lastSeen
 		}
-	}).sort((a, b) => new Date(b.fullLastSeen) - new Date(a.fullFirstSeen));
-	
+	}).sort((a: any, b: any) => new Date(b.fullLastSeen) - new Date(a.fullFirstSeen));
+
 	return clean;
 }
 
@@ -174,47 +174,47 @@ const cleanPassiveTotalPassiveDNS = (dict) => {
 
 
 const recurseAll = (
-	variable,
-    objFunc = (val)=>val,
-    arrFunc = (val)=>val,
-    valFunc = (val)=>val
+	variable: any,
+    objFunc = (val: any)=>val,
+    arrFunc = (val: any)=>val,
+    valFunc = (val: any)=>val
 ) => {
 	if (isDict(variable)) {
-		const newDict = {};
+		const newDict: any = {};
 		for (const key of Object.keys(variable)) {
 			newDict[key] = recurseAll(variable[key], objFunc, arrFunc, valFunc);
 		}
-		
+
 		return objFunc(newDict);
 	}
 	if (isArray(variable)) {
-		return arrFunc(variable.map(elem => recurseAll(elem, objFunc, arrFunc, valFunc)))
+		return arrFunc(variable.map((elem: any) => recurseAll(elem, objFunc, arrFunc, valFunc)))
 	}
 	return valFunc(variable);
 }
 
-const removeEmptyDicts = (dict) => {
+const removeEmptyDicts = (dict: any) => {
 	return recurseAll(dict, (obj) => {
-		
+
 		const entries = Object.entries(obj);
 		if (entries.length === 0) return intermediates.EMPTY_OBJECT;
-		const newObj = {};
+		const newObj: any = {};
 		for (const [key, val] of entries) {
 			if (val !== intermediates.EMPTY_OBJECT) newObj[key] = val;
 		}
 		if (Object.keys(newObj).length === 0) return intermediates.EMPTY_OBJECT
 
 		return newObj;
-		
-	}, (arr) => arr.filter(elem => elem !== intermediates.EMPTY_OBJECT));
+
+	}, (arr) => arr.filter((elem: any) => elem !== intermediates.EMPTY_OBJECT));
 }
 
-const removeEmptyArraysAndDicts = (dict) => {
+const removeEmptyArraysAndDicts = (dict: any) => {
 	return recurseAll(dict, (obj) => {
 
 		const entries = Object.entries(obj);
 		if (entries.length === 0) return intermediates.EMPTY_OBJECT;
-		const newObj = {};
+		const newObj: any = {};
 		for (const [key, val] of entries) {
 			if (val !== intermediates.EMPTY_OBJECT && val !== intermediates.EMPTY_ARRAY) newObj[key] = val;
 		}
@@ -225,18 +225,18 @@ const removeEmptyArraysAndDicts = (dict) => {
 	}, (arr) => arr.length === 0 ? intermediates.EMPTY_ARRAY : arr);
 }
 
-const removeNullAndUndefined = (dict) => {
+const removeNullAndUndefined = (dict: any) => {
 	return recurseAll(dict, (obj) => {
-		
+
 		const entries = Object.entries(obj);
-		const newObj = {};
+		const newObj: any = {};
 		for (const [key, val] of entries) {
 			if (val != null) newObj[key] = val;
 		}
-		
+
 		return newObj;
-		
-	}, (arr) => arr.filter(elem => elem != null));
+
+	}, (arr) => arr.filter((elem: any) => elem != null));
 }
 
 const intermediates = {
@@ -245,30 +245,30 @@ const intermediates = {
 };
 
 // SPECIFIC recursive cleaners
-const cleanSpurExists = (dict) => recurseAll(dict, (obj) => {
-	const newObj = {};
+const cleanSpurExists = (dict: any) => recurseAll(dict, (obj) => {
+	const newObj: any = {};
 	for (const [key, val] of Object.entries(obj)) {
 		if (key !== 'exists') newObj[key] = val;
 	}
-	
+
 	return newObj;
 });
 
-const defangUrlScanUrls = (dict) => recurseAll(dict, (obj) => {
-	const newObj = {};
+const defangUrlScanUrls = (dict: any) => recurseAll(dict, (obj) => {
+	const newObj: any = {};
 	for (const [key, val] of Object.entries(obj)) {
 		newObj[key] = (key === 'url') ? dr.defang(val) : val;
 	}
-	
+
 	return newObj;
 });
 
-const makeValueEditor = (valFunc) => {
-	return (dict) => recurseAll(dict, val=>val, val=>val, valFunc);
+const makeValueEditor = (valFunc: (val: any)=>any) => {
+	return (dict: any) => recurseAll(dict, val=>val, val=>val, valFunc);
 }
 
 // eslint-disable-next-line no-unused-vars
-const defangAll = makeValueEditor((val) => {
+const defangAll = makeValueEditor((val: any) => {
 		const str = `${val}`;
 		if (str.match(/^https?:/)) {
 			return dr.defang(str);
@@ -276,7 +276,7 @@ const defangAll = makeValueEditor((val) => {
 		return val;
 });
 
-const defangVirusTotal = makeValueEditor((val) => {
+const defangVirusTotal = makeValueEditor((val: any) => {
 	const str = `${val}`;
 	if (str.match(/^https?:/) && extractDomain(val) !== 'virustotal.com') {
 		return dr.defang(str);
@@ -284,16 +284,16 @@ const defangVirusTotal = makeValueEditor((val) => {
 	return val;
 });
 
-const cleanThreatStreamObjects = (res) => {
-	const objects = res?.objects?.map(obj => cleanThreatStreamObject(obj));
+const cleanThreatStreamObjects = (res: any) => {
+	const objects = res?.objects?.map((obj: any) => cleanThreatStreamObject(obj));
 	const noObjects = objects == null || objects.length === 0;
-	return {all_tagnames: noObjects ? null : objects?.map(object => object.tagNames).flat(), object_table: noObjects ? null : PLACE_HOLDER, objects};
+	return {all_tagnames: noObjects ? null : objects?.map((object: any) => object.tagNames).flat(), object_table: noObjects ? null : PLACE_HOLDER, objects};
 }
 
-const cleanThreatStreamObject = (obj) => {
-	
-	const newObj = {};
-	
+const cleanThreatStreamObject = (obj: any) => {
+
+	const newObj: any = {};
+
 	const sortedKeys = mapOrder(Object.keys(obj), [
 		'status',
 		'threatscore',
@@ -303,15 +303,15 @@ const cleanThreatStreamObject = (obj) => {
 		'source_created',
 		'expiration_ts'
 	]);
-	
+
 	for (const key of sortedKeys) {
 		const val = obj[key];
 		if (key === 'tags') {
-			newObj['tagNames'] = val?.map(entry => entry.name);
+			newObj['tagNames'] = val?.map((entry: any) => entry.name);
 		} else {
 			newObj[key] = val;
 		}
 	}
-	
+
 	return newObj;
 }

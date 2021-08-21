@@ -580,11 +580,11 @@ export class ShodanIntegration extends Integration {
         this.imgSrc = './images/shodan.png';
     }
 
-    // genFlavorText(): string {
-    //     try {
-    //         return abbreviateNumber(this.data.total);
-    //     } catch {
-    //         return super.genFlavorText();
-    //     }
-    // }
+    genFlavorText(): string {
+        try {
+            return abbreviateNumber(this.data.ports.length);
+        } catch {
+            return super.genFlavorText();
+        }
+    }
 }

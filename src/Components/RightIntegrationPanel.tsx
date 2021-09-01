@@ -4,7 +4,7 @@ import {LocalStorage} from "../Util/LocalStorage";
 
 export const RightIntegrationPanel: React.FC = () => {
     const [activeIntegration,] = useContext(ActiveIntegrationContext);
-    const [open, setOpen] = useState(LocalStorage.getOrDefault('RightSidePanelOpen', false));
+    const [open, setOpen] = useState(LocalStorage.getOrDefault('RightSidePanelOpen', true));
 
     useEffect(() => {
         LocalStorage.set('RightSidePanelOpen', open);

@@ -43,7 +43,7 @@ const getValidatedSettings = (): Settings => {
 }
 
 export const LeftStatsPanel: React.FC = () => {
-    const [open, setOpen] = useState(LocalStorage.getOrDefault('LeftSidePanelOpen', false));
+    const [open, setOpen] = useState(LocalStorage.getOrDefault('LeftSidePanelOpen', true));
     const [settings, setSettings] = useState(getValidatedSettings());
 
     useEffect(() => {

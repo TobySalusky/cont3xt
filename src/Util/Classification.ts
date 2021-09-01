@@ -4,7 +4,7 @@ import {ISubTypes, ITypes} from "../Enums/ITypes";
 export const classificationObj = (indicatorVal: string): IndicatorData => {
 
 	const ipRegex = require('ip-regex');
-	const urlRegex = require('url-regex');
+	const urlRegex = require('url-regex-safe');
 
 	const typeValidation = {
 		phone: /^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$/,

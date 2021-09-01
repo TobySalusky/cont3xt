@@ -6,16 +6,12 @@ Cont3xt intends to centralize and simplify a structured approach to gathering co
 
 * Install NodeJS (~5-6 minutes)
 
-```brew install node```
-
-
-
 # Install the UI
 ```
 git clone https://github.com/TobySalusky/cont3xt.git
 cd cont3xt
 npm ci install
-npm audit fix
+npm audit fix --force
 ;# Add your API Keys to `.env` (after renaming from .env.template), and you can make customizations to /public/config/*.txt configs at any time.
 ```
 
@@ -32,18 +28,18 @@ git clone https://github.com/TobySalusky/cont3xtbackend.git
 cp -Rp cont3xtbackend/* c3b
 cd c3b
 npm ci install
-npm audit fix
+npm audit fix --force
 ```
 
 * Start it up
 
-I recommend running this only on your local machine to avoid exposing the interface to any network larger network. So, In a separate window, with two different terminal tabs.
+I recommend running this only on your local machine to avoid exposing the interface to any larger/public network. In a separate window, with two different terminal tabs.
 ```
 1. # 1st window; cd c3b; # The backend ; npm start
 2. # 2nd window; cd cont3xt; # The UI; npm start
 ```
 
-** Note: First time you try to 'Open All' from a reporting section, you'll need to approve pop-blocker
+** Note: First time you try to 'Open All' from a reporting section, you'll need to approve the popup-blocker
 
 
 ===========
@@ -72,10 +68,10 @@ For IP's:
 1. RDAP query identifying RIR, and link to detail.
 2. SPUR.us query for IP context
 3. Censys IP query
-4. PassiveTotal IP PDNS query
-5. VirusTotal IP query
-6. Anomali ThreatStream IP query
-7. Shodan IP query
+4. Shodan IP query
+5. PassiveTotal IP PDNS query
+6. VirusTotal IP query
+7. Anomali ThreatStream IP query
 
 
 For Email:

@@ -4,8 +4,9 @@ import React from "react";
 import {typeColors} from "../Util/Util";
 import {MaxLen} from "../Util/ElemUtil";
 import {CollapsableFieldBox} from "../Components/CollapsableFieldBox";
+import {tabLines} from "../Util/StringUtil";
 
-export class ListLayout extends DataLayout {
+export class ListLayout extends DataLayout { // TODO: save UI?
 
     title: string;
     list: any[];
@@ -30,6 +31,14 @@ export class ListLayout extends DataLayout {
                 </div>
             </CollapsableFieldBox>
         );
+    }
+
+    valueAsReportable(value: any): string {
+        return value;
+    }
+
+    genReport(): string | undefined {
+        return `${this.title}: [\n${tabLines(this.list.map(value => this.valueAsReportable(value)).join('\n'), 2)}\n]`;
     }
 }
 

@@ -22,5 +22,5 @@ export const generateFullReport = (result) => {
 }
 
 export const downloadFullReport = (result) => {
-	downloadNamedTextFile(`${result.value}_${currentTimeStamp()}`, result.genFullReport())
+	downloadNamedTextFile(`${result.value}_${currentTimeStamp()}`, result.genReport())
 }

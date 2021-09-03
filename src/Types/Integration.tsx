@@ -4,14 +4,18 @@ import {
     fetchCensysDataIPv4,
     fetchPassiveTotalPassiveDNS,
     fetchPassiveTotalSubDomains,
-    fetchPassiveTotalWhois, fetchShodan, fetchSpurDataIP,
-    fetchThreatStream, fetchURLScan, fetchVirusTotalDomain, fetchVirusTotalHash, fetchVirusTotalIP, fetchWhois
+    fetchPassiveTotalWhois,
+    fetchShodan,
+    fetchSpurDataIP,
+    fetchThreatStream,
+    fetchURLScan,
+    fetchVirusTotalDomain,
+    fetchVirusTotalHash,
+    fetchVirusTotalIP,
+    fetchWhois
 } from "../Requests/IntegrationRequests";
-import {
-    infoBox
-} from "../Components/ColorDictBox";
+import {infoBox} from "../Components/ColorDictBox";
 import {TooltipCopy} from "../Components/TooltipCopy";
-import {generateIntegrationReportTooltipCopy} from "../Util/IntegrationReports";
 import {abbreviateNumber, makeClickableLink, toColorText, typeColors} from "../Util/Util";
 import {IndicatorData} from "./Types";
 import {getCleaner, toOrderedKeys} from "../Util/IntegrationCleaners";
@@ -23,12 +27,13 @@ import {ClosedLayout, DataLayout, layouts} from "../Layouts/DataLayout";
 import {linkOutColumn, TableLayout} from "../Layouts/TableLayout";
 import {emojiFlagOrEmptyString} from "../Util/StringUtil";
 import {Global} from "../Settings/Global";
-import {ListLayout, StringListLayout} from "../Layouts/ListLayout";
+import {StringListLayout} from "../Layouts/ListLayout";
 import {PassiveTotalDnsTableLayout} from "../Layouts/CustomLayouts";
 import {MaxLen} from "../Util/ElemUtil";
 import {Unbreakable} from "../Style/Unbreakable";
 import {tryUseRegistrarData} from "../Util/RegistrarData";
 import {IntegrationTypes} from "../Enums/IntegrationTypes";
+import {ISubTypes, ITypes} from "../Enums/ITypes";
 
 const DEF_DATE = 'N/A ';
 
@@ -51,6 +56,28 @@ export class Integration {
         this.imgAlt = type;
     }
 
+    genStandaloneReportText(): string {
+        const iData = this.genIndicatorData();
+        const indicatorDeclaration = `${ITypes[iData.type]}${(iData.subType === ISubTypes.NONE ? '' : `(${ISubTypes[iData.subType]})`)}: ${iData.value}`;
+        return `${indicatorDeclaration}\n\n${this.genReportText()}`;
+    }
+
+    genReportText(): string {
+        const fieldReports = this.genOrderedKeys().map((key: string) => {
+            const dataLayout = this.getDataLayout(key);
+            if (dataLayout === undefined) {
+                return `${key}: ${toColorText(this.data[key]).genText()}`;
+            }
+            return dataLayout.genReport();
+        }).filter(str => str !== undefined);
+
+        return fieldReports.join('\n');
+    }
+
+    genOrderedKeys(): string[] {
+        return toOrderedKeys(this.type, Object.keys(this.data));
+    }
+
     getDataLayout(key: string) : DataLayout | undefined {
         return undefined;
     }
@@ -68,11 +95,11 @@ export class Integration {
     }
 
     genUI() { // TODO: increase performance by not rendering raw by default!!
-        const orderedKeys = toOrderedKeys(this.type, Object.keys(this.data));
+        const orderedKeys = this.genOrderedKeys();
 
         return (
             <div className="WhoIsBox">
-                <TooltipCopy valueFunc={() => generateIntegrationReportTooltipCopy(this.genIndicatorData(), this.type, this.data)}/>
+                <TooltipCopy valueFunc={() => this.genStandaloneReportText()}/>
                 {this.genTitleUI()}
                 {orderedKeys.map((key: string) => {
                     const dataLayout = this.getDataLayout(key);
@@ -347,6 +374,18 @@ export class PassiveTotalPassiveDNSIntegration extends PassiveTotalIntegration {
 
     getDataLayout(key: string): DataLayout | undefined {
         if (key === 'results') return new PassiveTotalDnsTableLayout(this.data.results, this.genIndicatorData());
+        if (key === 'temp') {
+            return new TableLayout(key, this.data.results,
+                [
+                    ['value', 'string'],
+                    ['first seen', 'string'],
+                    ['last seen', 'string'],
+                ],
+                (rowData: any) => {
+                    const {resolve, firstSeen, lastSeen} = rowData;
+                    return [resolve, firstSeen, lastSeen];
+                })
+        }
     }
 }
 
@@ -582,6 +621,45 @@ export class ShodanIntegration extends Integration {
             return abbreviateNumber(this.data.ports.length);
         } catch {
             return super.genFlavorText();
+        }
+    }
+
+    getDataLayout(key: string): DataLayout | undefined {
+
+        const indicator: string = this.genIndicatorData().value;
+
+        if (key === 'servicePortTable') {
+            return new TableLayout(`Service/Port info for ${indicator}`, this.data.data,
+                [
+                    ['product', 'string'],
+                    ['port', 'number'],
+                    ['title', 'string|max_12'],
+                    ['server', 'string'],
+                    ['module', 'string'],
+                    ['data', 'string|max_12'],
+                    ['html', 'string|max_12'],
+                ],
+                (rowData => {
+                    const {product, port, http, data} = rowData;
+                    return [product, port, http?.title, http?.server, rowData?._shodan?.module, data, http?.html];
+                }));
+        } else if (key === 'certificateTable') {
+            return new TableLayout(`Certificates for ${indicator}`, this.data.data,
+                [
+                    ['issued', 'string'],
+                    ['expires', 'string'],
+                    ['sha1', 'string'],
+                    ['', linkOutColumn(value => {
+                        return `https://search.censys.io/certificates?q=${value}`
+                    })],
+                    ['issuer', 'stringify_inline'],
+                    ['subject', 'stringify_inline'],
+                ],
+                (rowData => {
+                    const {issued, expires, fingerprint, issuer, subject} = rowData?.ssl?.cert || {};
+                    return [issued, expires, fingerprint?.sha1, fingerprint?.sha1, issuer, subject];
+                }),
+                array => array.filter((rowData: any) => rowData?.ssl?.cert !== undefined));
         }
     }
 }

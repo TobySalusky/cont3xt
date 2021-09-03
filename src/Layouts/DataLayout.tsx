@@ -1,19 +1,19 @@
 import {infoBox} from "../Components/ColorDictBox";
-import {CollapsableFieldBox} from "../Components/CollapsableFieldBox";
 import {toColorText} from "../Util/Util";
 
 export class DataLayout {
-    genReport() : string {
-        return "TODO:";
+    genReport(): string|undefined {
+        return "UNKNOWN_DATA_LAYOUT";
     }
+
     genUI(): JSX.Element | null {
         return <p>TODO:</p>;
     }
 }
 
 export class HiddenLayout extends DataLayout {
-    genReport(): string {
-        return '';
+    genReport(): undefined {
+        return undefined;
     }
 
     genUI(): null {

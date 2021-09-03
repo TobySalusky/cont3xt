@@ -178,7 +178,7 @@ export const toColorTextOld = (variable : any, brackets = true, appendComma = fa
 
 
 const fullText =  (colorData : Array<[string, string]>) => {
-	return colorData.map(entry => entry[1]).join();
+	return colorData.map(entry => entry[1]).join('');
 }
 
 interface ColorTextSettings {

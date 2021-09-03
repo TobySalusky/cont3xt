@@ -1,11 +1,12 @@
 import {DataLayout} from "./DataLayout";
-import {Colors} from "../Style/Theme";
 import React, {useState} from "react";
-import {makeColorElems, makeUnbreakable, trySnipDate, typeColors} from "../Util/Util";
+import {makeColorElems, makeUnbreakable, toColorText, trySnipDate, typeColors} from "../Util/Util";
 import {ASCENDING, DESCENDING} from "../Util/SortUtil";
 import {LinkOut} from "../Components/LinkBack";
 import {MaxLen} from "../Util/ElemUtil";
 import {CollapsableFieldBox} from "../Components/CollapsableFieldBox";
+import {tabLines} from "../Util/StringUtil";
+import { table, getBorderCharacters } from 'table';
 
 export interface Header {
     value: string;
@@ -16,12 +17,15 @@ type Headerable = Header | string;
 
 export interface Column {
     genContents: (value: any)=>JSX.Element|string|null;
+    genReport?: (value: any)=>string|undefined;
     style?: React.CSSProperties;
     noSep?: boolean;
     primaryDate?: boolean;
     alphaSort?: boolean;
     boolSort?: boolean;
     subSort?: boolean;
+    optionalDate?: boolean;
+    primaryOptionalDate?: boolean;
 }
 
 export const combine = (columnableBase: Columnable, columnableOverride: Columnable): Column => {
@@ -33,7 +37,7 @@ export const linkOutColumn = (urlFunc: (value: any)=>string|undefined): Column =
         const url = urlFunc(value);
         if (url == null) return null;
         return <LinkOut url={url} style={{width: 12, height: 12, margin: 0, marginRight: 5}}/>
-    }});
+    }, genReport: () => undefined});
 }
 
 const makeColumn = (columnable: Columnable): Column => {
@@ -61,13 +65,31 @@ const makeColumn = (columnable: Columnable): Column => {
 
             switch (str) {
                 case 'color':
-                    column.genContents = value => <>{makeColorElems(value)}</>;
+                    column.genContents = value => <span>{makeColorElems(value)}</span>;
+                    break;
+                case 'stringify_inline':
+                    const func = (value: any) => toColorText(value, {multiline: false}).genText();
+                    column.genContents = func;
+                    column.genReport = func;
+                    column.style = {color: typeColors.string};
                     break;
                 case 'primary_date':
                     override({
                         genContents: (value: any) => <>{trySnipDate(value)}</>,
                         style: {color: typeColors.string},
                         primaryDate: true
+                    });
+                    break;
+                case 'optional_date_descend':
+                    override({
+                        genContents: (value: any) => <>{trySnipDate(value)}</>,
+                        style: {color: typeColors.string},
+                        optionalDate: true
+                    });
+                    break;
+                case 'default':
+                    override({
+                        primaryOptionalDate: true
                     });
                     break;
                 case 'bool_sort':
@@ -101,7 +123,7 @@ const makeColumn = (columnable: Columnable): Column => {
     return columnable;
 }
 
-type Columnable = Column | string | 'string' | 'number' | 'boolean' | 'color' | 'primary_date' | 'nosep' | 'bool_sort' | 'alphabetic';
+type Columnable = Column | string | 'string' | 'number' | 'boolean' | 'color' | 'primary_date' | 'nosep' | 'bool_sort' | 'alphabetic' | 'stringify_inline' | 'optional_date_descend';
 
 export class TableLayout extends DataLayout {
 
@@ -129,14 +151,24 @@ export class TableLayout extends DataLayout {
             let header: Header;
             header = (typeof headerable === 'string') ? {value: headerable, genUI: () => <th>{headerable}</th>} : headerable;
 
-            if (typeof columnable === 'string' && columnable.indexOf('primary_date') !== -1) {
-                this.preState.primaryDateSort = DESCENDING;
-                header = {...header, genUI: (state, setState) => (
-                    <th className="HoverClickLighten" onClick={() => this.overrideState(state, setState,
-                            {primaryDateSort: state.primaryDateSort === DESCENDING ? ASCENDING : DESCENDING})}>
-                        {makeUnbreakable(`${header.value} ${state.primaryDateSort === DESCENDING ? '∨' : '∧'}`)}
-                    </th>
-                    )}
+            if (typeof columnable === 'string') {
+                if (columnable.indexOf('primary_date') !== -1) {
+                    this.preState.primaryDateSort = DESCENDING;
+                    header = {...header, genUI: (state, setState) => (
+                            <th className="HoverClickLighten" onClick={() => this.overrideState(state, setState,
+                                {primaryDateSort: state.primaryDateSort === DESCENDING ? ASCENDING : DESCENDING})}>
+                                {makeUnbreakable(`${header.value} ${state.primaryDateSort === DESCENDING ? '∨' : '∧'}`)}
+                            </th>
+                        )}
+                } else if (columnable.indexOf('optional_date_descend') !== -1) { // TODO:
+                    /*this.preState.primaryDateIndex = DESCENDING;
+                    header = {...header, genUI: (state, setState) => (
+                            <th className="HoverClickLighten" onClick={() => this.overrideState(state, setState,
+                                {primaryDateSort: state.primaryDateSort === DESCENDING ? ASCENDING : DESCENDING})}>
+                                {makeUnbreakable(`${header.value} ${state.primaryDateSort === DESCENDING ? '∨' : '∧'}`)}
+                            </th>
+                        )}*/
+                }
             }
 
             return header;
@@ -152,6 +184,33 @@ export class TableLayout extends DataLayout {
         }
 
         this.sortFuncGenerator = this.genDefaultSortGenerator();
+    }
+
+    genReport(): string | undefined {
+
+        const contentMatrix = this.arr.map((values: any[]) =>
+            values.map((value: any, i: number) => {
+                const reportFunc = this.columns[i].genReport;
+                if (!reportFunc) return value || '';
+                return reportFunc(value);
+            }).filter(val => val !== undefined)
+        );
+
+        const headerArr = [this.headers.map(header => header.value).filter(str => str !== '')];
+
+        const matrix = headerArr.concat(contentMatrix).map((row: string[], rowNum: number) => row.map((str: string, i: number) => i === 0 ? str : `${rowNum === 0 ? '   ' : ' | '}${str}`));
+
+        const tableText = table(matrix, {
+                border: getBorderCharacters('void'),
+                columnDefault: {
+                    paddingLeft: 0,
+                    paddingRight: 0
+                },
+                drawHorizontalLine: () => false
+            }
+        ).trim();
+
+        return `${this.title}: [\n${tabLines(tableText, 2)}\n]`
     }
 
     genDefaultSortGenerator(): ((state: any)=>(a: any, b: any)=>number) | undefined {

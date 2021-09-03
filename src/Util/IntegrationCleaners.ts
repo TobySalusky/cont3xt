@@ -75,7 +75,7 @@ const getIntermediateCleaners = (integrationType: IntegrationTypes) => {
 		case IntegrationTypes.PASSIVETOTAL_PASSIVE_DNS_DOMAIN:
 			return [cleanPassiveTotalPassiveDNS];
 		case IntegrationTypes.URL_SCAN:
-			return [defangUrlScanUrls];
+			return [defangUrlScanUrls, removeEmptyArraysAndDicts];
 		case IntegrationTypes.VIRUS_TOTAL_DOMAIN:
 		case IntegrationTypes.VIRUS_TOTAL_IP:
 		case IntegrationTypes.VIRUS_TOTAL_HASH:
@@ -83,7 +83,7 @@ const getIntermediateCleaners = (integrationType: IntegrationTypes) => {
 		case IntegrationTypes.THREAT_STREAM:
 			return [cleanThreatStreamObjects, removeNullAndUndefined];
 		case IntegrationTypes.SHODAN:
-			return [removeNullAndUndefined];
+			return [removeNullAndUndefined, cleanShodan];
 		default:
 			return [noCleaner];
 	}
@@ -166,6 +166,7 @@ const cleanPassiveTotalPassiveDNS = (dict: any) => {
 	}).sort((a: any, b: any) => (new Date(b.fullLastSeen)).valueOf() - (new Date(a.fullFirstSeen)).valueOf());
 
 	return clean;
+	//return {...clean, temp: PLACE_HOLDER};
 }
 
 
@@ -314,4 +315,8 @@ const cleanThreatStreamObject = (obj: any) => {
 	}
 
 	return newObj;
+}
+
+const cleanShodan = (obj: any) => {
+	return {...obj, servicePortTable: PLACE_HOLDER, certificateTable: PLACE_HOLDER};
 }

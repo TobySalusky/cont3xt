@@ -18,6 +18,7 @@ import {Colors} from "../Style/Theme";
 import {RegistrarData} from "../Util/RegistrarData";
 import {ISubTypes, ITypes} from "../Enums/ITypes";
 import {IntegrationTypes} from "../Enums/IntegrationTypes";
+import {dnsString, generateIntegrationReport} from "../Util/IntegrationReports";
 
 
 export class ResultNode {
@@ -189,6 +190,18 @@ export class IndicatorNode extends ResultNode {
         }
 
         if (this.dnsType !== 'NS') this.startAdditions();
+    }
+
+    genReport(): string {
+        const iData = this.genIndicatorData();
+        const indicatorDeclaration = `${ITypes[iData.type]}${(iData.subType === ISubTypes.NONE ? '' : `(${ISubTypes[iData.subType]})`)}: ${iData.value}`;
+        const integrationReports = this.integrations.map(integration => `${integration.type}: {\n${tabLines(integration.genReportText(), 2)}\n}`);
+
+        let res = indicatorDeclaration + '\n\n' +integrationReports.join('\n\n');
+
+        // const settings = {tabs: true, spaceCount: 2}; // TODO: DNS
+
+        return res;
     }
 
     genUniqueLineIDSegment() : string {

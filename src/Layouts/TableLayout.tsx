@@ -1,6 +1,13 @@
 import {DataLayout} from "./DataLayout";
 import React, {useState} from "react";
-import {makeColorElems, makeUnbreakable, toColorText, trySnipDate, typeColors} from "../Util/Util";
+import {
+    makeColorElems,
+    makeUnbreakable,
+    toColorElemsMultiline,
+    toColorText,
+    trySnipDate,
+    typeColors
+} from "../Util/Util";
 import {ASCENDING, DESCENDING} from "../Util/SortUtil";
 import {LinkOut} from "../Components/LinkBack";
 import {MaxLen} from "../Util/ElemUtil";
@@ -64,8 +71,11 @@ const makeColumn = (columnable: Columnable): Column => {
             }
 
             switch (str) {
-                case 'color':
+                case 'color_inline':
                     column.genContents = value => <span>{makeColorElems(value)}</span>;
+                    break;
+                case 'color':
+                    column.genContents = value => <div>{toColorElemsMultiline(toColorText(value))}</div>;
                     break;
                 case 'stringify_inline':
                     const func = (value: any) => toColorText(value, {multiline: false}).genText();

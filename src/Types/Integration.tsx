@@ -58,8 +58,8 @@ export class Integration {
 
     genStandaloneReportText(): string {
         const iData = this.genIndicatorData();
-        const indicatorDeclaration = `${ITypes[iData.type]}${(iData.subType === ISubTypes.NONE ? '' : `(${ISubTypes[iData.subType]})`)}: ${iData.value}`;
-        return `${indicatorDeclaration}\n\n${this.genReportText()}`;
+        const header = `${this.type} for ${iData.value}`;
+        return `${header}\n\n${this.genReportText()}`;
     }
 
     genReportText(): string {
@@ -652,8 +652,8 @@ export class ShodanIntegration extends Integration {
                     ['', linkOutColumn(value => {
                         return `https://search.censys.io/certificates?q=${value}`
                     })],
-                    ['issuer', 'stringify_inline'],
-                    ['subject', 'stringify_inline'],
+                    ['issuer', 'color'],
+                    ['subject', 'color'],
                 ],
                 (rowData => {
                     const {issued, expires, fingerprint, issuer, subject} = rowData?.ssl?.cert || {};

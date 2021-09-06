@@ -1,6 +1,6 @@
 import '../Style/App.css';
-import SearchBar from "../Components/SearchBar";
-import { useState, useEffect, useContext } from 'react';
+import SearchBar, {copyBase64LinkToClipboard} from "../Components/SearchBar";
+import React, { useState, useEffect, useContext } from 'react';
 import LinkTab from "../Components/LinkTab";
 import NumDayInput from "../Components/NumDayInput";
 import {createConfig} from "../Util/Configurations";
@@ -8,7 +8,7 @@ import {createConfig} from "../Util/Configurations";
 import {Link} from 'react-router-dom';
 import {ConfigContext} from "../State/ConfigContext";
 import LineCanvas from "../Components/LineCanvas";
-import {NumDaysContext} from "../State/SearchContext";
+import {NumDaysContext, QueryContext} from "../State/SearchContext";
 import {useReadArgsURL} from "../Util/URLHandler";
 import {IndicatorNode} from "../Types/IndicatorNode";
 import {IntegrationGenerationProgressReport, LinkGenerationData} from "../Types/Types";
@@ -21,12 +21,14 @@ import {Global} from "../Settings/Global";
 import {ISubTypes, ITypes} from "../Enums/ITypes";
 import {TagInput} from "../Components/TagInput";
 import {Colors} from "../Style/Theme";
+import {downloadFullReport} from "../Util/ReportGenerator";
 
 // NOTE: Open All function is blocked unless popup blocking is disable for website (add notice when it doesn't work?)
 function Home() {
 
     // STATE
     const [numDays, ] = useContext(NumDaysContext)
+    const [query, ] = useContext(QueryContext);
     const [startDate, setStartDate] = useState('')
     const [results, setResults] = useState<IndicatorNode[]>([])
 
@@ -38,6 +40,28 @@ function Home() {
 
     const [rawConfigs, ] = useContext(ConfigContext)
     const readArgsURL = useReadArgsURL();
+
+    const keyEvents = (e: React.KeyboardEvent<HTMLDivElement>) => {
+
+        if (e.ctrlKey) {
+            switch (e.key) {
+                case 'q':
+                    document.getElementById('SearchBar')?.focus();
+                    break;
+                case 's':
+                    copyBase64LinkToClipboard(query);
+                    break;
+                case 'r':
+                    downloadFullReport(results[0]);
+                    e.preventDefault();
+                    break;
+                case 'd':
+                    document.getElementById('DateInput')?.focus();
+                    break;
+            }
+        }
+    }
+
 
     const readURL = () => {
         readArgsURL()
@@ -102,7 +126,7 @@ function Home() {
 
     return (
         <ChildMutationObserver>
-            <div className="HomeWrapper">
+            <div className="HomeWrapper" onKeyDown={keyEvents} tabIndex={-1}>
                 <LeftStatsPanel/>
                 <div className="App">
                     <div className="TopBar">

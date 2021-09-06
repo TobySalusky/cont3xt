@@ -10,12 +10,13 @@ import {IndicatorNode} from "../Types/IndicatorNode";
 import {ActiveIntegrationContext} from "../State/ActiveIntegrationContext";
 import {ITypes} from "../Enums/ITypes";
 import extractDomain from "extract-domain";
+import DarkTooltip from "../Style/DarkTooltip";
 
 
 // TODO: ip, hostname (domain [website]), phone number, email address, more?
 // TODO: auto-format phone number results
 
-const copyBase64LinkToClipboard = (query : string) => {
+export const copyBase64LinkToClipboard = (query : string) => {
     const { base64encode } = require('nodejs-base64');
     navigator.clipboard.writeText(`http://localhost:3000/?b=${base64encode(query)}`)
 }
@@ -86,19 +87,23 @@ const SearchBar : React.FC<{
 
     return (
         <form className="SearchContainer" onSubmit={getQuery}>
-            <input autoFocus className="SearchBar" type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder='indicators:'/>
-            <div className="Base64Copy" onClick={()=>{
-                copyBase64LinkToClipboard(query);
-            }}>
-                <img style={{...{width: 20, height: 20, marginLeft: 0}, ...whiteFilter}} className="ExternalLink" src="./images/share.svg" alt="share link"/>
-            </div>
-            <div className="Base64Copy" onClick={()=>{
-                if (results?.[0]) {
-                    downloadFullReport(results[0]);
-                }
-            }}>
-                <img style={{...{width: 20, height: 20, marginLeft: 0}, ...whiteFilter}} className="ExternalLink" src="./images/report.svg" alt="generate report"/>
-            </div>
+            <input id='SearchBar' autoFocus className="SearchBar" type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder='indicators:'/>
+            <DarkTooltip title='Share Link'>
+                <div className="Base64Copy" onClick={()=>{
+                    copyBase64LinkToClipboard(query);
+                }}>
+                    <img style={{...{width: 20, height: 20, marginLeft: 0}, ...whiteFilter}} className="ExternalLink" src="./images/share.svg" alt="share link"/>
+                </div>
+            </DarkTooltip>
+            <DarkTooltip title='Generate Report'>
+                <div className="Base64Copy" onClick={()=>{
+                    if (results?.[0]) {
+                        downloadFullReport(results[0]);
+                    }
+                }}>
+                    <img style={{...{width: 20, height: 20, marginLeft: 0}, ...whiteFilter}} className="ExternalLink" src="./images/report.svg" alt="generate report"/>
+                </div>
+            </DarkTooltip>
             <button className="SearchSubmit" type="submit">
                 {'Get\xa0Cont3xt'}
             </button>

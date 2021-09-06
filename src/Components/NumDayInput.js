@@ -30,7 +30,7 @@ function NumDayInput({startDate}) { // TODO: HAVE AUTO-SELECTED WHEN PAGE IS OPE
                 <Unbreakable>Days Back:</Unbreakable>
                 <Unbreakable>{startDate}</Unbreakable>
             </div>
-            <input onKeyPress={enterPressed} onBlur={updateDayURL} className="NumDaysInput" type="number" value={numDays} min={0} onChange={e => setNumDays(e.target.value)}/>
+            <input id='DateInput' onKeyPress={enterPressed} onBlur={updateDayURL} className="NumDaysInput" type="number" value={numDays} min={0} onChange={e => setNumDays(e.target.value)}/>
         </div>
     );
 }

@@ -206,9 +206,16 @@ export class TableLayout extends DataLayout {
             }).filter(val => val !== undefined)
         );
 
+        const removeControl = (str: string) => { // temporary fix, surely there ought to be a better way of doing this
+            // I'm not really sure which control characters should be line breaks or not :/
+            return str.replace(/\u009F/g, "   ").replace(/[\u000A\u000C]/g, "\n").replace(/[\u001F]/g, " ").replace(/[\u0000-\u001F\u007F-\u009F]/g, " ");
+        }
+
         const headerArr = [this.headers.map(header => header.value).filter(str => str !== '')];
 
-        const matrix = headerArr.concat(contentMatrix).map((row: string[], rowNum: number) => row.map((str: string, i: number) => i === 0 ? str : `${rowNum === 0 ? '   ' : ' | '}${str}`));
+        const matrix = headerArr.concat(contentMatrix).map((row: string[], rowNum: number) => row.map(
+            (str: string, i: number) => removeControl(i === 0 ? str : `${rowNum === 0 ? '   ' : ' | '}${str}`)
+        ));
 
         const tableText = table(matrix, {
                 border: getBorderCharacters('void'),

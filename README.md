@@ -12,6 +12,7 @@ git clone https://github.com/TobySalusky/cont3xt.git
 cd cont3xt
 npm ci install
 npm audit fix --force
+npm audit fix --force ;# Yes, run it twice in order to resolve most vulnerable packages. Right now, there will still be 10 moderate.
 ;# Add your API Keys to `.env` (after renaming from .env.template), and you can make customizations to /public/config/*.txt configs at any time.
 ```
 
@@ -31,7 +32,7 @@ npm ci install
 npm audit fix --force
 ```
 
-* Start it up
+# Start it up
 
 I recommend running this only on your local machine to avoid exposing the interface to any larger/public network. In a separate window, with two different terminal tabs.
 ```

@@ -3,6 +3,7 @@ import React, { useEffect, useContext } from 'react';
 import { LocalStorage } from "../Util/LocalStorage";
 import {Settings} from "../Settings/Settings";
 import {Global} from "../Settings/Global";
+import {existsSync} from 'fs';
 
 const Loader: React.FC = ({children}) => {
 
@@ -16,20 +17,6 @@ const Loader: React.FC = ({children}) => {
             configs.push(await (await fetch(paths[i])).text())
         }
         setRawConfigs(configs)
-
-        /*let test = await axios.get('/ip2asn', {
-            params: {
-                ip: '1.1.1.2'
-            }
-        })
-
-        log(test)
-
-        const test = await axios.post('/register', {
-            username: 'a',
-            password: 'A',
-            id: 1
-        });*/
     }
 
     useEffect(() => {

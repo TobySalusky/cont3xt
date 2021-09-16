@@ -133,7 +133,7 @@ const makeColumn = (columnable: Columnable): Column => {
     return columnable;
 }
 
-type Columnable = Column | string | 'string' | 'number' | 'boolean' | 'color' | 'primary_date' | 'nosep' | 'bool_sort' | 'alphabetic' | 'stringify_inline' | 'optional_date_descend';
+type Columnable = Column | string | 'string' | 'number' | 'boolean' | 'color' | 'primary_date' | 'nosep' | 'bool_sort' | 'alphabetic' | 'stringify_inline' | 'optional_date_descend' | 'color_inline';
 
 export class TableLayout extends DataLayout {
 

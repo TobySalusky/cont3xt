@@ -55,7 +55,7 @@ export function toOrderedKeys(integrationType: IntegrationTypes, keyList: string
 				'response_code',
 			]);
 		case IntegrationTypes.SHODAN:
-			return onEnd(mapOrder(keyList, ['tags', 'ports']), ['data']);
+			return onEnd(mapOrder(keyList, ['tags', 'ports', 'servicePortTable', 'certificateTable']), ['data']);
 		default:
 			return keyList;
 	}

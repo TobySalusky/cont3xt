@@ -206,9 +206,10 @@ export class TableLayout extends DataLayout {
             }).filter(val => val !== undefined)
         );
 
-        const removeControl = (str: string) => { // temporary fix, surely there ought to be a better way of doing this
+        const removeControl = (val: any) : any => { // temporary fix, surely there ought to be a better way of doing this
             // I'm not really sure which control characters should be line breaks or not :/
-            return str.replace(/\u009F/g, "   ").replace(/[\u000A\u000C]/g, "\n").replace(/[\u001F]/g, " ").replace(/[\u0000-\u001F\u007F-\u009F]/g, " ");
+            if (typeof val !== "string") return val;
+            return val.replace(/\u009F/g, "   ").replace(/[\u000A\u000C]/g, "\n").replace(/[\u001F]/g, " ").replace(/[\u0000-\u001F\u007F-\u009F]/g, " ");
         }
 
         const headerArr = [this.headers.map(header => header.value).filter(str => str !== '')];

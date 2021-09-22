@@ -2,14 +2,54 @@ title: General Hunting
 
 Domain:
 "PT Domain Lookup" https://community.riskiq.com/research?query=${indicator}
-"Censys Domain Lookup" https://censys.io/domain?q=${indicator}
-"Censys Certificate Lookup" https://censys.io/certificates?q=${indicator}
+"Shodan Domain Lookup" https://www.shodan.io/search?query=${indicator}
+"Censys Domain Lookup" https://search.censys.io/search?resource=hosts&q=${indicator}
+"Censys Certificate Lookup" https://search.censys.io/certificates?q=${indicator}
 "CRT Lookup" https://crt.sh/?q=${indicator}&showSQL=Y
 "AlienVault Domain Lookup" https://otx.alienvault.com/indicator/domain/${indicator}
 "Domain Tools" https://whois.domaintools.com/${indicator}
 "Google Safe Browsing" https://transparencyreport.google.com/safe-browsing/search?url=${indicator}
 "Url Scan Search" https://urlscan.io/search/#${indicator}*
 "Domain Tools History" https://research.domaintools.com/research/whois-history/search/?q=${indicator}
+"Url Void" https://www.urlvoid.com/scan/${indicator}
+"Web of Trust" https://www.mywot.com/en/scorecard/${indicator}
+"Dmarc/SPF Check" https://dmarcian.com/domain-checker/?domain=${indicator}
+"VirusTotal URL Search" https://www.virustotal.com/gui/domain/${indicator}
+"Domain Dossier" https://hexillion.com/co/DomainDossier.aspx?addr=${indicator}&dom_whois=true&dom_dns=true&net_whois=true
+"URLHaus" https://urlhaus.abuse.ch/browse.php?search=${indicator}
+"Twitter" https://twitter.com/search?q=${indicator}&src=typed_query
 
 IP:
+"PassiveTotal IP" https://community.riskiq.com/search/${indicator}
+"Shodan IP" https://www.shodan.io/search?query=${indicator}
+"Censys IP" https://search.censys.io/hosts/${indicator}
+"HE IP" https://bgp.he.net/ip/${indicator}
 "AlienVault IP" https://otx.alienvault.com/indicator/ip/${indicator}
+"Robtex IP" https://www.robtex.com/search/?q=${indicator}
+"Greynoise IP" https://api.greynoise.io/v3/community/${indicator}
+"VirusTotal IP" https://www.virustotal.com/gui/search/${indicator}
+"AbuseIPDB IP" https://www.abuseipdb.com/check/${indicator}
+"Twitter" https://twitter.com/search?q=${indicator}&src=typed_query
+"Google -> IP" https://www.google.com/search?q=ip%3A${indicator}
+"RADB -> IP" https://www.radb.net/query?advanced_query=&keywords=${indicator}
+
+Email:
+"Email Dossier" https://centralops.net/co/EmailDossier.aspx?email=${indicator}
+"PassiveTotal (Email)" https://community.riskiq.com/search/${indicator}
+"Twitter" https://twitter.com/search?q=${indicator}&src=typed_query
+
+Hash:
+"VirusTotal" https://www.virustotal.com/gui/file/${indicator}/detection
+"TotalHash" https://totalhash.cymru.com/search/${indicator}
+"Twitter" https://twitter.com/search?q=${indicator}&src=typed_query
+"JA3ER" https://ja3er.com/search/${indicator}
+"SSLBLJA3" https://sslbl.abuse.ch/ja3-fingerprints/${indicator}/
+
+PhoneNumber:
+"Spokeo" https://www.spokeo.com/${indicator}
+"Twitter" https://twitter.com/search?q=${indicator}&src=typed_query
+
+Text:
+"Twitter" https://twitter.com/search?q=${indicator}&src=typed_query
+"LinkedIn" https://www.google.com/search?q=site%3Alinkedin.com+%22${indicator}%22
+"Google" https://www.google.com/search?q=%22${indicator}%22

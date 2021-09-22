@@ -1,7 +1,19 @@
 title: Enterprise Links
 
 Domain:
-"Censys Domain Lookup" https://censys.io/domain?q=${indicator}
+
 
 IP:
-"AlienVault IP" https://otx.alienvault.com/indicator/ip/${indicator}
+
+
+Email:
+
+
+Hash:
+
+
+PhoneNumber:
+
+
+Text:
+

@@ -35,13 +35,28 @@ npm audit fix --force
 # Start it up
 
 I recommend running this only on your local machine to avoid exposing the interface to any larger/public network. In a separate window, with two different terminal tabs.
+
+1. In your 1st window/tab; # The backend 
 ```
-1. # 1st window; cd c3b; # The backend ; npm start
-2. # 2nd window; cd cont3xt; # The UI; npm start
+cd c3b
+export HOST=127.0.0.1
+npm start
+```
+
+2. In your 2nd window/tab; # The UI  
+```
+cd cont3xt
+export HOST=127.0.0.1
+export PORT=3001
+npm start
 ```
 
 ** Note: First time you try to 'Open All' from a reporting section, you'll need to approve the popup-blocker
 
+===========
+# Join cont3xt Discord
+
+https://discord.gg/R4TcCRHcyr
 
 ===========
 

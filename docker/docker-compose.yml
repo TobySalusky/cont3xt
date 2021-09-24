@@ -1,0 +1,20 @@
+version: "3.7"
+services:
+  cont3xt:
+    build: .
+    volumes:
+      - ../public/config:/opt/cont3xt/public/config
+    environment:
+      - HOST=127.0.0.1
+      - PORT=3001
+    env_file: ../.env
+    network_mode: "host"
+    working_dir: /opt/cont3xt
+    command: npm start
+  c3b:
+    build: .
+    environment:
+      - HOST=127.0.0.1
+    network_mode: "host"
+    working_dir: /opt/cont3xt/c3b
+    command: npm start

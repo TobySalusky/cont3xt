@@ -8,7 +8,7 @@ Cont3xt intends to centralize and simplify a structured approach to gathering co
 git clone https://github.com/TobySalusky/cont3xt.git
 cp cont3xt/.env.template cont3xt/.env
 cd cont3xt/docker
-docker-compose
+docker-compose create
 export BASE_DIR=`dirname \`pwd\``
 docker run -d -p 127.0.0.1:4000:4000 --name c3b docker_c3b
 docker run -d -p 127.0.0.1:3001:3001 --env-file=../.env --volume="${BASE_DIR}/public/config:/opt/cont3xt/public/config:ro" --name cont3xt docker_cont3xt

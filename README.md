@@ -2,7 +2,32 @@ Cont3xt intends to centralize and simplify a structured approach to gathering co
 
 ![cont3xt screenshot](https://github.com/TobySalusky/cont3xt/blob/master/public/images/Capture.PNG?raw=true)
 
-# Install/Configuration
+# Easy Installation - Use Docker!
+* MacOS - (it takes about 6 minutes to get up and running the first time)
+```
+git clone https://github.com/TobySalusky/cont3xt.git
+cp cont3xt/.env.template cont3xt/.env
+cd cont3xt/docker
+docker-compose create
+export BASE_DIR=`dirname \`pwd\``
+docker run -d -p 127.0.0.1:4000:4000 --name c3b docker_c3b
+docker run -d -p 127.0.0.1:3001:3001 --env-file=../.env --volume="${BASE_DIR}/public/config:/opt/cont3xt/public/config:ro" --name cont3xt docker_cont3xt
+```
+
+* Linux
+```
+git clone https://github.com/TobySalusky/cont3xt.git
+cp cont3xt/.env.template cont3xt/.env
+cd cont3xt/docker
+docker-compose up
+```
+Edit your .env file for API Keys
+
+Point your browser at localhost:3001
+
+---
+
+# Manual Install/Configuration
 
 * Install NodeJS (~5-6 minutes)
 
@@ -141,4 +166,7 @@ Anomali Icon: https://www.programmableweb.com/api/anomali-threatstream-rest-api-
 
 Shodan Icon: 
 
+
+# Kudos
+So many thank you's to @MattCarothers for all of the docker configuration help.
 
